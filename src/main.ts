@@ -15,6 +15,7 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors({
     origin: configService.get<string[]>('app.corsOrigin', ['*']),
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
 
   // Global Interceptor

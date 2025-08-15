@@ -11,6 +11,7 @@ async function bootstrap() {
     app.setGlobalPrefix('api');
     app.enableCors({
         origin: configService.get('app.corsOrigin', ['*']),
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     });
     app.useGlobalInterceptors(new response_interceptor_1.ResponseInterceptor(app.get(core_1.Reflector)));
     (0, swagger_cofig_1.setupSwagger)(app);
