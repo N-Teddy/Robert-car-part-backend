@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SupabaseService } from './common/services/supabase.service';
@@ -19,9 +19,9 @@ import { Report } from './entities/report.entity';
 import { Notification } from './entities/notification.entity';
 import { Image } from './entities/image.entity';
 import { AuditLog } from './entities/audit-log.entity';
-import { join } from 'path';
 import databaseConfig from './config/database.config';
 import appConfig from './config/app.config';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -67,6 +67,14 @@ import appConfig from './config/app.config';
         ];
       },
     }),
+  ],
+  controllers: [AppController],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}
