@@ -21,7 +21,7 @@
         },
         {
             "src": "/api",
-            "dest": "dist/main.j",
+            "dest": "dist/main.js",
             "methods": [
                 "GET",
                 "POST",
