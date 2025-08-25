@@ -19,13 +19,13 @@ __decorate([
     __metadata("design:type", String)
 ], BaseEntity.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
+    (0, typeorm_1.Column)({ type: 'uuid', nullable: true, select: false }),
     __metadata("design:type", String)
 ], BaseEntity.prototype, "createdBy", void 0);
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
+    (0, typeorm_1.Column)({ type: 'uuid', nullable: true, select: false }),
     __metadata("design:type", String)
-], BaseEntity.prototype, "updatededBy", void 0);
+], BaseEntity.prototype, "updatedBy", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp', name: 'created_at' }),
     __metadata("design:type", Date)

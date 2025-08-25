@@ -8,7 +8,7 @@ export default registerAs('email', () => ({
     secure: process.env.NODE_ENV === 'development' ? false : (process.env.SMTP_SECURE === 'true'),
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
-    templateDir: process.env.EMAIL_TEMPLATE_DIR || 'src/templates/email',
+    templateDir: 'templates/email',
     defaultFromName: process.env.DEFAULT_FROM_NAME || 'Car Parts Shop',
     defaultFromEmail: process.env.DEFAULT_FROM_EMAIL || 'noreply@carpartsshop.com',
 }));

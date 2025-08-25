@@ -15,6 +15,9 @@ const core_1 = require("@nestjs/core");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const supabase_service_1 = require("./common/services/supabase.service");
+const auth_module_1 = require("./modules/auth/auth.module");
+const notification_module_1 = require("./modules/notification/notification.module");
+const seed_module_1 = require("./seed/seed.module");
 const user_entity_1 = require("./entities/user.entity");
 const password_reset_token_entity_1 = require("./entities/password-reset-token.entity");
 const vehicle_entity_1 = require("./entities/vehicle.entity");
@@ -30,6 +33,8 @@ const audit_log_entity_1 = require("./entities/audit-log.entity");
 const database_config_1 = require("./config/database.config");
 const app_config_1 = require("./config/app.config");
 const supabase_config_1 = require("./config/supabase.config");
+const jwt_config_1 = require("./config/jwt.config");
+const email_config_1 = require("./config/email.config");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -39,7 +44,7 @@ exports.AppModule = AppModule = __decorate([
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
                 envFilePath: '.env',
-                load: [database_config_1.default, app_config_1.default, supabase_config_1.default],
+                load: [database_config_1.default, app_config_1.default, supabase_config_1.default, jwt_config_1.default, email_config_1.default],
             }),
             typeorm_1.TypeOrmModule.forRootAsync({
                 imports: [config_1.ConfigModule],
@@ -95,6 +100,9 @@ exports.AppModule = AppModule = __decorate([
                     ];
                 },
             }),
+            auth_module_1.AuthModule,
+            notification_module_1.NotificationModule,
+            seed_module_1.SeedModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

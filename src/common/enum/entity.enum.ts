@@ -45,6 +45,7 @@ export enum UserRoleEnum {
     DEV = 'DEV',
     SALES = 'SALES',
     CUSTOMER = 'CUSTOMER',
+    UNKNOWN = 'UNKNOWN',
 }
 
 export enum AuditActionEnum {
@@ -53,4 +54,10 @@ export enum AuditActionEnum {
     DELETE = 'DELETE',
     LOGIN = 'LOGIN',
     LOGOUT = 'LOGOUT',
+}
+
+export enum NotificationAudienceEnum {
+    ALL = 'ALL',
+    ALL_EXCEPT_UNKNOWN = 'ALL_EXCEPT_UNKNOWN',
+    ADMINS = 'ADMINS',
 }

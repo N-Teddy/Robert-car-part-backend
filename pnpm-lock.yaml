@@ -89,6 +89,9 @@ importers:
       stripe:
         specifier: ^14.7.0
         version: 14.25.0
+      swagger-ui-express:
+        specifier: 4.6.2
+        version: 4.6.2(express@4.21.2)
       typeorm:
         specifier: ^0.3.17
         version: 0.3.25(ioredis@5.6.1)(pg@8.16.3)(reflect-metadata@0.2.2)(ts-node@10.9.2(@types/node@20.19.4)(typescript@5.8.3))
@@ -3021,6 +3024,12 @@ packages:
 
   swagger-ui-dist@5.17.14:
     resolution: {integrity: sha512-CVbSfaLpstV65OnSjbXfVd6Sta3q3F7Cj/yYuvHMp1P90LztOLs6PfUnKEVAeiIVQt9u2SaPwv0LiH/OyMjHRw==}
+
+  swagger-ui-express@4.6.2:
+    resolution: {integrity: sha512-MHIOaq9JrTTB3ygUJD+08PbjM5Tt/q7x80yz9VTFIatw8j5uIWKcr90S0h5NLMzFEDC6+eVprtoeA5MDZXCUKQ==}
+    engines: {node: '>= v0.10.32'}
+    peerDependencies:
+      express: '>=4.0.0'
 
   symbol-observable@4.0.0:
     resolution: {integrity: sha512-b19dMThMV4HVFynSAM1++gBHAbk2Tc/osgLIBZMKsyqh34jb2e8Os7T6ZW/Bt3pJFdBTd2JwAnAAEQV7rSNvcQ==}
@@ -6797,6 +6806,11 @@ snapshots:
   supports-preserve-symlinks-flag@1.0.0: {}
 
   swagger-ui-dist@5.17.14: {}
+
+  swagger-ui-express@4.6.2(express@4.21.2):
+    dependencies:
+      express: 4.21.2
+      swagger-ui-dist: 5.17.14
 
   symbol-observable@4.0.0: {}
 

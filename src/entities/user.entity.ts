@@ -20,7 +20,7 @@ export class User extends BaseEntity {
     @Column({ nullable: true })
     phoneNumber: string;
 
-    @Column({ type: 'enum', enum: UserRoleEnum, default: UserRoleEnum.SALES })
+    @Column({ type: 'enum', enum: UserRoleEnum, default: UserRoleEnum.UNKNOWN })
     role: UserRoleEnum;
 
     @Column({ default: true })

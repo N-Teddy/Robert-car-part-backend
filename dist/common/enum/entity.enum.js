@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuditActionEnum = exports.UserRoleEnum = exports.ReportPeriodEnum = exports.ReportTypeEnum = exports.DeliveryMethodEnum = exports.OrderStatusEnum = exports.NotificationEnum = exports.ImageEnum = void 0;
+exports.NotificationAudienceEnum = exports.AuditActionEnum = exports.UserRoleEnum = exports.ReportPeriodEnum = exports.ReportTypeEnum = exports.DeliveryMethodEnum = exports.OrderStatusEnum = exports.NotificationEnum = exports.ImageEnum = void 0;
 var ImageEnum;
 (function (ImageEnum) {
     ImageEnum["USER_PROFILE"] = "USER PROFILE";
@@ -49,6 +49,7 @@ var UserRoleEnum;
     UserRoleEnum["DEV"] = "DEV";
     UserRoleEnum["SALES"] = "SALES";
     UserRoleEnum["CUSTOMER"] = "CUSTOMER";
+    UserRoleEnum["UNKNOWN"] = "UNKNOWN";
 })(UserRoleEnum || (exports.UserRoleEnum = UserRoleEnum = {}));
 var AuditActionEnum;
 (function (AuditActionEnum) {
@@ -58,4 +59,10 @@ var AuditActionEnum;
     AuditActionEnum["LOGIN"] = "LOGIN";
     AuditActionEnum["LOGOUT"] = "LOGOUT";
 })(AuditActionEnum || (exports.AuditActionEnum = AuditActionEnum = {}));
+var NotificationAudienceEnum;
+(function (NotificationAudienceEnum) {
+    NotificationAudienceEnum["ALL"] = "ALL";
+    NotificationAudienceEnum["ALL_EXCEPT_UNKNOWN"] = "ALL_EXCEPT_UNKNOWN";
+    NotificationAudienceEnum["ADMINS"] = "ADMINS";
+})(NotificationAudienceEnum || (exports.NotificationAudienceEnum = NotificationAudienceEnum = {}));
 //# sourceMappingURL=entity.enum.js.map

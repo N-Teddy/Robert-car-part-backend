@@ -38,7 +38,7 @@ __decorate([
     __metadata("design:type", Object)
 ], Notification.prototype, "metadata", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.notifications),
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.notifications, { nullable: true }),
     (0, typeorm_1.JoinColumn)({ name: 'user_id' }),
     __metadata("design:type", user_entity_1.User)
 ], Notification.prototype, "user", void 0);
@@ -46,6 +46,10 @@ __decorate([
     (0, typeorm_1.Column)({ default: false, name: 'email_sent' }),
     __metadata("design:type", Boolean)
 ], Notification.prototype, "emailSent", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'enum', enum: entity_enum_1.NotificationAudienceEnum, default: entity_enum_1.NotificationAudienceEnum.ADMINS }),
+    __metadata("design:type", String)
+], Notification.prototype, "audience", void 0);
 exports.Notification = Notification = __decorate([
     (0, typeorm_1.Entity)('notifications')
 ], Notification);

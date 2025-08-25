@@ -38,7 +38,8 @@ export declare enum UserRoleEnum {
     MANAGER = "MANAGER",
     DEV = "DEV",
     SALES = "SALES",
-    CUSTOMER = "CUSTOMER"
+    CUSTOMER = "CUSTOMER",
+    UNKNOWN = "UNKNOWN"
 }
 export declare enum AuditActionEnum {
     CREATE = "CREATE",
@@ -46,4 +47,9 @@ export declare enum AuditActionEnum {
     DELETE = "DELETE",
     LOGIN = "LOGIN",
     LOGOUT = "LOGOUT"
+}
+export declare enum NotificationAudienceEnum {
+    ALL = "ALL",
+    ALL_EXCEPT_UNKNOWN = "ALL_EXCEPT_UNKNOWN",
+    ADMINS = "ADMINS"
 }

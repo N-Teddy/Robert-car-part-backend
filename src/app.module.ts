@@ -6,6 +6,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SupabaseService } from './common/services/supabase.service';
+import { AuthModule } from './modules/auth/auth.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { SeedModule } from './seed/seed.module';
 
 // Import all entities
 import { User } from './entities/user.entity';
@@ -23,6 +26,8 @@ import { AuditLog } from './entities/audit-log.entity';
 import databaseConfig from './config/database.config';
 import appConfig from './config/app.config';
 import supabaseConfig from './config/supabase.config';
+import jwtConfig from './config/jwt.config';
+import emailConfig from './config/email.config';
 
 @Module({
   imports: [
@@ -30,7 +35,7 @@ import supabaseConfig from './config/supabase.config';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-      load: [databaseConfig, appConfig, supabaseConfig], // Load Supabase config here
+      load: [databaseConfig, appConfig, supabaseConfig, jwtConfig, emailConfig],
     }),
 
     // Dynamically configure TypeORM based on the environment
@@ -92,6 +97,9 @@ import supabaseConfig from './config/supabase.config';
         ];
       },
     }),
+    AuthModule,
+    NotificationModule,
+    SeedModule,
   ],
   controllers: [AppController],
   providers: [

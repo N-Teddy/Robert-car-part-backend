@@ -1,3 +1,5 @@
+// src/entities/category.entity.ts
+
 import { Entity, Column, OneToMany, Tree, TreeChildren, TreeParent } from 'typeorm';
 import { Part } from './part.entity';
 import { BaseEntity } from './base.entity';

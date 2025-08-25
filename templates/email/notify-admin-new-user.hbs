@@ -1,0 +1,19 @@
+<!-- templates/email/notify-admin-new-user.hbs -->
+<h2>New User Registration</h2>
+
+<p>A new user has registered and is awaiting role assignment:</p>
+
+<div style="background: #f8f9fa; padding: 16px; border-radius: 6px; margin: 16px 0;">
+    <p><strong>Name:</strong> {{user.fullName}}</p>
+    <p><strong>Email:</strong> {{user.email}}</p>
+    <p><strong>User ID:</strong> {{user.id}}</p>
+    <p><strong>Registered:</strong> {{formatDate user.createdAt}}</p>
+</div>
+
+<p>Please assign an appropriate role to this user in the admin panel.</p>
+
+<a href="{{adminPanelUrl}}" class="button">Go to Admin Panel</a>
+
+<p style="margin-top: 16px;">
+    <small>You can also copy this link: <br>{{adminPanelUrl}}</small>
+</p>

@@ -1,14 +1,14 @@
 // src/entities/base.entity.ts
-import { PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Column } from 'typeorm';
 export abstract class BaseEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @PrimaryGeneratedColumn('uuid')
-    createdBy: string;
+    @Column({ type: 'uuid', nullable: true, select: false })
+    createdBy?: string | null;
 
-    @PrimaryGeneratedColumn('uuid')
-    updatededBy: string;
+    @Column({ type: 'uuid', nullable: true, select: false })
+    updatedBy?: string | null;
 
     @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
     createdAt: Date;

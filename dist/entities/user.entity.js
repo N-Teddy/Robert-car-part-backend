@@ -37,7 +37,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "phoneNumber", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: entity_enum_1.UserRoleEnum, default: entity_enum_1.UserRoleEnum.SALES }),
+    (0, typeorm_1.Column)({ type: 'enum', enum: entity_enum_1.UserRoleEnum, default: entity_enum_1.UserRoleEnum.UNKNOWN }),
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);
 __decorate([
