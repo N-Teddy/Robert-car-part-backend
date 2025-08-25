@@ -17,7 +17,6 @@ const app_service_1 = require("./app.service");
 const supabase_service_1 = require("./common/services/supabase.service");
 const auth_module_1 = require("./modules/auth/auth.module");
 const notification_module_1 = require("./modules/notification/notification.module");
-const seed_module_1 = require("./seed/seed.module");
 const user_entity_1 = require("./entities/user.entity");
 const password_reset_token_entity_1 = require("./entities/password-reset-token.entity");
 const vehicle_entity_1 = require("./entities/vehicle.entity");
@@ -102,7 +101,6 @@ exports.AppModule = AppModule = __decorate([
             }),
             auth_module_1.AuthModule,
             notification_module_1.NotificationModule,
-            seed_module_1.SeedModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
