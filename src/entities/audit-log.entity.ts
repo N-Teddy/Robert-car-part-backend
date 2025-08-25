@@ -1,11 +1,8 @@
 // src/entities/audit-log.entity.ts
-
 import { Entity, Column, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 import { AuditActionEnum } from 'src/common/enum/entity.enum';
 import { BaseEntity } from './base.entity';
-
-
 @Entity('audit_logs')
 export class AuditLog extends BaseEntity {
     @ManyToOne(() => User, { nullable: true })
