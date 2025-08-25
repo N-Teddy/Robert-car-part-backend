@@ -8,7 +8,7 @@ import { AppService } from './app.service';
 import { SupabaseService } from './common/services/supabase.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { NotificationModule } from './modules/notification/notification.module';
-// import { SeedModule } from './seed/seed.module';
+import { SeedModule } from './seed/seed.module';
 
 // Import all entities
 import { User } from './entities/user.entity';
@@ -99,7 +99,7 @@ import emailConfig from './config/email.config';
     }),
     AuthModule,
     NotificationModule,
-    // SeedModule,
+    SeedModule,
   ],
   controllers: [AppController],
   providers: [
