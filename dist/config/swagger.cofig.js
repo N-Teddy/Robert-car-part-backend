@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupSwagger = setupSwagger;
 const config_1 = require("@nestjs/config");
 const swagger_1 = require("@nestjs/swagger");
+const swaggerUi = require("swagger-ui-express");
+const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
 function setupSwagger(app) {
     const configService = app.get(config_1.ConfigService);
     const swaggerConfig = new swagger_1.DocumentBuilder()
@@ -12,10 +14,12 @@ function setupSwagger(app) {
         .addBearerAuth()
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, swaggerConfig);
-    swagger_1.SwaggerModule.setup('api/docs', app, document, {
+    app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(document, {
         swaggerOptions: {
             persistAuthorization: true,
         },
-    });
+        customCss: '.swagger-ui .opblock .opblock-summary-path-description-wrapper { align-items: center; display: flex; flex-wrap: wrap; gap: 0 10px; padding: 0 10px; width: 100%; }',
+        customCssUrl: CSS_URL,
+    }));
 }
 //# sourceMappingURL=swagger.cofig.js.map
