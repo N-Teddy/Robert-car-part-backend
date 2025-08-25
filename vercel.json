@@ -18,18 +18,12 @@
                 "DELETE",
                 "OPTIONS"
             ]
-        },
+        }
+    ],
+    "rewrites": [
         {
-            "src": "/api/(.*)",
-            "dest": "dist/main.js",
-            "methods": [
-                "GET",
-                "POST",
-                "PUT",
-                "PATCH",
-                "DELETE",
-                "OPTIONS"
-            ]
+            "source": "/api/(.*)",
+            "destination": "/dist/main.js"
         }
     ]
 }
