@@ -201,7 +201,7 @@ export class NotificationService {
         return info;
     }
 
-    private renderTemplate(templateName: string, context: any) {
+    renderTemplate(templateName: string, context: any) {
         const templateDir = this.configService.get<string>('email.templateDir') || 'templates/email';
         const layoutPath = path.resolve(templateDir, 'layout.hbs');
         const templatePath = path.resolve(templateDir, `${templateName}.hbs`);
@@ -214,30 +214,5 @@ export class NotificationService {
         const content = Handlebars.compile(templateSrc)(context);
 
         return layout({ title: context.title || 'Car Parts Shop', body: content });
-    }
-
-    async sendPasswordResetEmail(to: string, resetLink: string) {
-        const html = this.renderTemplate('password-reset', { resetLink });
-        return this.sendEmail({ to, subject: 'Password Reset Request', html });
-    }
-
-    async sendWelcomePendingRoleEmail(to: string, fullName?: string) {
-        const html = this.renderTemplate('welcome-pending-role', { name: fullName || 'there' });
-        return this.sendEmail({ to, subject: 'Welcome - Pending Role Assignment', html });
-    }
-
-    async sendPasswordResetConfirmationEmail(to: string) {
-        const html = this.renderTemplate('password-reset-confirm', {});
-        return this.sendEmail({ to, subject: 'Your password has been reset', html });
-    }
-
-    async sendPasswordChangeConfirmationEmail(to: string) {
-        const html = this.renderTemplate('password-change-confirm', {});
-        return this.sendEmail({ to, subject: 'Your password has been changed', html });
-    }
-
-    async sendRoleAssignedEmail(to: string, role: string) {
-        const html = this.renderTemplate('role-assigned', { role });
-        return this.sendEmail({ to, subject: 'Your role has been updated', html });
     }
 }

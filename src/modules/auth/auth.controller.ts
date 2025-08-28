@@ -75,6 +75,7 @@ export class AuthController {
     @ApiResponse({ status: 200, description: 'Token refreshed successfully' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     async refreshToken(@Request() req) {
+        // console.log(req.user)
         return this.authService.refreshToken(req.user.id);
     }
 

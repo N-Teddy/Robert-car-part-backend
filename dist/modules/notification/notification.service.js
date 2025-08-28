@@ -199,26 +199,6 @@ let NotificationService = NotificationService_1 = class NotificationService {
         const content = Handlebars.compile(templateSrc)(context);
         return layout({ title: context.title || 'Car Parts Shop', body: content });
     }
-    async sendPasswordResetEmail(to, resetLink) {
-        const html = this.renderTemplate('password-reset', { resetLink });
-        return this.sendEmail({ to, subject: 'Password Reset Request', html });
-    }
-    async sendWelcomePendingRoleEmail(to, fullName) {
-        const html = this.renderTemplate('welcome-pending-role', { name: fullName || 'there' });
-        return this.sendEmail({ to, subject: 'Welcome - Pending Role Assignment', html });
-    }
-    async sendPasswordResetConfirmationEmail(to) {
-        const html = this.renderTemplate('password-reset-confirm', {});
-        return this.sendEmail({ to, subject: 'Your password has been reset', html });
-    }
-    async sendPasswordChangeConfirmationEmail(to) {
-        const html = this.renderTemplate('password-change-confirm', {});
-        return this.sendEmail({ to, subject: 'Your password has been changed', html });
-    }
-    async sendRoleAssignedEmail(to, role) {
-        const html = this.renderTemplate('role-assigned', { role });
-        return this.sendEmail({ to, subject: 'Your role has been updated', html });
-    }
 };
 exports.NotificationService = NotificationService;
 exports.NotificationService = NotificationService = NotificationService_1 = __decorate([

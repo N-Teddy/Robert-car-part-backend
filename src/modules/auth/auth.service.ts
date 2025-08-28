@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException, BadRequestException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -23,6 +23,7 @@ export class AuthService {
         private readonly auditLogRepository: Repository<AuditLog>,
         private readonly jwtService: JwtService,
         private readonly notificationService: NotificationService,
+        private readonly dataSource: DataSource,
     ) { }
 
     async validateUser(email: string, password: string): Promise<any> {
@@ -95,21 +96,21 @@ export class AuthService {
     }
 
     async register(registerDto: RegisterDto) {
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+
         try {
             const { email, password, fullName, phoneNumber } = registerDto;
 
-            const existingUser = await this.userRepository.findOne({
-                where: { email },
-            });
-
+            const existingUser = await queryRunner.manager.findOne(User, { where: { email } });
             if (existingUser) {
                 throw new BadRequestException('User with this email already exists');
             }
 
-            const saltRounds = 12;
-            const hashedPassword = await bcrypt.hash(password, saltRounds);
+            const hashedPassword = await bcrypt.hash(password, 12);
 
-            const user = this.userRepository.create({
+            const user = queryRunner.manager.create(User, {
                 email,
                 password: hashedPassword,
                 fullName,
@@ -118,12 +119,9 @@ export class AuthService {
                 isFirstLogin: true,
             });
 
-            const savedUser = await this.userRepository.save(user);
+            const savedUser = await queryRunner.manager.save(user);
 
             await this.createAuditLog(savedUser.id, AuditActionEnum.CREATE, 'User registered');
-
-            await this.notificationService.notifyAdminsOnNewUser(savedUser);
-            await this.notificationService.sendWelcomePendingRoleEmail(savedUser.email, savedUser.fullName);
 
             const payload = {
                 sub: savedUser.id,
@@ -132,10 +130,26 @@ export class AuthService {
                 fullName: savedUser.fullName,
             };
 
-            const accessToken = this.jwtService.sign(payload);
+            const accessToken = this.jwtService.sign(payload, {
+                secret: process.env.JWT_ACCESS_SECRET,
+                expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
+            });
             const refreshToken = this.jwtService.sign(payload, {
                 secret: process.env.JWT_REFRESH_SECRET,
                 expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+            });
+
+            await queryRunner.commitTransaction();
+
+            // 🚨 Send notifications AFTER successful commit
+            await this.notificationService.notifyAdminsOnNewUser(savedUser);
+            const welcomeHtml = this.notificationService.renderTemplate('welcome-pending-role', {
+                name: savedUser.fullName || 'there'
+            });
+            await this.notificationService.sendEmail({
+                to: savedUser.email,
+                subject: 'Welcome - Pending Role Assignment',
+                html: welcomeHtml,
             });
 
             return {
@@ -149,12 +163,15 @@ export class AuthService {
                 refreshToken,
             };
         } catch (err) {
-            if (err instanceof UnauthorizedException || err instanceof BadRequestException || err instanceof NotFoundException) {
-                throw err;
-            }
+            await queryRunner.rollbackTransaction();
+            if (err instanceof BadRequestException) throw err;
             throw new InternalServerErrorException('Failed to register');
+        } finally {
+            await queryRunner.release();
         }
     }
+
+
 
     async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
         try {
@@ -190,7 +207,12 @@ export class AuthService {
             await this.passwordResetTokenRepository.save(resetTokenEntity);
 
             const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-            await this.notificationService.sendPasswordResetEmail(user.email, resetLink);
+            const html = this.notificationService.renderTemplate('password-reset', { resetLink });
+            await this.notificationService.sendEmail({
+                to: user.email,
+                subject: 'Password Reset Request',
+                html,
+            });
 
             return { message: 'If the email exists, a password reset link has been sent.' };
         } catch (err) {
@@ -226,7 +248,12 @@ export class AuthService {
             await this.passwordResetTokenRepository.remove(resetTokenEntity);
 
             await this.createAuditLog(user.id, AuditActionEnum.UPDATE, 'Password reset');
-            await this.notificationService.sendPasswordResetConfirmationEmail(user.email);
+            const resetConfirmHtml = this.notificationService.renderTemplate('password-reset-confirm', {});
+            await this.notificationService.sendEmail({
+                to: user.email,
+                subject: 'Your password has been reset',
+                html: resetConfirmHtml,
+            });
 
             return { message: 'Password has been reset successfully' };
         } catch (err) {
@@ -262,7 +289,12 @@ export class AuthService {
             await this.userRepository.save(user);
 
             await this.createAuditLog(userId, AuditActionEnum.UPDATE, 'Password changed');
-            await this.notificationService.sendPasswordChangeConfirmationEmail(user.email);
+            const changeConfirmHtml = this.notificationService.renderTemplate('password-change-confirm', {});
+            await this.notificationService.sendEmail({
+                to: user.email,
+                subject: 'Your password has been changed',
+                html: changeConfirmHtml,
+            });
 
             return { message: 'Password changed successfully' };
         } catch (err) {
@@ -340,30 +372,51 @@ export class AuthService {
     }
 
     async assignRole(targetUserId: string, role: UserRoleEnum) {
+        if (!Object.values(UserRoleEnum).includes(role) || role === UserRoleEnum.UNKNOWN) {
+            throw new BadRequestException('Invalid role');
+        }
+
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+
         try {
-            if (!Object.values(UserRoleEnum).includes(role) || role === UserRoleEnum.UNKNOWN) {
-                throw new BadRequestException('Invalid role');
-            }
-            const user = await this.userRepository.findOne({ where: { id: targetUserId } });
+            const user = await queryRunner.manager.findOne(User, { where: { id: targetUserId } });
             if (!user) {
                 throw new NotFoundException('User not found');
             }
+
+            // update role & first login
             user.role = role;
             user.isFirstLogin = false;
-            await this.userRepository.save(user);
+            await queryRunner.manager.save(user);
+
             await this.createAuditLog(targetUserId, AuditActionEnum.UPDATE, `Role assigned: ${role}`);
-            await this.notificationService.sendRoleAssignedEmail(user.email, role);
+
+            // send notification/email
+            const roleHtml = this.notificationService.renderTemplate('role-assigned', { role });
+            await this.notificationService.sendEmail({
+                to: user.email,
+                subject: 'Your role has been updated',
+                html: roleHtml,
+            });
+
+            // commit only if everything succeeded
+            await queryRunner.commitTransaction();
+
             return { message: 'Role updated successfully' };
         } catch (err) {
-            if (err instanceof BadRequestException || err instanceof NotFoundException) {
-                throw err;
-            }
-            throw new InternalServerErrorException('Failed to assign role');
+            // rollback if any error occurs (DB + notification failure)
+            await queryRunner.rollbackTransaction();
+            throw err;
+        } finally {
+            await queryRunner.release();
         }
     }
 
     private async createAuditLog(userId: string, action: AuditActionEnum, description: string) {
         const auditLog = this.auditLogRepository.create({
+            createdBy: userId,
             user: { id: userId },
             action,
             entity: 'User',
@@ -375,4 +428,5 @@ export class AuthService {
 
         await this.auditLogRepository.save(auditLog);
     }
+
 }

@@ -25,10 +25,5 @@ export declare class NotificationService {
         subject: string;
         html: string;
     }): Promise<any>;
-    private renderTemplate;
-    sendPasswordResetEmail(to: string, resetLink: string): Promise<any>;
-    sendWelcomePendingRoleEmail(to: string, fullName?: string): Promise<any>;
-    sendPasswordResetConfirmationEmail(to: string): Promise<any>;
-    sendPasswordChangeConfirmationEmail(to: string): Promise<any>;
-    sendRoleAssignedEmail(to: string, role: string): Promise<any>;
+    renderTemplate(templateName: string, context: any): string;
 }

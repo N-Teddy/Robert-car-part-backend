@@ -58,7 +58,7 @@ import emailConfig from './config/email.config';
             ssl: {
               rejectUnauthorized: false,
             },
-            synchronize: false, // It's highly recommended to set this to false in production
+            synchronize: true, // It's highly recommended to set this to false in production
             entities: [User, PasswordResetToken, Vehicle, VehicleProfit, Part, Category, Order, OrderItem, Report, Notification, Image, AuditLog],
           };
         } else {

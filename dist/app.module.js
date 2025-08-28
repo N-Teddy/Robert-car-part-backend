@@ -63,7 +63,7 @@ exports.AppModule = AppModule = __decorate([
                             ssl: {
                                 rejectUnauthorized: false,
                             },
-                            synchronize: false,
+                            synchronize: true,
                             entities: [user_entity_1.User, password_reset_token_entity_1.PasswordResetToken, vehicle_entity_1.Vehicle, vehicle_profit_entity_1.VehicleProfit, part_entity_1.Part, category_entity_1.Category, order_entity_1.Order, order_item_entity_1.OrderItem, report_entity_1.Report, notification_entity_1.Notification, image_entity_1.Image, audit_log_entity_1.AuditLog],
                         };
                     }

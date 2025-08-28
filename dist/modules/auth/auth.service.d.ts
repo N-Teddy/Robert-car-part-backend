@@ -1,5 +1,5 @@
 import { JwtService } from '@nestjs/jwt';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { User } from '../../entities/user.entity';
 import { PasswordResetToken } from '../../entities/password-reset-token.entity';
 import { AuditLog } from '../../entities/audit-log.entity';
@@ -12,7 +12,8 @@ export declare class AuthService {
     private readonly auditLogRepository;
     private readonly jwtService;
     private readonly notificationService;
-    constructor(userRepository: Repository<User>, passwordResetTokenRepository: Repository<PasswordResetToken>, auditLogRepository: Repository<AuditLog>, jwtService: JwtService, notificationService: NotificationService);
+    private readonly dataSource;
+    constructor(userRepository: Repository<User>, passwordResetTokenRepository: Repository<PasswordResetToken>, auditLogRepository: Repository<AuditLog>, jwtService: JwtService, notificationService: NotificationService, dataSource: DataSource);
     validateUser(email: string, password: string): Promise<any>;
     login(loginDto: LoginDto): Promise<{
         id: string;
