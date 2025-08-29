@@ -35,6 +35,7 @@ const app_config_1 = require("./config/app.config");
 const supabase_config_1 = require("./config/supabase.config");
 const jwt_config_1 = require("./config/jwt.config");
 const email_config_1 = require("./config/email.config");
+const user_module_1 = require("./modules/user/user.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -103,6 +104,7 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             notification_module_1.NotificationModule,
             seed_module_1.SeedModule,
+            user_module_1.UserModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

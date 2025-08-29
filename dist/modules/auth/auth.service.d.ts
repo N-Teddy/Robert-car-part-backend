@@ -58,6 +58,7 @@ export declare class AuthService {
         phoneNumber: string;
         role: UserRoleEnum;
         isFirstLogin: boolean;
+        isActive: boolean;
         profileImage?: import("../../entities/image.entity").Image;
         resetTokens: PasswordResetToken[];
         notifications: import("../../entities/notification.entity").Notification[];

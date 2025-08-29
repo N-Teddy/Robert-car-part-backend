@@ -45,6 +45,10 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "isFirstLogin", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ default: true }),
+    __metadata("design:type", Boolean)
+], User.prototype, "isActive", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => image_entity_1.Image, { nullable: true }),
     __metadata("design:type", image_entity_1.Image)
 ], User.prototype, "profileImage", void 0);

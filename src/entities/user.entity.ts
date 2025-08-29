@@ -26,6 +26,9 @@ export class User extends BaseEntity {
     @Column({ default: true })
     isFirstLogin: boolean;
 
+    @Column({ default: true })
+    isActive: boolean;
+
     @ManyToOne(() => Image, { nullable: true })
     profileImage?: Image;
 

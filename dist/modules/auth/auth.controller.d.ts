@@ -48,6 +48,7 @@ export declare class AuthController {
         phoneNumber: string;
         role: UserRoleEnum;
         isFirstLogin: boolean;
+        isActive: boolean;
         profileImage?: import("../../entities/image.entity").Image;
         resetTokens: import("../../entities/password-reset-token.entity").PasswordResetToken[];
         notifications: import("../../entities/notification.entity").Notification[];

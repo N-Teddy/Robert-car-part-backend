@@ -28,6 +28,7 @@ import appConfig from './config/app.config';
 import supabaseConfig from './config/supabase.config';
 import jwtConfig from './config/jwt.config';
 import emailConfig from './config/email.config';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -100,6 +101,7 @@ import emailConfig from './config/email.config';
     AuthModule,
     NotificationModule,
     SeedModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [
