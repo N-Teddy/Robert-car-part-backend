@@ -9,6 +9,7 @@ import { SupabaseService } from './common/services/supabase.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { SeedModule } from './seed/seed.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 // Import all entities
 import { User } from './entities/user.entity';
@@ -102,6 +103,7 @@ import { UserModule } from './modules/user/user.module';
     NotificationModule,
     SeedModule,
     UserModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,7 +1,8 @@
 export declare enum ImageEnum {
     USER_PROFILE = "USER PROFILE",
     VEHICLE = "VEHICLE",
-    PART = "PART"
+    PART = "PART",
+    QR_CODE = "QR_CODE"
 }
 export declare enum NotificationEnum {
     ORDER_CREATED = "ORDER CREATED",

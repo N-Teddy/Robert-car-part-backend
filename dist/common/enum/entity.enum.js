@@ -6,6 +6,7 @@ var ImageEnum;
     ImageEnum["USER_PROFILE"] = "USER PROFILE";
     ImageEnum["VEHICLE"] = "VEHICLE";
     ImageEnum["PART"] = "PART";
+    ImageEnum["QR_CODE"] = "QR_CODE";
 })(ImageEnum || (exports.ImageEnum = ImageEnum = {}));
 var NotificationEnum;
 (function (NotificationEnum) {
