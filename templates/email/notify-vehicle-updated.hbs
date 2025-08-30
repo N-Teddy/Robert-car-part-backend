@@ -1,0 +1,33 @@
+<div class="notification-content">
+    <h2>✏️ Vehicle Information Updated</h2>
+
+    <div class="vehicle-details">
+        <h3>{{vehicle.make}} {{vehicle.model}} ({{vehicle.year}})</h3>
+
+        <div class="vehicle-info">
+            <p><strong>VIN:</strong> {{vehicle.vin}}</p>
+        </div>
+    </div>
+
+    <div class="changes-section">
+        <h4>Changes Made:</h4>
+        <ul class="changes-list">
+            {{#each changes}}
+            <li>{{this}}</li>
+            {{/each}}
+        </ul>
+    </div>
+
+    <div class="user-info">
+        <p><strong>Updated by:</strong> {{updatedBy.fullName}} ({{updatedBy.email}})</p>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{vehicleUrl}}" class="btn btn-primary">View Vehicle Details</a>
+    </div>
+
+    <div class="footer">
+        <p>This notification was sent to all administrators and managers.</p>
+        <p>You can review the updated vehicle information through the admin panel.</p>
+    </div>
+</div>

@@ -199,6 +199,248 @@ let NotificationService = NotificationService_1 = class NotificationService {
         const content = Handlebars.compile(templateSrc)(context);
         return layout({ title: context.title || 'Car Parts Shop', body: content });
     }
+    async notifyVehicleCreated(vehicle, createdByUser) {
+        try {
+            const audience = entity_enum_1.NotificationAudienceEnum.ADMINS;
+            const recipients = await this.getAudienceRecipients(audience);
+            if (recipients.length === 0) {
+                this.logger.warn('No recipients found for vehicle creation notification.');
+                return { notified: 0 };
+            }
+            const title = 'New Vehicle Added to Inventory';
+            const vehicleUrl = `${this.configService.get('app.frontendUrl')}/admin/vehicles/${vehicle.id}`;
+            const notification = this.notificationRepository.create({
+                type: entity_enum_1.NotificationEnum.SYSTEM_ALERT,
+                title,
+                message: `New vehicle ${vehicle.make} ${vehicle.model} (${vehicle.year}) added by ${createdByUser.fullName || createdByUser.email}.`,
+                audience,
+                metadata: {
+                    vehicleId: vehicle.id,
+                    make: vehicle.make,
+                    model: vehicle.model,
+                    year: vehicle.year,
+                    vin: vehicle.vin,
+                    purchasePrice: vehicle.purchasePrice,
+                    createdBy: createdByUser.id,
+                    createdByEmail: createdByUser.email,
+                    createdByFullName: createdByUser.fullName,
+                    vehicleUrl
+                },
+            });
+            await this.notificationRepository.save(notification);
+            await Promise.all(recipients.map(async (recipient) => {
+                try {
+                    const html = this.renderTemplate('notify-vehicle-created', {
+                        vehicle: {
+                            make: vehicle.make,
+                            model: vehicle.model,
+                            year: vehicle.year,
+                            vin: vehicle.vin,
+                            purchasePrice: vehicle.purchasePrice,
+                            description: vehicle.description,
+                            auctionName: vehicle.auctionName,
+                            createdAt: vehicle.createdAt
+                        },
+                        createdBy: {
+                            fullName: createdByUser.fullName || 'Unknown User',
+                            email: createdByUser.email
+                        },
+                        vehicleUrl
+                    });
+                    await this.sendEmail({
+                        to: recipient.email,
+                        subject: title,
+                        html
+                    });
+                }
+                catch (emailErr) {
+                    this.logger.error(`Failed to send email to ${recipient.email}`, emailErr?.stack || String(emailErr));
+                }
+            }));
+            return { notified: recipients.length };
+        }
+        catch (err) {
+            this.logger.error('Failed to notify on vehicle creation', err?.stack || String(err));
+            throw new common_1.InternalServerErrorException('Failed to send vehicle creation notifications');
+        }
+    }
+    async notifyVehicleUpdated(vehicle, updatedByUser, changes) {
+        try {
+            const audience = entity_enum_1.NotificationAudienceEnum.ADMINS;
+            const recipients = await this.getAudienceRecipients(audience);
+            if (recipients.length === 0) {
+                this.logger.warn('No recipients found for vehicle update notification.');
+                return { notified: 0 };
+            }
+            const title = 'Vehicle Information Updated';
+            const vehicleUrl = `${this.configService.get('app.frontendUrl')}/admin/vehicles/${vehicle.id}`;
+            const notification = this.notificationRepository.create({
+                type: entity_enum_1.NotificationEnum.SYSTEM_ALERT,
+                title,
+                message: `Vehicle ${vehicle.make} ${vehicle.model} (${vehicle.year}) updated by ${updatedByUser.fullName || updatedByUser.email}. Changes: ${changes.join(', ')}.`,
+                audience,
+                metadata: {
+                    vehicleId: vehicle.id,
+                    make: vehicle.make,
+                    model: vehicle.model,
+                    year: vehicle.year,
+                    vin: vehicle.vin,
+                    changes,
+                    updatedBy: updatedByUser.id,
+                    updatedByEmail: updatedByUser.email,
+                    updatedByFullName: updatedByUser.fullName,
+                    vehicleUrl
+                },
+            });
+            await this.notificationRepository.save(notification);
+            await Promise.all(recipients.map(async (recipient) => {
+                try {
+                    const html = this.renderTemplate('notify-vehicle-updated', {
+                        vehicle: {
+                            make: vehicle.make,
+                            model: vehicle.model,
+                            year: vehicle.year,
+                            vin: vehicle.vin,
+                            changes
+                        },
+                        updatedBy: {
+                            fullName: updatedByUser.fullName || 'Unknown User',
+                            email: updatedByUser.email
+                        },
+                        vehicleUrl
+                    });
+                    await this.sendEmail({
+                        to: recipient.email,
+                        subject: title,
+                        html
+                    });
+                }
+                catch (emailErr) {
+                    this.logger.error(`Failed to send email to ${recipient.email}`, emailErr?.stack || String(emailErr));
+                }
+            }));
+            return { notified: recipients.length };
+        }
+        catch (err) {
+            this.logger.error('Failed to notify on vehicle update', err?.stack || String(err));
+            throw new common_1.InternalServerErrorException('Failed to send vehicle update notifications');
+        }
+    }
+    async notifyVehicleDeleted(vehicle, deletedByUser) {
+        try {
+            const audience = entity_enum_1.NotificationAudienceEnum.ADMINS;
+            const recipients = await this.getAudienceRecipients(audience);
+            if (recipients.length === 0) {
+                this.logger.warn('No recipients found for vehicle deletion notification.');
+                return { notified: 0 };
+            }
+            const title = 'Vehicle Removed from Inventory';
+            const adminUrl = `${this.configService.get('app.frontendUrl')}/admin/vehicles`;
+            const notification = this.notificationRepository.create({
+                type: entity_enum_1.NotificationEnum.SYSTEM_ALERT,
+                title,
+                message: `Vehicle ${vehicle.make} ${vehicle.model} (${vehicle.year}) with VIN ${vehicle.vin} was removed by ${deletedByUser.fullName || deletedByUser.email}.`,
+                audience,
+                metadata: {
+                    make: vehicle.make,
+                    model: vehicle.model,
+                    year: vehicle.year,
+                    vin: vehicle.vin,
+                    deletedBy: deletedByUser.id,
+                    deletedByEmail: deletedByUser.email,
+                    deletedByFullName: deletedByUser.fullName,
+                    adminUrl
+                },
+            });
+            await this.notificationRepository.save(notification);
+            await Promise.all(recipients.map(async (recipient) => {
+                try {
+                    const html = this.renderTemplate('notify-vehicle-deleted', {
+                        vehicle: {
+                            make: vehicle.make,
+                            model: vehicle.model,
+                            year: vehicle.year,
+                            vin: vehicle.vin
+                        },
+                        deletedBy: {
+                            fullName: deletedByUser.fullName || 'Unknown User',
+                            email: deletedByUser.email
+                        },
+                        adminUrl
+                    });
+                    await this.sendEmail({
+                        to: recipient.email,
+                        subject: title,
+                        html
+                    });
+                }
+                catch (emailErr) {
+                    this.logger.error(`Failed to send email to ${recipient.email}`, emailErr?.stack || String(emailErr));
+                }
+            }));
+            return { notified: recipients.length };
+        }
+        catch (err) {
+            this.logger.error('Failed to notify on vehicle deletion', err?.stack || String(err));
+            throw new common_1.InternalServerErrorException('Failed to send vehicle deletion notifications');
+        }
+    }
+    async notifyVehiclePartedOut(vehicle, updatedByUser) {
+        try {
+            const audience = entity_enum_1.NotificationAudienceEnum.ADMINS;
+            const recipients = await this.getAudienceRecipients(audience);
+            const title = 'Vehicle Marked as Parted Out';
+            const vehicleUrl = `${this.configService.get('app.frontendUrl')}/admin/vehicles/${vehicle.id}`;
+            const notification = this.notificationRepository.create({
+                type: entity_enum_1.NotificationEnum.SYSTEM_ALERT,
+                title,
+                message: `Vehicle ${vehicle.make} ${vehicle.model} (${vehicle.year}) has been marked as parted out by ${updatedByUser.fullName || updatedByUser.email}.`,
+                audience,
+                metadata: {
+                    vehicleId: vehicle.id,
+                    make: vehicle.make,
+                    model: vehicle.model,
+                    year: vehicle.year,
+                    vin: vehicle.vin,
+                    updatedBy: updatedByUser.id,
+                    updatedByEmail: updatedByUser.email,
+                    updatedByFullName: updatedByUser.fullName,
+                    vehicleUrl
+                },
+            });
+            await this.notificationRepository.save(notification);
+            await Promise.all(recipients.map(async (recipient) => {
+                try {
+                    const html = this.renderTemplate('notify-vehicle-parted-out', {
+                        vehicle: {
+                            make: vehicle.make,
+                            model: vehicle.model,
+                            year: vehicle.year,
+                            vin: vehicle.vin
+                        },
+                        updatedBy: {
+                            fullName: updatedByUser.fullName || 'Unknown User',
+                            email: updatedByUser.email
+                        },
+                        vehicleUrl
+                    });
+                    await this.sendEmail({
+                        to: recipient.email,
+                        subject: title,
+                        html
+                    });
+                }
+                catch (emailErr) {
+                    this.logger.error(`Failed to send email to ${recipient.email}`, emailErr?.stack || String(emailErr));
+                }
+            }));
+            return { notified: recipients.length };
+        }
+        catch (err) {
+            this.logger.error('Failed to notify on vehicle parted out', err?.stack || String(err));
+            throw new common_1.InternalServerErrorException('Failed to send vehicle parted out notifications');
+        }
+    }
 };
 exports.NotificationService = NotificationService;
 exports.NotificationService = NotificationService = NotificationService_1 = __decorate([

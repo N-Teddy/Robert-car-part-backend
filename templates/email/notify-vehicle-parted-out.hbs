@@ -1,0 +1,36 @@
+<div class="notification-content">
+    <h2>🔧 Vehicle Marked as Parted Out</h2>
+
+    <div class="vehicle-details">
+        <h3>{{vehicle.make}} {{vehicle.model}} ({{vehicle.year}})</h3>
+
+        <div class="vehicle-info">
+            <p><strong>VIN:</strong> {{vehicle.vin}</p>
+            <p><strong>Status:</strong> <span class="status-parted-out">Parted Out</span></p>
+            <p><strong>Updated:</strong> {{formatDate vehicle.updatedAt}}</p>
+        </div>
+    </div>
+
+    <div class="status-explanation">
+        <p><strong>What this means:</strong></p>
+        <ul>
+            <li>The vehicle has been marked as parted out</li>
+            <li>Parts from this vehicle are now available for sale</li>
+            <li>Profit tracking will be enabled for parts sales</li>
+            <li>The vehicle will no longer appear in intact inventory</li>
+        </ul>
+    </div>
+
+    <div class="user-info">
+        <p><strong>Updated by:</strong> {{updatedBy.fullName}} ({{updatedBy.email}})</p>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{vehicleUrl}}" class="btn btn-primary">View Vehicle Details</a>
+    </div>
+
+    <div class="footer">
+        <p>This notification was sent to all administrators and managers.</p>
+        <p>You can track parts sales and profitability for this vehicle through the admin panel.</p>
+    </div>
+</div>

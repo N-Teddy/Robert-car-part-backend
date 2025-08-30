@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { SeedModule } from './seed/seed.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { VehicleModule } from './modules/vehicle/vehicle.module';
 
 // Import all entities
 import { User } from './entities/user.entity';
@@ -104,6 +105,7 @@ import { UserModule } from './modules/user/user.module';
     SeedModule,
     UserModule,
     UploadModule,
+    VehicleModule,
   ],
   controllers: [AppController],
   providers: [
