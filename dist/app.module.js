@@ -47,7 +47,13 @@ exports.AppModule = AppModule = __decorate([
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
                 envFilePath: '.env',
-                load: [database_config_1.default, app_config_1.default, supabase_config_1.default, jwt_config_1.default, email_config_1.default],
+                load: [
+                    database_config_1.default,
+                    app_config_1.default,
+                    supabase_config_1.default,
+                    jwt_config_1.default,
+                    email_config_1.default,
+                ],
             }),
             typeorm_1.TypeOrmModule.forRootAsync({
                 imports: [config_1.ConfigModule],
@@ -67,7 +73,20 @@ exports.AppModule = AppModule = __decorate([
                                 rejectUnauthorized: false,
                             },
                             synchronize: true,
-                            entities: [user_entity_1.User, password_reset_token_entity_1.PasswordResetToken, vehicle_entity_1.Vehicle, vehicle_profit_entity_1.VehicleProfit, part_entity_1.Part, category_entity_1.Category, order_entity_1.Order, order_item_entity_1.OrderItem, report_entity_1.Report, notification_entity_1.Notification, image_entity_1.Image, audit_log_entity_1.AuditLog],
+                            entities: [
+                                user_entity_1.User,
+                                password_reset_token_entity_1.PasswordResetToken,
+                                vehicle_entity_1.Vehicle,
+                                vehicle_profit_entity_1.VehicleProfit,
+                                part_entity_1.Part,
+                                category_entity_1.Category,
+                                order_entity_1.Order,
+                                order_item_entity_1.OrderItem,
+                                report_entity_1.Report,
+                                notification_entity_1.Notification,
+                                image_entity_1.Image,
+                                audit_log_entity_1.AuditLog,
+                            ],
                         };
                     }
                     else {
@@ -79,7 +98,20 @@ exports.AppModule = AppModule = __decorate([
                             username: db.username,
                             password: db.password,
                             database: db.database,
-                            entities: [user_entity_1.User, password_reset_token_entity_1.PasswordResetToken, vehicle_entity_1.Vehicle, vehicle_profit_entity_1.VehicleProfit, part_entity_1.Part, category_entity_1.Category, order_entity_1.Order, order_item_entity_1.OrderItem, report_entity_1.Report, notification_entity_1.Notification, image_entity_1.Image, audit_log_entity_1.AuditLog],
+                            entities: [
+                                user_entity_1.User,
+                                password_reset_token_entity_1.PasswordResetToken,
+                                vehicle_entity_1.Vehicle,
+                                vehicle_profit_entity_1.VehicleProfit,
+                                part_entity_1.Part,
+                                category_entity_1.Category,
+                                order_entity_1.Order,
+                                order_item_entity_1.OrderItem,
+                                report_entity_1.Report,
+                                notification_entity_1.Notification,
+                                image_entity_1.Image,
+                                audit_log_entity_1.AuditLog,
+                            ],
                             synchronize: true,
                             ssl: false,
                             extra: {

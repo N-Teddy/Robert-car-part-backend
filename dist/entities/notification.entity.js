@@ -47,7 +47,11 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Notification.prototype, "emailSent", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: entity_enum_1.NotificationAudienceEnum, default: entity_enum_1.NotificationAudienceEnum.ADMINS }),
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: entity_enum_1.NotificationAudienceEnum,
+        default: entity_enum_1.NotificationAudienceEnum.ADMINS,
+    }),
     __metadata("design:type", String)
 ], Notification.prototype, "audience", void 0);
 exports.Notification = Notification = __decorate([

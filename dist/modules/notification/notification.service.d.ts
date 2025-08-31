@@ -20,7 +20,7 @@ export declare class NotificationService {
     markAsRead(notificationId: string, userId: string): Promise<{
         message: string;
     }>;
-    sendEmail({ to, subject, html }: {
+    sendEmail({ to, subject, html, }: {
         to: string;
         subject: string;
         html: string;

@@ -23,6 +23,6 @@ exports.seedVehiclesData = [
         purchaseDate: new Date('2023-03-20'),
         auctionName: 'IAAI',
         isPartedOut: true,
-    }
+    },
 ];
 //# sourceMappingURL=vehicles.data.js.map

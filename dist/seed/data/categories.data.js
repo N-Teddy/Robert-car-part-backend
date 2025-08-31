@@ -6,6 +6,6 @@ exports.seedCategoriesData = [
     { name: 'Transmission', description: 'Transmission and drivetrain' },
     { name: 'Electrical', description: 'Electrical system components' },
     { name: 'Body', description: 'Body and exterior parts' },
-    { name: 'Interior', description: 'Interior components' }
+    { name: 'Interior', description: 'Interior components' },
 ];
 //# sourceMappingURL=categories.data.js.map

@@ -33,88 +33,124 @@ import emailConfig from './config/email.config';
 import { UserModule } from './modules/user/user.module';
 
 @Module({
-  imports: [
-    // Load environment variables and configurations
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
-      load: [databaseConfig, appConfig, supabaseConfig, jwtConfig, emailConfig],
-    }),
+	imports: [
+		// Load environment variables and configurations
+		ConfigModule.forRoot({
+			isGlobal: true,
+			envFilePath: '.env',
+			load: [
+				databaseConfig,
+				appConfig,
+				supabaseConfig,
+				jwtConfig,
+				emailConfig,
+			],
+		}),
 
-    // Dynamically configure TypeORM based on the environment
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const isProduction = process.env.NODE_ENV === 'production';
-        let connectionOptions: any;
+		// Dynamically configure TypeORM based on the environment
+		TypeOrmModule.forRootAsync({
+			imports: [ConfigModule],
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService) => {
+				const isProduction = process.env.NODE_ENV === 'production';
+				let connectionOptions: any;
 
-        if (isProduction) {
-          // Use Supabase database URL for production
-          const supabaseDbUrl = configService.get<string>('supabase.databaseUrl');
-          if (!supabaseDbUrl) {
-            throw new Error('SUPABASE_DATABASE_URL is not defined in production environment.');
-          }
-          connectionOptions = {
-            type: 'postgres',
-            url: supabaseDbUrl, // Use the single URL connection string
-            ssl: {
-              rejectUnauthorized: false,
-            },
-            synchronize: true, // It's highly recommended to set this to false in production
-            entities: [User, PasswordResetToken, Vehicle, VehicleProfit, Part, Category, Order, OrderItem, Report, Notification, Image, AuditLog],
-          };
-        } else {
-          // Use local database configuration for development
-          const db = configService.get('database');
-          connectionOptions = {
-            type: 'postgres',
-            host: db.host,
-            port: db.port,
-            username: db.username,
-            password: db.password,
-            database: db.database,
-            entities: [User, PasswordResetToken, Vehicle, VehicleProfit, Part, Category, Order, OrderItem, Report, Notification, Image, AuditLog],
-            synchronize: true, // Use synchronize in development
-            ssl: false, // Don't use SSL for local connections
-            extra: {
-              pool: db.pool,
-            },
-          };
-        }
+				if (isProduction) {
+					// Use Supabase database URL for production
+					const supabaseDbUrl = configService.get<string>(
+						'supabase.databaseUrl'
+					);
+					if (!supabaseDbUrl) {
+						throw new Error(
+							'SUPABASE_DATABASE_URL is not defined in production environment.'
+						);
+					}
+					connectionOptions = {
+						type: 'postgres',
+						url: supabaseDbUrl, // Use the single URL connection string
+						ssl: {
+							rejectUnauthorized: false,
+						},
+						synchronize: true, // It's highly recommended to set this to false in production
+						entities: [
+							User,
+							PasswordResetToken,
+							Vehicle,
+							VehicleProfit,
+							Part,
+							Category,
+							Order,
+							OrderItem,
+							Report,
+							Notification,
+							Image,
+							AuditLog,
+						],
+					};
+				} else {
+					// Use local database configuration for development
+					const db = configService.get('database');
+					connectionOptions = {
+						type: 'postgres',
+						host: db.host,
+						port: db.port,
+						username: db.username,
+						password: db.password,
+						database: db.database,
+						entities: [
+							User,
+							PasswordResetToken,
+							Vehicle,
+							VehicleProfit,
+							Part,
+							Category,
+							Order,
+							OrderItem,
+							Report,
+							Notification,
+							Image,
+							AuditLog,
+						],
+						synchronize: true, // Use synchronize in development
+						ssl: false, // Don't use SSL for local connections
+						extra: {
+							pool: db.pool,
+						},
+					};
+				}
 
-        return connectionOptions;
-      },
-    }),
+				return connectionOptions;
+			},
+		}),
 
-    ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const rate = configService.get('app.rateLimit');
-        return [
-          {
-            ttl: rate.windowMs,
-            limit: rate.max,
-          },
-        ];
-      },
-    }),
-    AuthModule,
-    NotificationModule,
-    SeedModule,
-    UserModule,
-    UploadModule,
-    VehicleModule,
-  ],
-  controllers: [AppController],
-  providers: [
-    AppService,
-    SupabaseService,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-  ],
+		ThrottlerModule.forRootAsync({
+			imports: [ConfigModule],
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService) => {
+				const rate = configService.get('app.rateLimit');
+				return [
+					{
+						ttl: rate.windowMs,
+						limit: rate.max,
+					},
+				];
+			},
+		}),
+		AuthModule,
+		NotificationModule,
+		SeedModule,
+		UserModule,
+		UploadModule,
+		VehicleModule,
+	],
+	controllers: [AppController],
+	providers: [
+		AppService,
+		SupabaseService,
+		{
+			provide: APP_GUARD,
+			useClass: ThrottlerGuard,
+		},
+	],
 })
-export class AppModule { }
+export class AppModule {}

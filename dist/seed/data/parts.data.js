@@ -11,7 +11,7 @@ exports.seedPartsData = [
         partNumber: 'ALT-TOY-2015',
         isFeatured: true,
         vehicleVin: 'JT1234567890CAMRY15',
-        categoryName: 'Electrical'
+        categoryName: 'Electrical',
     },
     {
         name: 'Front Bumper',
@@ -22,7 +22,7 @@ exports.seedPartsData = [
         partNumber: 'FB-CIVIC-2017',
         isFeatured: false,
         vehicleVin: 'HN1234567890CIVIC17',
-        categoryName: 'Body'
-    }
+        categoryName: 'Body',
+    },
 ];
 //# sourceMappingURL=parts.data.js.map

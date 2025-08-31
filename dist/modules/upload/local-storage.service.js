@@ -40,7 +40,8 @@ let LocalStorageService = LocalStorageService_1 = class LocalStorageService {
                 finalDir = (0, path_1.join)(typeDir, folder);
                 await fs_1.promises.mkdir(finalDir, { recursive: true });
             }
-            const fileName = file.filename || `${Date.now()}-${Math.random().toString(36).substring(7)}${this.getFileExtension(file.originalname)}`;
+            const fileName = file.filename ||
+                `${Date.now()}-${Math.random().toString(36).substring(7)}${this.getFileExtension(file.originalname)}`;
             const filePath = (0, path_1.join)(finalDir, fileName);
             if (file.path) {
                 await fs_1.promises.copyFile(file.path, filePath);
@@ -52,7 +53,8 @@ let LocalStorageService = LocalStorageService_1 = class LocalStorageService {
             else {
                 throw new Error('File has neither path nor buffer');
             }
-            const baseUrl = this.configService.get('app.baseUrl') || 'http://localhost:3000';
+            const baseUrl = this.configService.get('app.baseUrl') ||
+                'http://localhost:3000';
             const url = `${baseUrl}/uploads/${imageType.toLowerCase().replace(' ', '-')}/${folder ? folder + '/' : ''}${fileName}`;
             this.logger.log(`Image stored locally: ${filePath}`);
             return {
@@ -113,7 +115,8 @@ let LocalStorageService = LocalStorageService_1 = class LocalStorageService {
                     totalFiles += subStats.totalFiles;
                     totalSize += subStats.totalSize;
                     const typeName = item.name;
-                    typeBreakdown[typeName] = (typeBreakdown[typeName] || 0) + subStats.totalFiles;
+                    typeBreakdown[typeName] =
+                        (typeBreakdown[typeName] || 0) + subStats.totalFiles;
                 }
                 else if (item.isFile()) {
                     totalFiles++;

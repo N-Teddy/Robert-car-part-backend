@@ -25,7 +25,13 @@ const entity_enum_2 = require("../../common/enum/entity.enum");
 const upload_dto_1 = require("../../dto/request/upload.dto");
 const upload_dto_2 = require("../../dto/response/upload.dto");
 const validateImageMimeType = (file) => {
-    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedMimeTypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+    ];
     if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new common_1.BadRequestException(`File type ${file.mimetype} is not allowed. Allowed types: ${allowedMimeTypes.join(', ')}`);
     }
@@ -125,7 +131,7 @@ __decorate([
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     (0, swagger_1.ApiOperation)({
         summary: 'Upload a new image',
-        description: 'Upload a single image file with metadata. File must be under 5MB and in supported image format (jpg, jpeg, png, gif, webp).'
+        description: 'Upload a single image file with metadata. File must be under 5MB and in supported image format (jpg, jpeg, png, gif, webp).',
     }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({
@@ -164,7 +170,11 @@ __decorate([
             },
         },
     }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Image uploaded successfully', type: upload_dto_2.UploadResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Image uploaded successfully',
+        type: upload_dto_2.UploadResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     __param(0, (0, common_1.UploadedFile)(new common_1.ParseFilePipe({
@@ -182,7 +192,7 @@ __decorate([
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     (0, swagger_1.ApiOperation)({
         summary: 'Update an existing image',
-        description: 'Replace an existing image with a new one. File must be under 5MB and in supported image format (jpg, jpeg, png, gif, webp).'
+        description: 'Replace an existing image with a new one. File must be under 5MB and in supported image format (jpg, jpeg, png, gif, webp).',
     }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({
@@ -203,7 +213,11 @@ __decorate([
             },
         },
     }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Image updated successfully', type: upload_dto_2.UploadResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Image updated successfully',
+        type: upload_dto_2.UploadResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Image not found' }),
@@ -222,7 +236,7 @@ __decorate([
     (0, common_1.Delete)('image/:id'),
     (0, swagger_1.ApiOperation)({
         summary: 'Delete an image',
-        description: 'Permanently delete an image from storage and database.'
+        description: 'Permanently delete an image from storage and database.',
     }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Image deleted successfully' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
@@ -237,7 +251,7 @@ __decorate([
     (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files', 10)),
     (0, swagger_1.ApiOperation)({
         summary: 'Upload multiple images',
-        description: 'Upload multiple image files with metadata. Each file must be under 5MB and in supported image format (jpg, jpeg, png, gif, webp). Admin, Manager, or Dev role required. Use the same field name "files" for each file in your form data.'
+        description: 'Upload multiple image files with metadata. Each file must be under 5MB and in supported image format (jpg, jpeg, png, gif, webp). Admin, Manager, or Dev role required. Use the same field name "files" for each file in your form data.',
     }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({
@@ -279,7 +293,11 @@ __decorate([
             },
         },
     }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Images uploaded successfully', type: upload_dto_2.BulkUploadResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Images uploaded successfully',
+        type: upload_dto_2.BulkUploadResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV),
@@ -296,7 +314,11 @@ __decorate([
 __decorate([
     (0, common_1.Get)('stats'),
     (0, swagger_1.ApiOperation)({ summary: 'Get upload statistics' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Statistics retrieved successfully', type: upload_dto_2.UploadStatsResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Statistics retrieved successfully',
+        type: upload_dto_2.UploadStatsResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV),
     __metadata("design:type", Function),
@@ -306,7 +328,11 @@ __decorate([
 __decorate([
     (0, common_1.Get)('images/:type'),
     (0, swagger_1.ApiOperation)({ summary: 'Get images by type' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Images retrieved successfully', type: upload_dto_2.ImagesResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Images retrieved successfully',
+        type: upload_dto_2.ImagesResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     __param(0, (0, common_1.Param)('type')),
     __metadata("design:type", Function),
@@ -316,7 +342,11 @@ __decorate([
 __decorate([
     (0, common_1.Get)('images/entity/:entityType/:entityId'),
     (0, swagger_1.ApiOperation)({ summary: 'Get images by entity' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Images retrieved successfully', type: upload_dto_2.ImagesResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Images retrieved successfully',
+        type: upload_dto_2.ImagesResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     __param(0, (0, common_1.Param)('entityType')),
     __param(1, (0, common_1.Param)('entityId')),

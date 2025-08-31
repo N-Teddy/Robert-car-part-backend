@@ -52,7 +52,9 @@ let VehicleService = VehicleService_1 = class VehicleService {
             });
             const savedVehicle = await this.vehicleRepository.save(vehicle);
             try {
-                const createdByUser = await this.userRepository.findOne({ where: { id: userId } });
+                const createdByUser = await this.userRepository.findOne({
+                    where: { id: userId },
+                });
                 if (createdByUser) {
                     await this.notificationService.notifyVehicleCreated(savedVehicle, createdByUser);
                 }
@@ -71,11 +73,11 @@ let VehicleService = VehicleService_1 = class VehicleService {
     async createVehiclesBulk(bulkCreateDto, userId) {
         const results = [];
         const vehiclesToCreate = [];
-        const vins = bulkCreateDto.vehicles.map(v => v.vin);
+        const vins = bulkCreateDto.vehicles.map((v) => v.vin);
         const existingVehicles = await this.vehicleRepository.find({
             where: { vin: (0, typeorm_2.In)(vins) },
         });
-        const existingVins = existingVehicles.map(v => v.vin);
+        const existingVins = existingVehicles.map((v) => v.vin);
         for (let i = 0; i < bulkCreateDto.vehicles.length; i++) {
             const vehicleDto = bulkCreateDto.vehicles[i];
             try {
@@ -117,13 +119,13 @@ let VehicleService = VehicleService_1 = class VehicleService {
     }
     async findAll(searchDto = {}, paginationDto = {}) {
         try {
-            const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'DESC' } = paginationDto;
+            const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'DESC', } = paginationDto;
             const skip = (page - 1) * limit;
             const queryBuilder = this.buildSearchQuery(searchDto);
             queryBuilder.orderBy(`vehicle.${sortBy}`, sortOrder);
             queryBuilder.skip(skip).take(limit);
             const [vehicles, total] = await queryBuilder.getManyAndCount();
-            const vehiclesWithStats = await Promise.all(vehicles.map(vehicle => this.calculateVehicleStats(vehicle)));
+            const vehiclesWithStats = await Promise.all(vehicles.map((vehicle) => this.calculateVehicleStats(vehicle)));
             const totalPages = Math.ceil(total / limit);
             const meta = {
                 page,
@@ -174,7 +176,9 @@ let VehicleService = VehicleService_1 = class VehicleService {
     }
     async updateVehicle(id, updateVehicleDto, userId) {
         try {
-            const vehicle = await this.vehicleRepository.findOne({ where: { id } });
+            const vehicle = await this.vehicleRepository.findOne({
+                where: { id },
+            });
             if (!vehicle) {
                 throw new common_1.NotFoundException(`Vehicle with ID ${id} not found`);
             }
@@ -190,31 +194,41 @@ let VehicleService = VehicleService_1 = class VehicleService {
             const originalVehicle = { ...vehicle };
             Object.assign(vehicle, {
                 ...updateVehicleDto,
-                ...(updateVehicleDto.purchaseDate && { purchaseDate: new Date(updateVehicleDto.purchaseDate) }),
+                ...(updateVehicleDto.purchaseDate && {
+                    purchaseDate: new Date(updateVehicleDto.purchaseDate),
+                }),
                 updatedBy: userId,
             });
             const updatedVehicle = await this.vehicleRepository.save(vehicle);
-            if (updateVehicleDto.make && updateVehicleDto.make !== originalVehicle.make) {
+            if (updateVehicleDto.make &&
+                updateVehicleDto.make !== originalVehicle.make) {
                 changes.push(`Make: ${originalVehicle.make} → ${updateVehicleDto.make}`);
             }
-            if (updateVehicleDto.model && updateVehicleDto.model !== originalVehicle.model) {
+            if (updateVehicleDto.model &&
+                updateVehicleDto.model !== originalVehicle.model) {
                 changes.push(`Model: ${originalVehicle.model} → ${updateVehicleDto.model}`);
             }
-            if (updateVehicleDto.year && updateVehicleDto.year !== originalVehicle.year) {
+            if (updateVehicleDto.year &&
+                updateVehicleDto.year !== originalVehicle.year) {
                 changes.push(`Year: ${originalVehicle.year} → ${updateVehicleDto.year}`);
             }
-            if (updateVehicleDto.description && updateVehicleDto.description !== originalVehicle.description) {
+            if (updateVehicleDto.description &&
+                updateVehicleDto.description !== originalVehicle.description) {
                 changes.push('Description updated');
             }
-            if (updateVehicleDto.purchasePrice && updateVehicleDto.purchasePrice !== originalVehicle.purchasePrice) {
+            if (updateVehicleDto.purchasePrice &&
+                updateVehicleDto.purchasePrice !== originalVehicle.purchasePrice) {
                 changes.push(`Purchase Price: $${originalVehicle.purchasePrice} → $${updateVehicleDto.purchasePrice}`);
             }
-            if (updateVehicleDto.auctionName !== undefined && updateVehicleDto.auctionName !== originalVehicle.auctionName) {
+            if (updateVehicleDto.auctionName !== undefined &&
+                updateVehicleDto.auctionName !== originalVehicle.auctionName) {
                 changes.push(`Auction Name: ${originalVehicle.auctionName || 'None'} → ${updateVehicleDto.auctionName || 'None'}`);
             }
             if (changes.length > 0) {
                 try {
-                    const updatedByUser = await this.userRepository.findOne({ where: { id: userId } });
+                    const updatedByUser = await this.userRepository.findOne({
+                        where: { id: userId },
+                    });
                     if (updatedByUser) {
                         await this.notificationService.notifyVehicleUpdated(updatedVehicle, updatedByUser, changes);
                     }
@@ -266,7 +280,9 @@ let VehicleService = VehicleService_1 = class VehicleService {
                 throw new common_1.BadRequestException('Cannot delete vehicle with existing parts');
             }
             try {
-                const deletedByUser = await this.userRepository.findOne({ where: { id: userId } });
+                const deletedByUser = await this.userRepository.findOne({
+                    where: { id: userId },
+                });
                 if (deletedByUser) {
                     await this.notificationService.notifyVehicleDeleted(vehicle, deletedByUser);
                 }
@@ -289,7 +305,9 @@ let VehicleService = VehicleService_1 = class VehicleService {
     }
     async markAsPartedOut(id, userId) {
         try {
-            const vehicle = await this.vehicleRepository.findOne({ where: { id } });
+            const vehicle = await this.vehicleRepository.findOne({
+                where: { id },
+            });
             if (!vehicle) {
                 throw new common_1.NotFoundException(`Vehicle with ID ${id} not found`);
             }
@@ -300,7 +318,9 @@ let VehicleService = VehicleService_1 = class VehicleService {
             vehicle.updatedBy = userId;
             const updatedVehicle = await this.vehicleRepository.save(vehicle);
             try {
-                const updatedByUser = await this.userRepository.findOne({ where: { id: userId } });
+                const updatedByUser = await this.userRepository.findOne({
+                    where: { id: userId },
+                });
                 if (updatedByUser) {
                     await this.notificationService.notifyVehiclePartedOut(updatedVehicle, updatedByUser);
                 }
@@ -325,9 +345,7 @@ let VehicleService = VehicleService_1 = class VehicleService {
             const intactVehicles = totalVehicles - partedOutVehicles;
             const financialStats = await this.vehicleRepository
                 .createQueryBuilder('vehicle')
-                .select([
-                'SUM(vehicle.purchasePrice) as totalPurchaseCost',
-            ])
+                .select(['SUM(vehicle.purchasePrice) as totalPurchaseCost'])
                 .getRawOne();
             const partsStats = await this.partRepository
                 .createQueryBuilder('part')
@@ -342,7 +360,9 @@ let VehicleService = VehicleService_1 = class VehicleService {
             const totalPartsCost = parseFloat(partsStats.totalPartsCost) || 0;
             const totalProfit = totalPartsRevenue - totalPartsCost;
             const averageProfitPerVehicle = totalVehicles > 0 ? totalProfit / totalVehicles : 0;
-            const overallProfitMargin = totalPartsRevenue > 0 ? (totalProfit / totalPartsRevenue) * 100 : 0;
+            const overallProfitMargin = totalPartsRevenue > 0
+                ? (totalProfit / totalPartsRevenue) * 100
+                : 0;
             const makeBreakdown = await this.vehicleRepository
                 .createQueryBuilder('vehicle')
                 .select('vehicle.make', 'make')
@@ -351,7 +371,7 @@ let VehicleService = VehicleService_1 = class VehicleService {
                 .getRawMany();
             const yearBreakdown = await this.vehicleRepository
                 .createQueryBuilder('vehicle')
-                .select('CASE WHEN vehicle.year BETWEEN 2015 AND 2019 THEN \'2015-2019\' ELSE \'2020-2024\' END', 'yearRange')
+                .select("CASE WHEN vehicle.year BETWEEN 2015 AND 2019 THEN '2015-2019' ELSE '2020-2024' END", 'yearRange')
                 .addSelect('COUNT(*)', 'count')
                 .groupBy('yearRange')
                 .getRawMany();
@@ -401,14 +421,18 @@ let VehicleService = VehicleService_1 = class VehicleService {
     }
     async uploadVehicleImages(vehicleId, files, folder) {
         try {
-            const vehicle = await this.vehicleRepository.findOne({ where: { id: vehicleId } });
+            const vehicle = await this.vehicleRepository.findOne({
+                where: { id: vehicleId },
+            });
             if (!vehicle) {
                 throw new common_1.NotFoundException(`Vehicle with ID ${vehicleId} not found`);
             }
             const uploadedImages = [];
             for (const file of files) {
                 const result = await this.uploadService.uploadImage(file, entity_enum_1.ImageEnum.VEHICLE, vehicleId, 'vehicle', folder);
-                const image = await this.imageRepository.findOne({ where: { id: result.imageId } });
+                const image = await this.imageRepository.findOne({
+                    where: { id: result.imageId },
+                });
                 if (image) {
                     uploadedImages.push(image);
                 }
@@ -425,7 +449,9 @@ let VehicleService = VehicleService_1 = class VehicleService {
         try {
             const partsStats = await this.partRepository
                 .createQueryBuilder('part')
-                .where('part.vehicle.id = :vehicleId', { vehicleId: vehicle.id })
+                .where('part.vehicle.id = :vehicleId', {
+                vehicleId: vehicle.id,
+            })
                 .select([
                 'COUNT(*) as totalParts',
                 'SUM(part.sellingPrice) as totalPartsRevenue',
@@ -436,7 +462,9 @@ let VehicleService = VehicleService_1 = class VehicleService {
             const totalPartsRevenue = parseFloat(partsStats.totalPartsRevenue) || 0;
             const totalPartsCost = parseFloat(partsStats.totalPartsCost) || 0;
             const totalProfit = totalPartsRevenue - totalPartsCost;
-            const profitMargin = totalPartsRevenue > 0 ? (totalProfit / totalPartsRevenue) * 100 : 0;
+            const profitMargin = totalPartsRevenue > 0
+                ? (totalProfit / totalPartsRevenue) * 100
+                : 0;
             return {
                 ...vehicle,
                 totalParts,
@@ -464,25 +492,39 @@ let VehicleService = VehicleService_1 = class VehicleService {
             .leftJoinAndSelect('vehicle.images', 'images')
             .leftJoinAndSelect('vehicle.parts', 'parts');
         if (searchDto.make) {
-            queryBuilder.andWhere('vehicle.make ILIKE :make', { make: `%${searchDto.make}%` });
+            queryBuilder.andWhere('vehicle.make ILIKE :make', {
+                make: `%${searchDto.make}%`,
+            });
         }
         if (searchDto.model) {
-            queryBuilder.andWhere('vehicle.model ILIKE :model', { model: `%${searchDto.model}%` });
+            queryBuilder.andWhere('vehicle.model ILIKE :model', {
+                model: `%${searchDto.model}%`,
+            });
         }
         if (searchDto.year) {
-            queryBuilder.andWhere('vehicle.year = :year', { year: searchDto.year });
+            queryBuilder.andWhere('vehicle.year = :year', {
+                year: searchDto.year,
+            });
         }
         if (searchDto.vin) {
-            queryBuilder.andWhere('vehicle.vin ILIKE :vin', { vin: `%${searchDto.vin}%` });
+            queryBuilder.andWhere('vehicle.vin ILIKE :vin', {
+                vin: `%${searchDto.vin}%`,
+            });
         }
         if (searchDto.isPartedOut !== undefined) {
-            queryBuilder.andWhere('vehicle.isPartedOut = :isPartedOut', { isPartedOut: searchDto.isPartedOut });
+            queryBuilder.andWhere('vehicle.isPartedOut = :isPartedOut', {
+                isPartedOut: searchDto.isPartedOut,
+            });
         }
         if (searchDto.minPrice !== undefined) {
-            queryBuilder.andWhere('vehicle.purchasePrice >= :minPrice', { minPrice: searchDto.minPrice });
+            queryBuilder.andWhere('vehicle.purchasePrice >= :minPrice', {
+                minPrice: searchDto.minPrice,
+            });
         }
         if (searchDto.maxPrice !== undefined) {
-            queryBuilder.andWhere('vehicle.purchasePrice <= :maxPrice', { maxPrice: searchDto.maxPrice });
+            queryBuilder.andWhere('vehicle.purchasePrice <= :maxPrice', {
+                maxPrice: searchDto.maxPrice,
+            });
         }
         if (searchDto.purchaseDateFrom) {
             queryBuilder.andWhere('vehicle.purchaseDate >= :purchaseDateFrom', {
@@ -510,7 +552,7 @@ let VehicleService = VehicleService_1 = class VehicleService {
             'Is Parted Out',
             'Created At',
         ];
-        const rows = vehicles.map(vehicle => [
+        const rows = vehicles.map((vehicle) => [
             vehicle.id || '',
             vehicle.make || '',
             vehicle.model || '',
@@ -518,13 +560,21 @@ let VehicleService = VehicleService_1 = class VehicleService {
             vehicle.vin || '',
             vehicle.description || '',
             vehicle.purchasePrice || 0,
-            vehicle.purchaseDate ? (vehicle.purchaseDate instanceof Date ? vehicle.purchaseDate.toISOString().split('T')[0] : new Date(vehicle.purchaseDate).toISOString().split('T')[0]) : '',
+            vehicle.purchaseDate
+                ? vehicle.purchaseDate instanceof Date
+                    ? vehicle.purchaseDate.toISOString().split('T')[0]
+                    : new Date(vehicle.purchaseDate).toISOString().split('T')[0]
+                : '',
             vehicle.auctionName || '',
             vehicle.isPartedOut ? 'Yes' : 'No',
-            vehicle.createdAt ? (vehicle.createdAt instanceof Date ? vehicle.createdAt.toISOString().split('T')[0] : new Date(vehicle.createdAt).toISOString().split('T')[0]) : '',
+            vehicle.createdAt
+                ? vehicle.createdAt instanceof Date
+                    ? vehicle.createdAt.toISOString().split('T')[0]
+                    : new Date(vehicle.createdAt).toISOString().split('T')[0]
+                : '',
         ]);
         const csvContent = [headers, ...rows]
-            .map(row => row.map(field => `"${field}"`).join(','))
+            .map((row) => row.map((field) => `"${field}"`).join(','))
             .join('\n');
         return csvContent;
     }

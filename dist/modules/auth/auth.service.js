@@ -88,7 +88,9 @@ let AuthService = class AuthService {
             };
         }
         catch (err) {
-            if (err instanceof common_1.UnauthorizedException || err instanceof common_1.BadRequestException || err instanceof common_1.NotFoundException) {
+            if (err instanceof common_1.UnauthorizedException ||
+                err instanceof common_1.BadRequestException ||
+                err instanceof common_1.NotFoundException) {
                 throw err;
             }
             throw new common_1.InternalServerErrorException('Failed to login');
@@ -100,7 +102,9 @@ let AuthService = class AuthService {
         await queryRunner.startTransaction();
         try {
             const { email, password, fullName, phoneNumber } = registerDto;
-            const existingUser = await queryRunner.manager.findOne(user_entity_1.User, { where: { email } });
+            const existingUser = await queryRunner.manager.findOne(user_entity_1.User, {
+                where: { email },
+            });
             if (existingUser) {
                 throw new common_1.BadRequestException('User with this email already exists');
             }
@@ -132,7 +136,7 @@ let AuthService = class AuthService {
             await queryRunner.commitTransaction();
             await this.notificationService.notifyAdminsOnNewUser(savedUser);
             const welcomeHtml = this.notificationService.renderTemplate('welcome-pending-role', {
-                name: savedUser.fullName || 'there'
+                name: savedUser.fullName || 'there',
             });
             await this.notificationService.sendEmail({
                 to: savedUser.email,
@@ -167,7 +171,9 @@ let AuthService = class AuthService {
                 where: { email },
             });
             if (!user) {
-                return { message: 'If the email exists, a password reset link has been sent.' };
+                return {
+                    message: 'If the email exists, a password reset link has been sent.',
+                };
             }
             const resetToken = (0, uuid_1.v4)();
             const expiresAt = new Date();
@@ -188,13 +194,17 @@ let AuthService = class AuthService {
             }
             await this.passwordResetTokenRepository.save(resetTokenEntity);
             const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-            const html = this.notificationService.renderTemplate('password-reset', { resetLink });
+            const html = this.notificationService.renderTemplate('password-reset', {
+                resetLink,
+            });
             await this.notificationService.sendEmail({
                 to: user.email,
                 subject: 'Password Reset Request',
                 html,
             });
-            return { message: 'If the email exists, a password reset link has been sent.' };
+            return {
+                message: 'If the email exists, a password reset link has been sent.',
+            };
         }
         catch (err) {
             throw new common_1.InternalServerErrorException('Failed to process forgot password');
@@ -264,7 +274,8 @@ let AuthService = class AuthService {
             return { message: 'Password changed successfully' };
         }
         catch (err) {
-            if (err instanceof common_1.BadRequestException || err instanceof common_1.NotFoundException) {
+            if (err instanceof common_1.BadRequestException ||
+                err instanceof common_1.NotFoundException) {
                 throw err;
             }
             throw new common_1.InternalServerErrorException('Failed to change password');
@@ -331,14 +342,17 @@ let AuthService = class AuthService {
         }
     }
     async assignRole(targetUserId, role) {
-        if (!Object.values(entity_enum_1.UserRoleEnum).includes(role) || role === entity_enum_1.UserRoleEnum.UNKNOWN) {
+        if (!Object.values(entity_enum_1.UserRoleEnum).includes(role) ||
+            role === entity_enum_1.UserRoleEnum.UNKNOWN) {
             throw new common_1.BadRequestException('Invalid role');
         }
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
         try {
-            const user = await queryRunner.manager.findOne(user_entity_1.User, { where: { id: targetUserId } });
+            const user = await queryRunner.manager.findOne(user_entity_1.User, {
+                where: { id: targetUserId },
+            });
             if (!user) {
                 throw new common_1.NotFoundException('User not found');
             }

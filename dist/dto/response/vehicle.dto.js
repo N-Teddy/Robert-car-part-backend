@@ -60,7 +60,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Purchase price of the vehicle',
-        example: 15000.00,
+        example: 15000.0,
     }),
     __metadata("design:type", Number)
 ], VehicleDto.prototype, "purchasePrice", void 0);
@@ -96,21 +96,21 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Total revenue from parts sold',
-        example: 8500.00,
+        example: 8500.0,
     }),
     __metadata("design:type", Number)
 ], VehicleDto.prototype, "totalPartsRevenue", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Total cost of parts',
-        example: 3000.00,
+        example: 3000.0,
     }),
     __metadata("design:type", Number)
 ], VehicleDto.prototype, "totalPartsCost", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Total profit from parts',
-        example: 5500.00,
+        example: 5500.0,
     }),
     __metadata("design:type", Number)
 ], VehicleDto.prototype, "totalProfit", void 0);
@@ -199,7 +199,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Purchase price of the vehicle',
-        example: 15000.00,
+        example: 15000.0,
     }),
     __metadata("design:type", Number)
 ], VehicleSummaryDto.prototype, "purchasePrice", void 0);
@@ -220,7 +220,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Total profit from parts',
-        example: 5500.00,
+        example: 5500.0,
     }),
     __metadata("design:type", Number)
 ], VehicleSummaryDto.prototype, "totalProfit", void 0);
@@ -352,35 +352,35 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Total purchase cost of all vehicles',
-        example: 2250000.00,
+        example: 2250000.0,
     }),
     __metadata("design:type", Number)
 ], VehicleStatsDto.prototype, "totalPurchaseCost", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Total revenue from all parts sold',
-        example: 1875000.00,
+        example: 1875000.0,
     }),
     __metadata("design:type", Number)
 ], VehicleStatsDto.prototype, "totalPartsRevenue", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Total profit from all parts',
-        example: 1125000.00,
+        example: 1125000.0,
     }),
     __metadata("design:type", Number)
 ], VehicleStatsDto.prototype, "totalProfit", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Average profit per vehicle',
-        example: 7500.00,
+        example: 7500.0,
     }),
     __metadata("design:type", Number)
 ], VehicleStatsDto.prototype, "averageProfitPerVehicle", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Overall profit margin percentage',
-        example: 60.00,
+        example: 60.0,
     }),
     __metadata("design:type", Number)
 ], VehicleStatsDto.prototype, "overallProfitMargin", void 0);
@@ -388,9 +388,9 @@ __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Breakdown by make',
         example: {
-            'Toyota': 25,
-            'Honda': 20,
-            'Ford': 15,
+            Toyota: 25,
+            Honda: 20,
+            Ford: 15,
         },
     }),
     __metadata("design:type", Object)

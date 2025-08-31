@@ -4,7 +4,7 @@ exports.setupSwagger = setupSwagger;
 const config_1 = require("@nestjs/config");
 const swagger_1 = require("@nestjs/swagger");
 const swaggerUi = require("swagger-ui-express");
-const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
+const CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css';
 function setupSwagger(app) {
     const configService = app.get(config_1.ConfigService);
     const swaggerConfig = new swagger_1.DocumentBuilder()

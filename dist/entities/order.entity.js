@@ -18,7 +18,11 @@ let Order = class Order extends base_entity_1.BaseEntity {
 };
 exports.Order = Order;
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: entity_enum_1.OrderStatusEnum, default: entity_enum_1.OrderStatusEnum.PENDING }),
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: entity_enum_1.OrderStatusEnum,
+        default: entity_enum_1.OrderStatusEnum.PENDING,
+    }),
     (0, typeorm_1.Index)(),
     __metadata("design:type", String)
 ], Order.prototype, "status", void 0);
@@ -46,11 +50,17 @@ __decorate([
     __metadata("design:type", String)
 ], Order.prototype, "notes", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: entity_enum_1.DeliveryMethodEnum, default: entity_enum_1.DeliveryMethodEnum.PICKUP }),
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: entity_enum_1.DeliveryMethodEnum,
+        default: entity_enum_1.DeliveryMethodEnum.PICKUP,
+    }),
     __metadata("design:type", String)
 ], Order.prototype, "deliveryMethod", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => order_item_entity_1.OrderItem, (orderItem) => orderItem.order, { cascade: true }),
+    (0, typeorm_1.OneToMany)(() => order_item_entity_1.OrderItem, (orderItem) => orderItem.order, {
+        cascade: true,
+    }),
     __metadata("design:type", Array)
 ], Order.prototype, "items", void 0);
 exports.Order = Order = __decorate([

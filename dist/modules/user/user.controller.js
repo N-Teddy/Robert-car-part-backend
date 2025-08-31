@@ -101,15 +101,50 @@ exports.UserController = UserController;
 __decorate([
     (0, common_1.Get)('staff'),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.DEV, entity_enum_1.UserRoleEnum.MANAGER),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all staff members', description: 'Admin only endpoint to retrieve all staff members with filtering and pagination' }),
-    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.OK, description: 'Staff members retrieved successfully', type: [user_entity_1.User] }),
-    (0, swagger_1.ApiUnauthorizedResponse)({ description: 'Unauthorized - Invalid or missing token' }),
-    (0, swagger_1.ApiForbiddenResponse)({ description: 'Forbidden - User does not have admin role' }),
-    (0, swagger_1.ApiQuery)({ name: 'role', required: false, enum: entity_enum_1.UserRoleEnum, description: 'Filter by role' }),
-    (0, swagger_1.ApiQuery)({ name: 'search', required: false, description: 'Search by name or email' }),
-    (0, swagger_1.ApiQuery)({ name: 'isActive', required: false, type: Boolean, description: 'Filter by active status' }),
-    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number, description: 'Page number' }),
-    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number, description: 'Items per page' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Get all staff members',
+        description: 'Admin only endpoint to retrieve all staff members with filtering and pagination',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: common_1.HttpStatus.OK,
+        description: 'Staff members retrieved successfully',
+        type: [user_entity_1.User],
+    }),
+    (0, swagger_1.ApiUnauthorizedResponse)({
+        description: 'Unauthorized - Invalid or missing token',
+    }),
+    (0, swagger_1.ApiForbiddenResponse)({
+        description: 'Forbidden - User does not have admin role',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'role',
+        required: false,
+        enum: entity_enum_1.UserRoleEnum,
+        description: 'Filter by role',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'search',
+        required: false,
+        description: 'Search by name or email',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'isActive',
+        required: false,
+        type: Boolean,
+        description: 'Filter by active status',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'page',
+        required: false,
+        type: Number,
+        description: 'Page number',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'limit',
+        required: false,
+        type: Number,
+        description: 'Items per page',
+    }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [user_1.StaffFilterDto]),
@@ -118,10 +153,21 @@ __decorate([
 __decorate([
     (0, common_1.Post)('staff'),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.DEV, entity_enum_1.UserRoleEnum.MANAGER),
-    (0, swagger_1.ApiOperation)({ summary: 'Create a new staff member', description: 'Admin only endpoint to create a new staff member' }),
-    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.CREATED, description: 'Staff member created successfully', type: user_entity_1.User }),
-    (0, swagger_1.ApiUnauthorizedResponse)({ description: 'Unauthorized - Invalid or missing token' }),
-    (0, swagger_1.ApiForbiddenResponse)({ description: 'Forbidden - User does not have admin role' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Create a new staff member',
+        description: 'Admin only endpoint to create a new staff member',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: common_1.HttpStatus.CREATED,
+        description: 'Staff member created successfully',
+        type: user_entity_1.User,
+    }),
+    (0, swagger_1.ApiUnauthorizedResponse)({
+        description: 'Unauthorized - Invalid or missing token',
+    }),
+    (0, swagger_1.ApiForbiddenResponse)({
+        description: 'Forbidden - User does not have admin role',
+    }),
     (0, swagger_1.ApiBody)({ type: user_1.CreateStaffDto }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -131,10 +177,21 @@ __decorate([
 __decorate([
     (0, common_1.Patch)('staff/:id'),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.DEV, entity_enum_1.UserRoleEnum.MANAGER),
-    (0, swagger_1.ApiOperation)({ summary: 'Update a staff member', description: 'Admin only endpoint to update a staff member' }),
-    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.OK, description: 'Staff member updated successfully', type: user_entity_1.User }),
-    (0, swagger_1.ApiUnauthorizedResponse)({ description: 'Unauthorized - Invalid or missing token' }),
-    (0, swagger_1.ApiForbiddenResponse)({ description: 'Forbidden - User does not have admin role' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Update a staff member',
+        description: 'Admin only endpoint to update a staff member',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: common_1.HttpStatus.OK,
+        description: 'Staff member updated successfully',
+        type: user_entity_1.User,
+    }),
+    (0, swagger_1.ApiUnauthorizedResponse)({
+        description: 'Unauthorized - Invalid or missing token',
+    }),
+    (0, swagger_1.ApiForbiddenResponse)({
+        description: 'Forbidden - User does not have admin role',
+    }),
     (0, swagger_1.ApiNotFoundResponse)({ description: 'Staff member not found' }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'Staff member ID' }),
     (0, swagger_1.ApiBody)({ type: user_1.UpdateStaffDto }),
@@ -147,10 +204,21 @@ __decorate([
 __decorate([
     (0, common_1.Patch)('staff/:id/deactivate'),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.DEV, entity_enum_1.UserRoleEnum.MANAGER),
-    (0, swagger_1.ApiOperation)({ summary: 'Deactivate a staff member', description: 'Admin only endpoint to deactivate a staff member' }),
-    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.OK, description: 'Staff member deactivated successfully', type: user_entity_1.User }),
-    (0, swagger_1.ApiUnauthorizedResponse)({ description: 'Unauthorized - Invalid or missing token' }),
-    (0, swagger_1.ApiForbiddenResponse)({ description: 'Forbidden - User does not have admin role' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Deactivate a staff member',
+        description: 'Admin only endpoint to deactivate a staff member',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: common_1.HttpStatus.OK,
+        description: 'Staff member deactivated successfully',
+        type: user_entity_1.User,
+    }),
+    (0, swagger_1.ApiUnauthorizedResponse)({
+        description: 'Unauthorized - Invalid or missing token',
+    }),
+    (0, swagger_1.ApiForbiddenResponse)({
+        description: 'Forbidden - User does not have admin role',
+    }),
     (0, swagger_1.ApiNotFoundResponse)({ description: 'Staff member not found' }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'Staff member ID' }),
     __param(0, (0, common_1.Param)('id')),
@@ -161,10 +229,21 @@ __decorate([
 __decorate([
     (0, common_1.Patch)('staff/:id/activate'),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.DEV, entity_enum_1.UserRoleEnum.MANAGER),
-    (0, swagger_1.ApiOperation)({ summary: 'Activate a staff member', description: 'Admin only endpoint to activate a deactivated staff member' }),
-    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.OK, description: 'Staff member activated successfully', type: user_entity_1.User }),
-    (0, swagger_1.ApiUnauthorizedResponse)({ description: 'Unauthorized - Invalid or missing token' }),
-    (0, swagger_1.ApiForbiddenResponse)({ description: 'Forbidden - User does not have admin role' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Activate a staff member',
+        description: 'Admin only endpoint to activate a deactivated staff member',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: common_1.HttpStatus.OK,
+        description: 'Staff member activated successfully',
+        type: user_entity_1.User,
+    }),
+    (0, swagger_1.ApiUnauthorizedResponse)({
+        description: 'Unauthorized - Invalid or missing token',
+    }),
+    (0, swagger_1.ApiForbiddenResponse)({
+        description: 'Forbidden - User does not have admin role',
+    }),
     (0, swagger_1.ApiNotFoundResponse)({ description: 'Staff member not found' }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'Staff member ID' }),
     __param(0, (0, common_1.Param)('id')),
@@ -175,19 +254,39 @@ __decorate([
 __decorate([
     (0, common_1.Get)('staff/statistics'),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.DEV, entity_enum_1.UserRoleEnum.MANAGER),
-    (0, swagger_1.ApiOperation)({ summary: 'Get staff statistics', description: 'Admin only endpoint to get staff statistics' }),
-    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.OK, description: 'Statistics retrieved successfully', type: user_1.StaffStatisticsDto }),
-    (0, swagger_1.ApiUnauthorizedResponse)({ description: 'Unauthorized - Invalid or missing token' }),
-    (0, swagger_1.ApiForbiddenResponse)({ description: 'Forbidden - User does not have admin role' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Get staff statistics',
+        description: 'Admin only endpoint to get staff statistics',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: common_1.HttpStatus.OK,
+        description: 'Statistics retrieved successfully',
+        type: user_1.StaffStatisticsDto,
+    }),
+    (0, swagger_1.ApiUnauthorizedResponse)({
+        description: 'Unauthorized - Invalid or missing token',
+    }),
+    (0, swagger_1.ApiForbiddenResponse)({
+        description: 'Forbidden - User does not have admin role',
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getStaffStatistics", null);
 __decorate([
     (0, common_1.Get)('profile'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get user profile', description: 'Get the authenticated user profile' }),
-    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.OK, description: 'Profile retrieved successfully', type: user_entity_1.User }),
-    (0, swagger_1.ApiUnauthorizedResponse)({ description: 'Unauthorized - Invalid or missing token' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Get user profile',
+        description: 'Get the authenticated user profile',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: common_1.HttpStatus.OK,
+        description: 'Profile retrieved successfully',
+        type: user_entity_1.User,
+    }),
+    (0, swagger_1.ApiUnauthorizedResponse)({
+        description: 'Unauthorized - Invalid or missing token',
+    }),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -195,9 +294,18 @@ __decorate([
 ], UserController.prototype, "getProfile", null);
 __decorate([
     (0, common_1.Patch)('profile'),
-    (0, swagger_1.ApiOperation)({ summary: 'Update user profile', description: 'Update the authenticated user profile' }),
-    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.OK, description: 'Profile updated successfully', type: user_entity_1.User }),
-    (0, swagger_1.ApiUnauthorizedResponse)({ description: 'Unauthorized - Invalid or missing token' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Update user profile',
+        description: 'Update the authenticated user profile',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: common_1.HttpStatus.OK,
+        description: 'Profile updated successfully',
+        type: user_entity_1.User,
+    }),
+    (0, swagger_1.ApiUnauthorizedResponse)({
+        description: 'Unauthorized - Invalid or missing token',
+    }),
     (0, swagger_1.ApiBody)({ type: user_1.UpdateProfileDto }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),

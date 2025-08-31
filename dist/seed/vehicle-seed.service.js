@@ -24,7 +24,9 @@ let VehicleSeedService = class VehicleSeedService {
     }
     async run() {
         for (const seed of vehicles_data_1.seedVehiclesData) {
-            const existing = await this.vehicleRepository.findOne({ where: { vin: seed.vin } });
+            const existing = await this.vehicleRepository.findOne({
+                where: { vin: seed.vin },
+            });
             if (existing) {
                 await this.vehicleRepository.update({ id: existing.id }, seed);
             }

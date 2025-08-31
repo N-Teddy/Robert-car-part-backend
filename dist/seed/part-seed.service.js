@@ -30,13 +30,19 @@ let PartSeedService = PartSeedService_1 = class PartSeedService {
     }
     async run() {
         for (const seed of parts_data_1.seedPartsData) {
-            const vehicle = await this.vehicleRepository.findOne({ where: { vin: seed.vehicleVin } });
-            const category = await this.categoryRepository.findOne({ where: { name: seed.categoryName } });
+            const vehicle = await this.vehicleRepository.findOne({
+                where: { vin: seed.vehicleVin },
+            });
+            const category = await this.categoryRepository.findOne({
+                where: { name: seed.categoryName },
+            });
             if (!vehicle || !category) {
                 this.logger.warn(`Skipping part ${seed.partNumber}: missing vehicle or category`);
                 continue;
             }
-            const existing = await this.partRepository.findOne({ where: { partNumber: seed.partNumber } });
+            const existing = await this.partRepository.findOne({
+                where: { partNumber: seed.partNumber },
+            });
             const payload = {
                 name: seed.name,
                 description: seed.description,

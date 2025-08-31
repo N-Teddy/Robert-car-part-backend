@@ -36,7 +36,12 @@ exports.SeedModule = SeedModule;
 exports.SeedModule = SeedModule = __decorate([
     (0, common_1.Module)({
         imports: [typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, category_entity_1.Category, vehicle_entity_1.Vehicle, part_entity_1.Part])],
-        providers: [user_seed_service_1.UserSeedService, category_seed_service_1.CategorySeedService, vehicle_seed_service_1.VehicleSeedService, part_seed_service_1.PartSeedService],
+        providers: [
+            user_seed_service_1.UserSeedService,
+            category_seed_service_1.CategorySeedService,
+            vehicle_seed_service_1.VehicleSeedService,
+            part_seed_service_1.PartSeedService,
+        ],
     }),
     __metadata("design:paramtypes", [user_seed_service_1.UserSeedService,
         category_seed_service_1.CategorySeedService,

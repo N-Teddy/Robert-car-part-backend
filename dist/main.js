@@ -16,8 +16,8 @@ async function bootstrap() {
     app.useGlobalInterceptors(new response_interceptor_1.ResponseInterceptor(app.get(core_1.Reflector)));
     (0, swagger_cofig_1.setupSwagger)(app);
     await app.listen(configService.get('PORT', 3000));
-    console.log("Swagger Doc: http://localhost:3000/api/docs");
-    console.log("API : http://localhost:3000/api/");
+    console.log('Swagger Doc: http://localhost:3000/api/docs');
+    console.log('API : http://localhost:3000/api/');
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

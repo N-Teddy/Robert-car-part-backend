@@ -29,9 +29,14 @@ let UserService = class UserService {
     async findAllStaff(filters) {
         try {
             const { role, search, page = 1, limit = 10, isActive } = filters;
-            const query = this.userRepository.createQueryBuilder('user')
+            const query = this.userRepository
+                .createQueryBuilder('user')
                 .where('user.role IN (:...roles)', {
-                roles: [entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV]
+                roles: [
+                    entity_enum_1.UserRoleEnum.ADMIN,
+                    entity_enum_1.UserRoleEnum.MANAGER,
+                    entity_enum_1.UserRoleEnum.DEV,
+                ],
             })
                 .leftJoinAndSelect('user.profileImage', 'profileImage');
             if (role)
@@ -40,7 +45,7 @@ let UserService = class UserService {
                 query.andWhere('user.isActive = :isActive', { isActive });
             if (search) {
                 query.andWhere('(user.fullName ILIKE :search OR user.email ILIKE :search)', {
-                    search: `%${search}%`
+                    search: `%${search}%`,
                 });
             }
             const [users, total] = await query
@@ -60,7 +65,7 @@ let UserService = class UserService {
         await queryRunner.startTransaction();
         try {
             const existingUser = await queryRunner.manager.findOne(user_entity_1.User, {
-                where: { email: createStaffDto.email }
+                where: { email: createStaffDto.email },
             });
             if (existingUser) {
                 throw new common_1.BadRequestException('User with this email already exists');
@@ -71,7 +76,7 @@ let UserService = class UserService {
                 ...createStaffDto,
                 password: hashedPassword,
                 isFirstLogin: true,
-                isActive: true
+                isActive: true,
             });
             const savedUser = await queryRunner.manager.save(user);
             await queryRunner.commitTransaction();
@@ -79,7 +84,7 @@ let UserService = class UserService {
                 const html = this.notificationService.renderTemplate('staff-welcome', {
                     name: savedUser.fullName,
                     tempPassword,
-                    loginUrl: `${process.env.FRONTEND_URL}/login`
+                    loginUrl: `${process.env.FRONTEND_URL}/login`,
                 });
                 await this.notificationService.sendEmail({
                     to: savedUser.email,
@@ -105,13 +110,17 @@ let UserService = class UserService {
     }
     async updateStaff(userId, updateStaffDto) {
         try {
-            const user = await this.userRepository.findOne({ where: { id: userId } });
+            const user = await this.userRepository.findOne({
+                where: { id: userId },
+            });
             if (!user) {
                 throw new common_1.NotFoundException('Staff member not found');
             }
-            if (updateStaffDto.role && updateStaffDto.role !== entity_enum_1.UserRoleEnum.ADMIN && user.role === entity_enum_1.UserRoleEnum.ADMIN) {
+            if (updateStaffDto.role &&
+                updateStaffDto.role !== entity_enum_1.UserRoleEnum.ADMIN &&
+                user.role === entity_enum_1.UserRoleEnum.ADMIN) {
                 const adminCount = await this.userRepository.count({
-                    where: { role: entity_enum_1.UserRoleEnum.ADMIN, isActive: true }
+                    where: { role: entity_enum_1.UserRoleEnum.ADMIN, isActive: true },
                 });
                 if (adminCount <= 1) {
                     throw new common_1.BadRequestException('Cannot demote the last active administrator');
@@ -121,7 +130,8 @@ let UserService = class UserService {
             return await this.userRepository.save(user);
         }
         catch (error) {
-            if (error instanceof common_1.NotFoundException || error instanceof common_1.BadRequestException) {
+            if (error instanceof common_1.NotFoundException ||
+                error instanceof common_1.BadRequestException) {
                 throw error;
             }
             throw new common_1.InternalServerErrorException('Failed to update staff member');
@@ -129,13 +139,15 @@ let UserService = class UserService {
     }
     async deactivateStaff(userId) {
         try {
-            const user = await this.userRepository.findOne({ where: { id: userId } });
+            const user = await this.userRepository.findOne({
+                where: { id: userId },
+            });
             if (!user) {
                 throw new common_1.NotFoundException('Staff member not found');
             }
             if (user.role === entity_enum_1.UserRoleEnum.ADMIN) {
                 const adminCount = await this.userRepository.count({
-                    where: { role: entity_enum_1.UserRoleEnum.ADMIN, isActive: true }
+                    where: { role: entity_enum_1.UserRoleEnum.ADMIN, isActive: true },
                 });
                 if (adminCount <= 1) {
                     throw new common_1.BadRequestException('Cannot deactivate the last active administrator');
@@ -145,7 +157,8 @@ let UserService = class UserService {
             return await this.userRepository.save(user);
         }
         catch (error) {
-            if (error instanceof common_1.NotFoundException || error instanceof common_1.BadRequestException) {
+            if (error instanceof common_1.NotFoundException ||
+                error instanceof common_1.BadRequestException) {
                 throw error;
             }
             throw new common_1.InternalServerErrorException('Failed to deactivate staff member');
@@ -153,7 +166,9 @@ let UserService = class UserService {
     }
     async activateStaff(userId) {
         try {
-            const user = await this.userRepository.findOne({ where: { id: userId } });
+            const user = await this.userRepository.findOne({
+                where: { id: userId },
+            });
             if (!user) {
                 throw new common_1.NotFoundException('Staff member not found');
             }
@@ -179,21 +194,33 @@ let UserService = class UserService {
         try {
             const totalStaff = await this.userRepository.count({
                 where: {
-                    role: (0, typeorm_1.In)([entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV])
-                }
+                    role: (0, typeorm_1.In)([
+                        entity_enum_1.UserRoleEnum.ADMIN,
+                        entity_enum_1.UserRoleEnum.MANAGER,
+                        entity_enum_1.UserRoleEnum.DEV,
+                    ]),
+                },
             });
             const activeStaff = await this.userRepository.count({
                 where: {
-                    role: (0, typeorm_1.In)([entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV]),
-                    isActive: true
-                }
+                    role: (0, typeorm_1.In)([
+                        entity_enum_1.UserRoleEnum.ADMIN,
+                        entity_enum_1.UserRoleEnum.MANAGER,
+                        entity_enum_1.UserRoleEnum.DEV,
+                    ]),
+                    isActive: true,
+                },
             });
             const roleCounts = await this.userRepository
                 .createQueryBuilder('user')
                 .select('user.role', 'role')
                 .addSelect('COUNT(user.id)', 'count')
                 .where('user.role IN (:...roles)', {
-                roles: [entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV]
+                roles: [
+                    entity_enum_1.UserRoleEnum.ADMIN,
+                    entity_enum_1.UserRoleEnum.MANAGER,
+                    entity_enum_1.UserRoleEnum.DEV,
+                ],
             })
                 .andWhere('user.isActive = :isActive', { isActive: true })
                 .groupBy('user.role')
@@ -205,7 +232,7 @@ let UserService = class UserService {
                 byRole: roleCounts.reduce((acc, item) => {
                     acc[item.role] = parseInt(item.count);
                     return acc;
-                }, {})
+                }, {}),
             };
         }
         catch (error) {
@@ -216,7 +243,7 @@ let UserService = class UserService {
         try {
             const user = await this.userRepository.findOne({
                 where: { id },
-                relations: ['profileImage']
+                relations: ['profileImage'],
             });
             if (!user) {
                 throw new common_1.NotFoundException('User not found');
@@ -232,7 +259,9 @@ let UserService = class UserService {
     }
     async updateProfile(userId, updateProfileDto) {
         try {
-            const user = await this.userRepository.findOne({ where: { id: userId } });
+            const user = await this.userRepository.findOne({
+                where: { id: userId },
+            });
             if (!user) {
                 throw new common_1.NotFoundException('User not found');
             }
@@ -259,10 +288,14 @@ let UserService = class UserService {
         try {
             return await this.userRepository.find({
                 where: {
-                    role: (0, typeorm_1.In)([entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV]),
-                    isActive: true
+                    role: (0, typeorm_1.In)([
+                        entity_enum_1.UserRoleEnum.ADMIN,
+                        entity_enum_1.UserRoleEnum.MANAGER,
+                        entity_enum_1.UserRoleEnum.DEV,
+                    ]),
+                    isActive: true,
                 },
-                order: { fullName: 'ASC' }
+                order: { fullName: 'ASC' },
             });
         }
         catch (error) {

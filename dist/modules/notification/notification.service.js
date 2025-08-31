@@ -48,16 +48,34 @@ let NotificationService = NotificationService_1 = class NotificationService {
                 month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
-                minute: '2-digit'
+                minute: '2-digit',
             }).format(new Date(date));
         });
     }
     async getAudienceRecipients(audience) {
         switch (audience) {
             case entity_enum_1.NotificationAudienceEnum.ADMINS:
-                return this.userRepository.find({ where: { role: (0, typeorm_2.In)([entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV]) } });
+                return this.userRepository.find({
+                    where: {
+                        role: (0, typeorm_2.In)([
+                            entity_enum_1.UserRoleEnum.ADMIN,
+                            entity_enum_1.UserRoleEnum.MANAGER,
+                            entity_enum_1.UserRoleEnum.DEV,
+                        ]),
+                    },
+                });
             case entity_enum_1.NotificationAudienceEnum.ALL_EXCEPT_UNKNOWN:
-                return this.userRepository.find({ where: { role: (0, typeorm_2.In)([entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV, entity_enum_1.UserRoleEnum.SALES, entity_enum_1.UserRoleEnum.CUSTOMER]) } });
+                return this.userRepository.find({
+                    where: {
+                        role: (0, typeorm_2.In)([
+                            entity_enum_1.UserRoleEnum.ADMIN,
+                            entity_enum_1.UserRoleEnum.MANAGER,
+                            entity_enum_1.UserRoleEnum.DEV,
+                            entity_enum_1.UserRoleEnum.SALES,
+                            entity_enum_1.UserRoleEnum.CUSTOMER,
+                        ]),
+                    },
+                });
             case entity_enum_1.NotificationAudienceEnum.ALL:
             default:
                 return this.userRepository.find();
@@ -82,7 +100,7 @@ let NotificationService = NotificationService_1 = class NotificationService {
                     newUserId: user.id,
                     email: user.email,
                     fullName: user.fullName,
-                    adminPanelUrl
+                    adminPanelUrl,
                 },
             });
             const savedNotification = await this.notificationRepository.save(notification);
@@ -93,10 +111,10 @@ let NotificationService = NotificationService_1 = class NotificationService {
                             id: user.id,
                             email: user.email,
                             fullName: user.fullName || 'Not provided',
-                            createdAt: user.createdAt
+                            createdAt: user.createdAt,
                         },
                         adminPanelUrl,
-                        title: 'New User Registration'
+                        title: 'New User Registration',
                     });
                     await this.sendEmail({
                         to: recipient.email,
@@ -119,11 +137,20 @@ let NotificationService = NotificationService_1 = class NotificationService {
     }
     async getUserNotifications(userId) {
         try {
-            const user = await this.userRepository.findOne({ where: { id: userId } });
+            const user = await this.userRepository.findOne({
+                where: { id: userId },
+            });
             if (!user)
                 return [];
-            const visibleAudiences = [entity_enum_1.NotificationAudienceEnum.ALL, entity_enum_1.NotificationAudienceEnum.ALL_EXCEPT_UNKNOWN];
-            if ([entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV].includes(user.role)) {
+            const visibleAudiences = [
+                entity_enum_1.NotificationAudienceEnum.ALL,
+                entity_enum_1.NotificationAudienceEnum.ALL_EXCEPT_UNKNOWN,
+            ];
+            if ([
+                entity_enum_1.UserRoleEnum.ADMIN,
+                entity_enum_1.UserRoleEnum.MANAGER,
+                entity_enum_1.UserRoleEnum.DEV,
+            ].includes(user.role)) {
                 visibleAudiences.push(entity_enum_1.NotificationAudienceEnum.ADMINS);
             }
             return await this.notificationRepository.find({
@@ -163,7 +190,7 @@ let NotificationService = NotificationService_1 = class NotificationService {
                 throw new common_1.NotFoundException('Notification not found');
             }
             if (notification.user && notification.user.id !== userId) {
-                throw new common_1.ForbiddenException('Cannot modify others\' notifications');
+                throw new common_1.ForbiddenException("Cannot modify others' notifications");
             }
             if (!notification.isRead) {
                 await this.notificationRepository.update({ id: notification.id }, { isRead: true });
@@ -171,13 +198,14 @@ let NotificationService = NotificationService_1 = class NotificationService {
             return { message: 'Notification marked as read' };
         }
         catch (err) {
-            if (err instanceof common_1.NotFoundException || err instanceof common_1.ForbiddenException) {
+            if (err instanceof common_1.NotFoundException ||
+                err instanceof common_1.ForbiddenException) {
                 throw err;
             }
             throw err;
         }
     }
-    async sendEmail({ to, subject, html }) {
+    async sendEmail({ to, subject, html, }) {
         const fromName = this.configService.get('email.defaultFromName');
         const fromEmail = this.configService.get('email.defaultFromEmail');
         const info = await this.transporter.sendMail({
@@ -190,14 +218,18 @@ let NotificationService = NotificationService_1 = class NotificationService {
         return info;
     }
     renderTemplate(templateName, context) {
-        const templateDir = this.configService.get('email.templateDir') || 'templates/email';
+        const templateDir = this.configService.get('email.templateDir') ||
+            'templates/email';
         const layoutPath = path.resolve(templateDir, 'layout.hbs');
         const templatePath = path.resolve(templateDir, `${templateName}.hbs`);
         const layoutSrc = fs.readFileSync(layoutPath, 'utf8');
         const templateSrc = fs.readFileSync(templatePath, 'utf8');
         const layout = Handlebars.compile(layoutSrc);
         const content = Handlebars.compile(templateSrc)(context);
-        return layout({ title: context.title || 'Car Parts Shop', body: content });
+        return layout({
+            title: context.title || 'Car Parts Shop',
+            body: content,
+        });
     }
     async notifyVehicleCreated(vehicle, createdByUser) {
         try {
@@ -224,7 +256,7 @@ let NotificationService = NotificationService_1 = class NotificationService {
                     createdBy: createdByUser.id,
                     createdByEmail: createdByUser.email,
                     createdByFullName: createdByUser.fullName,
-                    vehicleUrl
+                    vehicleUrl,
                 },
             });
             await this.notificationRepository.save(notification);
@@ -239,18 +271,19 @@ let NotificationService = NotificationService_1 = class NotificationService {
                             purchasePrice: vehicle.purchasePrice,
                             description: vehicle.description,
                             auctionName: vehicle.auctionName,
-                            createdAt: vehicle.createdAt
+                            createdAt: vehicle.createdAt,
                         },
                         createdBy: {
-                            fullName: createdByUser.fullName || 'Unknown User',
-                            email: createdByUser.email
+                            fullName: createdByUser.fullName ||
+                                'Unknown User',
+                            email: createdByUser.email,
                         },
-                        vehicleUrl
+                        vehicleUrl,
                     });
                     await this.sendEmail({
                         to: recipient.email,
                         subject: title,
-                        html
+                        html,
                     });
                 }
                 catch (emailErr) {
@@ -289,7 +322,7 @@ let NotificationService = NotificationService_1 = class NotificationService {
                     updatedBy: updatedByUser.id,
                     updatedByEmail: updatedByUser.email,
                     updatedByFullName: updatedByUser.fullName,
-                    vehicleUrl
+                    vehicleUrl,
                 },
             });
             await this.notificationRepository.save(notification);
@@ -301,18 +334,19 @@ let NotificationService = NotificationService_1 = class NotificationService {
                             model: vehicle.model,
                             year: vehicle.year,
                             vin: vehicle.vin,
-                            changes
+                            changes,
                         },
                         updatedBy: {
-                            fullName: updatedByUser.fullName || 'Unknown User',
-                            email: updatedByUser.email
+                            fullName: updatedByUser.fullName ||
+                                'Unknown User',
+                            email: updatedByUser.email,
                         },
-                        vehicleUrl
+                        vehicleUrl,
                     });
                     await this.sendEmail({
                         to: recipient.email,
                         subject: title,
-                        html
+                        html,
                     });
                 }
                 catch (emailErr) {
@@ -349,7 +383,7 @@ let NotificationService = NotificationService_1 = class NotificationService {
                     deletedBy: deletedByUser.id,
                     deletedByEmail: deletedByUser.email,
                     deletedByFullName: deletedByUser.fullName,
-                    adminUrl
+                    adminUrl,
                 },
             });
             await this.notificationRepository.save(notification);
@@ -360,18 +394,19 @@ let NotificationService = NotificationService_1 = class NotificationService {
                             make: vehicle.make,
                             model: vehicle.model,
                             year: vehicle.year,
-                            vin: vehicle.vin
+                            vin: vehicle.vin,
                         },
                         deletedBy: {
-                            fullName: deletedByUser.fullName || 'Unknown User',
-                            email: deletedByUser.email
+                            fullName: deletedByUser.fullName ||
+                                'Unknown User',
+                            email: deletedByUser.email,
                         },
-                        adminUrl
+                        adminUrl,
                     });
                     await this.sendEmail({
                         to: recipient.email,
                         subject: title,
-                        html
+                        html,
                     });
                 }
                 catch (emailErr) {
@@ -405,7 +440,7 @@ let NotificationService = NotificationService_1 = class NotificationService {
                     updatedBy: updatedByUser.id,
                     updatedByEmail: updatedByUser.email,
                     updatedByFullName: updatedByUser.fullName,
-                    vehicleUrl
+                    vehicleUrl,
                 },
             });
             await this.notificationRepository.save(notification);
@@ -416,18 +451,19 @@ let NotificationService = NotificationService_1 = class NotificationService {
                             make: vehicle.make,
                             model: vehicle.model,
                             year: vehicle.year,
-                            vin: vehicle.vin
+                            vin: vehicle.vin,
                         },
                         updatedBy: {
-                            fullName: updatedByUser.fullName || 'Unknown User',
-                            email: updatedByUser.email
+                            fullName: updatedByUser.fullName ||
+                                'Unknown User',
+                            email: updatedByUser.email,
                         },
-                        vehicleUrl
+                        vehicleUrl,
                     });
                     await this.sendEmail({
                         to: recipient.email,
                         subject: title,
-                        html
+                        html,
                     });
                 }
                 catch (emailErr) {

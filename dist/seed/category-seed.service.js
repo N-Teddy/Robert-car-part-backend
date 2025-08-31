@@ -24,12 +24,19 @@ let CategorySeedService = class CategorySeedService {
     }
     async run() {
         const treeRepo = this.categoryRepository.manager.getTreeRepository(category_entity_1.Category);
-        let root = await this.categoryRepository.findOne({ where: { name: 'ROOT' } });
+        let root = await this.categoryRepository.findOne({
+            where: { name: 'ROOT' },
+        });
         if (!root) {
-            root = this.categoryRepository.create({ name: 'ROOT', description: 'Root category' });
+            root = this.categoryRepository.create({
+                name: 'ROOT',
+                description: 'Root category',
+            });
             root = await treeRepo.save(root);
         }
-        const orphanRoots = await this.categoryRepository.find({ where: { parent: (0, typeorm_2.IsNull)() } });
+        const orphanRoots = await this.categoryRepository.find({
+            where: { parent: (0, typeorm_2.IsNull)() },
+        });
         for (const orphan of orphanRoots) {
             if (orphan.id === root.id || orphan.name === 'ROOT')
                 continue;
@@ -37,7 +44,9 @@ let CategorySeedService = class CategorySeedService {
             await treeRepo.save(orphan);
         }
         for (const seed of categories_data_1.seedCategoriesData) {
-            let node = await this.categoryRepository.findOne({ where: { name: seed.name } });
+            let node = await this.categoryRepository.findOne({
+                where: { name: seed.name },
+            });
             if (node) {
                 node.parent = root;
                 node.description = seed.description;

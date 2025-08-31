@@ -4,4 +4,4 @@ import { ResponseMessageEnum } from '../enum/response-message.enum';
 
 export const RESPONSE_MESSAGE_KEY = 'responseMessage';
 export const ResponseMessage = (message: ResponseMessageEnum) =>
-    SetMetadata(RESPONSE_MESSAGE_KEY, message);
+	SetMetadata(RESPONSE_MESSAGE_KEY, message);

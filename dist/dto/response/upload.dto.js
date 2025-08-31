@@ -136,8 +136,8 @@ __decorate([
         description: 'Breakdown of files by type',
         example: {
             'USER PROFILE': 25,
-            'VEHICLE': 100,
-            'PART': 25,
+            VEHICLE: 100,
+            PART: 25,
         },
     }),
     __metadata("design:type", Object)

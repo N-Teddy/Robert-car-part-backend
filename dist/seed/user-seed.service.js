@@ -26,7 +26,9 @@ let UserSeedService = class UserSeedService {
     async run() {
         const saltRounds = 12;
         for (const seed of users_data_1.seedUsersData) {
-            const existing = await this.userRepository.findOne({ where: { email: seed.email } });
+            const existing = await this.userRepository.findOne({
+                where: { email: seed.email },
+            });
             const hashedPassword = await bcrypt.hash(seed.password, saltRounds);
             if (existing) {
                 await this.userRepository.update({ id: existing.id }, {

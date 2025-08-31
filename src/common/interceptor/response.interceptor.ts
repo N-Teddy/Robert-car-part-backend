@@ -1,9 +1,9 @@
 // src/common/interceptors/response.interceptor.ts
 import {
-    Injectable,
-    NestInterceptor,
-    ExecutionContext,
-    CallHandler,
+	Injectable,
+	NestInterceptor,
+	ExecutionContext,
+	CallHandler,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { map, Observable } from 'rxjs';
@@ -12,19 +12,20 @@ import { ResponseMessageEnum } from '../enum/response-message.enum';
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
-  constructor(private reflector: Reflector) {}
+	constructor(private reflector: Reflector) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const responseMessage = this.reflector.get<ResponseMessageEnum>(
-      RESPONSE_MESSAGE_KEY,
-      context.getHandler(),
-    ) || ResponseMessageEnum.SUCCESS;
+	intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+		const responseMessage =
+			this.reflector.get<ResponseMessageEnum>(
+				RESPONSE_MESSAGE_KEY,
+				context.getHandler()
+			) || ResponseMessageEnum.SUCCESS;
 
-    return next.handle().pipe(
-      map((data) => ({
-        message: responseMessage,
-        data,
-      })),
-    );
-  }
+		return next.handle().pipe(
+			map((data) => ({
+				message: responseMessage,
+				data,
+			}))
+		);
+	}
 }

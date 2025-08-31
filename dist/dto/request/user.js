@@ -17,7 +17,11 @@ class AssignRoleDto {
 }
 exports.AssignRoleDto = AssignRoleDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'New role to assign', enum: entity_enum_1.UserRoleEnum, example: entity_enum_1.UserRoleEnum.MANAGER }),
+    (0, swagger_1.ApiProperty)({
+        description: 'New role to assign',
+        enum: entity_enum_1.UserRoleEnum,
+        example: entity_enum_1.UserRoleEnum.MANAGER,
+    }),
     (0, class_validator_1.IsEnum)(entity_enum_1.UserRoleEnum),
     __metadata("design:type", String)
 ], AssignRoleDto.prototype, "role", void 0);

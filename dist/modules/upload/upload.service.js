@@ -73,7 +73,9 @@ let UploadService = UploadService_1 = class UploadService {
     }
     async deleteImage(imageId) {
         try {
-            const image = await this.imageRepository.findOne({ where: { id: imageId } });
+            const image = await this.imageRepository.findOne({
+                where: { id: imageId },
+            });
             if (!image) {
                 throw new common_1.BadRequestException('Image not found');
             }
@@ -100,7 +102,9 @@ let UploadService = UploadService_1 = class UploadService {
     }
     async updateImage(imageId, file, folder) {
         try {
-            const image = await this.imageRepository.findOne({ where: { id: imageId } });
+            const image = await this.imageRepository.findOne({
+                where: { id: imageId },
+            });
             if (!image) {
                 throw new common_1.BadRequestException('Image not found');
             }

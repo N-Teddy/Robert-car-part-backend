@@ -63,7 +63,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Purchase price of the vehicle',
-        example: 15000.00,
+        example: 15000.0,
         minimum: 0,
     }),
     (0, class_validator_1.IsNumber)(),
@@ -158,7 +158,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Purchase price of the vehicle',
-        example: 15000.00,
+        example: 15000.0,
         minimum: 0,
         required: false,
     }),
@@ -377,7 +377,15 @@ __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Sort field',
         example: 'createdAt',
-        enum: ['make', 'model', 'year', 'purchasePrice', 'purchaseDate', 'createdAt', 'updatedAt'],
+        enum: [
+            'make',
+            'model',
+            'year',
+            'purchasePrice',
+            'purchaseDate',
+            'createdAt',
+            'updatedAt',
+        ],
         default: 'createdAt',
     }),
     (0, class_validator_1.IsOptional)(),

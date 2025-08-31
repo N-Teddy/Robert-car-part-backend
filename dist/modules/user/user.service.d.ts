@@ -1,7 +1,7 @@
-import { User } from "src/entities/user.entity";
-import { DataSource, Repository } from "typeorm";
-import { NotificationService } from "../notification/notification.service";
-import { CreateStaffDto, StaffFilterDto, StaffStatisticsDto, UpdateProfileDto, UpdateStaffDto } from "src/dto/request/user";
+import { User } from 'src/entities/user.entity';
+import { DataSource, Repository } from 'typeorm';
+import { NotificationService } from '../notification/notification.service';
+import { CreateStaffDto, StaffFilterDto, StaffStatisticsDto, UpdateProfileDto, UpdateStaffDto } from 'src/dto/request/user';
 export declare class UserService {
     private readonly userRepository;
     private readonly dataSource;

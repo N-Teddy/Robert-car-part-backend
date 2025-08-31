@@ -26,7 +26,13 @@ const entity_enum_2 = require("../../common/enum/entity.enum");
 const vehicle_dto_1 = require("../../dto/request/vehicle.dto");
 const vehicle_dto_2 = require("../../dto/response/vehicle.dto");
 const validateImageMimeType = (file) => {
-    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedMimeTypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+    ];
     if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new common_1.BadRequestException(`File type ${file.mimetype} is not allowed. Allowed types: ${allowedMimeTypes.join(', ')}`);
     }
@@ -47,8 +53,8 @@ let VehicleController = class VehicleController {
     }
     async createVehiclesBulk(bulkCreateDto, req) {
         const results = await this.vehicleService.createVehiclesBulk(bulkCreateDto, req.user.id);
-        const successful = results.filter(r => !r.error).length;
-        const failed = results.filter(r => r.error).length;
+        const successful = results.filter((r) => !r.error).length;
+        const failed = results.filter((r) => r.error).length;
         return {
             message: 'Bulk vehicle creation completed',
             data: results,
@@ -61,8 +67,8 @@ let VehicleController = class VehicleController {
     }
     async updateVehiclesBulk(bulkUpdateDto, req) {
         const results = await this.vehicleService.updateVehiclesBulk(bulkUpdateDto, req.user.id);
-        const successful = results.filter(r => !r.error).length;
-        const failed = results.filter(r => r.error).length;
+        const successful = results.filter((r) => !r.error).length;
+        const failed = results.filter((r) => r.error).length;
         return {
             message: 'Bulk vehicle update completed',
             data: results,
@@ -170,7 +176,11 @@ __decorate([
         summary: 'Create a new vehicle',
         description: 'Create a new vehicle with the provided details. VIN must be unique.',
     }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Vehicle created successfully', type: vehicle_dto_2.VehicleResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Vehicle created successfully',
+        type: vehicle_dto_2.VehicleResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 409, description: 'VIN already exists' }),
@@ -187,7 +197,11 @@ __decorate([
         summary: 'Create multiple vehicles',
         description: 'Create multiple vehicles in a single request. Duplicate VINs will be skipped.',
     }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Bulk vehicle creation completed', type: vehicle_dto_2.BulkCreateResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Bulk vehicle creation completed',
+        type: vehicle_dto_2.BulkCreateResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV),
@@ -203,7 +217,11 @@ __decorate([
         summary: 'Update multiple vehicles',
         description: 'Update multiple vehicles in a single request.',
     }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Bulk vehicle update completed', type: vehicle_dto_2.BulkUpdateResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Bulk vehicle update completed',
+        type: vehicle_dto_2.BulkUpdateResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV),
@@ -219,21 +237,77 @@ __decorate([
         summary: 'Get all vehicles',
         description: 'Retrieve vehicles with optional search, filtering, and pagination.',
     }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Vehicles retrieved successfully', type: vehicle_dto_2.VehiclesResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Vehicles retrieved successfully',
+        type: vehicle_dto_2.VehiclesResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
-    (0, swagger_1.ApiQuery)({ name: 'make', required: false, description: 'Filter by vehicle make' }),
-    (0, swagger_1.ApiQuery)({ name: 'model', required: false, description: 'Filter by vehicle model' }),
-    (0, swagger_1.ApiQuery)({ name: 'year', required: false, description: 'Filter by vehicle year' }),
-    (0, swagger_1.ApiQuery)({ name: 'vin', required: false, description: 'Filter by VIN (partial match)' }),
-    (0, swagger_1.ApiQuery)({ name: 'isPartedOut', required: false, description: 'Filter by parted out status' }),
-    (0, swagger_1.ApiQuery)({ name: 'minPrice', required: false, description: 'Minimum purchase price' }),
-    (0, swagger_1.ApiQuery)({ name: 'maxPrice', required: false, description: 'Maximum purchase price' }),
-    (0, swagger_1.ApiQuery)({ name: 'purchaseDateFrom', required: false, description: 'Purchase date from (YYYY-MM-DD)' }),
-    (0, swagger_1.ApiQuery)({ name: 'purchaseDateTo', required: false, description: 'Purchase date to (YYYY-MM-DD)' }),
-    (0, swagger_1.ApiQuery)({ name: 'page', required: false, description: 'Page number (default: 1)' }),
-    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, description: 'Items per page (default: 10, max: 100)' }),
-    (0, swagger_1.ApiQuery)({ name: 'sortBy', required: false, description: 'Sort field (default: createdAt)' }),
-    (0, swagger_1.ApiQuery)({ name: 'sortOrder', required: false, description: 'Sort order: ASC or DESC (default: DESC)' }),
+    (0, swagger_1.ApiQuery)({
+        name: 'make',
+        required: false,
+        description: 'Filter by vehicle make',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'model',
+        required: false,
+        description: 'Filter by vehicle model',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'year',
+        required: false,
+        description: 'Filter by vehicle year',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'vin',
+        required: false,
+        description: 'Filter by VIN (partial match)',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'isPartedOut',
+        required: false,
+        description: 'Filter by parted out status',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'minPrice',
+        required: false,
+        description: 'Minimum purchase price',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'maxPrice',
+        required: false,
+        description: 'Maximum purchase price',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'purchaseDateFrom',
+        required: false,
+        description: 'Purchase date from (YYYY-MM-DD)',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'purchaseDateTo',
+        required: false,
+        description: 'Purchase date to (YYYY-MM-DD)',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'page',
+        required: false,
+        description: 'Page number (default: 1)',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'limit',
+        required: false,
+        description: 'Items per page (default: 10, max: 100)',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'sortBy',
+        required: false,
+        description: 'Sort field (default: createdAt)',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'sortOrder',
+        required: false,
+        description: 'Sort order: ASC or DESC (default: DESC)',
+    }),
     __param(0, (0, common_1.Query)()),
     __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
@@ -247,7 +321,11 @@ __decorate([
         summary: 'Get vehicle statistics',
         description: 'Retrieve comprehensive statistics about all vehicles including financial metrics.',
     }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Vehicle statistics retrieved successfully', type: vehicle_dto_2.VehicleStatsResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Vehicle statistics retrieved successfully',
+        type: vehicle_dto_2.VehicleStatsResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV),
     __metadata("design:type", Function),
@@ -260,7 +338,11 @@ __decorate([
         summary: 'Export vehicles',
         description: 'Export vehicles to CSV or PDF format with optional filtering.',
     }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Vehicle export completed successfully', type: vehicle_dto_2.VehicleExportResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Vehicle export completed successfully',
+        type: vehicle_dto_2.VehicleExportResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV),
@@ -275,7 +357,11 @@ __decorate([
         summary: 'Get vehicle by ID',
         description: 'Retrieve a specific vehicle by its ID with all related data.',
     }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Vehicle retrieved successfully', type: vehicle_dto_2.VehicleResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Vehicle retrieved successfully',
+        type: vehicle_dto_2.VehicleResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Vehicle not found' }),
     __param(0, (0, common_1.Param)('id')),
@@ -289,7 +375,11 @@ __decorate([
         summary: 'Get vehicle by VIN',
         description: 'Retrieve a specific vehicle by its VIN with all related data.',
     }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Vehicle retrieved successfully', type: vehicle_dto_2.VehicleResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Vehicle retrieved successfully',
+        type: vehicle_dto_2.VehicleResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Vehicle not found' }),
     __param(0, (0, common_1.Param)('vin')),
@@ -303,7 +393,11 @@ __decorate([
         summary: 'Update vehicle',
         description: 'Update an existing vehicle. VIN uniqueness will be validated if changed.',
     }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Vehicle updated successfully', type: vehicle_dto_2.VehicleResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Vehicle updated successfully',
+        type: vehicle_dto_2.VehicleResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Vehicle not found' }),
@@ -322,7 +416,11 @@ __decorate([
         summary: 'Mark vehicle as parted out',
         description: 'Mark a vehicle as parted out when parts start being sold.',
     }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Vehicle marked as parted out successfully', type: vehicle_dto_2.VehicleResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Vehicle marked as parted out successfully',
+        type: vehicle_dto_2.VehicleResponseDto,
+    }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Vehicle not found' }),
@@ -340,7 +438,10 @@ __decorate([
         summary: 'Upload vehicle images',
         description: 'Upload multiple images for a specific vehicle.',
     }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Vehicle images uploaded successfully' }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Vehicle images uploaded successfully',
+    }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Vehicle not found' }),
@@ -363,7 +464,10 @@ __decorate([
         description: 'Permanently delete a vehicle. Cannot delete if it has existing parts.',
     }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Vehicle deleted successfully' }),
-    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request - Vehicle has parts' }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Bad request - Vehicle has parts',
+    }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Vehicle not found' }),
     (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER),

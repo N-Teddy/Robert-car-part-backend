@@ -14,25 +14,25 @@ import { AuditLog } from '../../entities/audit-log.entity';
 import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([User, PasswordResetToken, AuditLog]),
-        PassportModule,
-        JwtModule.registerAsync({
-            imports: [ConfigModule],
-            inject: [ConfigService],
-            useFactory: (configService: ConfigService) => ({
-                secret: configService.get('jwt.secret'),
-                signOptions: {
-                    expiresIn: configService.get('jwt.expiresIn'),
-                    issuer: configService.get('jwt.issuer'),
-                    audience: configService.get('jwt.audience'),
-                },
-            }),
-        }),
-        NotificationModule,
-    ],
-    controllers: [AuthController],
-    providers: [AuthService, JwtStrategy, LocalStrategy],
-    exports: [AuthService, JwtModule],
+	imports: [
+		TypeOrmModule.forFeature([User, PasswordResetToken, AuditLog]),
+		PassportModule,
+		JwtModule.registerAsync({
+			imports: [ConfigModule],
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService) => ({
+				secret: configService.get('jwt.secret'),
+				signOptions: {
+					expiresIn: configService.get('jwt.expiresIn'),
+					issuer: configService.get('jwt.issuer'),
+					audience: configService.get('jwt.audience'),
+				},
+			}),
+		}),
+		NotificationModule,
+	],
+	controllers: [AuthController],
+	providers: [AuthService, JwtStrategy, LocalStrategy],
+	exports: [AuthService, JwtModule],
 })
-export class AuthModule { }
+export class AuthModule {}
