@@ -76,12 +76,6 @@ export class AuthService {
 				throw new UnauthorizedException('Invalid credentials');
 			}
 
-			await this.createAuditLog(
-				user.id,
-				AuditActionEnum.LOGIN,
-				'User logged in'
-			);
-
 			const payload = {
 				sub: user.id,
 				email: user.email,
@@ -147,12 +141,6 @@ export class AuthService {
 			});
 
 			const savedUser = await queryRunner.manager.save(user);
-
-			await this.createAuditLog(
-				savedUser.id,
-				AuditActionEnum.CREATE,
-				'User registered'
-			);
 
 			const payload = {
 				sub: savedUser.id,
@@ -294,11 +282,6 @@ export class AuthService {
 
 			await this.passwordResetTokenRepository.remove(resetTokenEntity);
 
-			await this.createAuditLog(
-				user.id,
-				AuditActionEnum.UPDATE,
-				'Password reset'
-			);
 			const resetConfirmHtml = this.notificationService.renderTemplate(
 				'password-reset-confirm',
 				{}
@@ -348,11 +331,6 @@ export class AuthService {
 			user.isFirstLogin = false;
 			await this.userRepository.save(user);
 
-			await this.createAuditLog(
-				userId,
-				AuditActionEnum.UPDATE,
-				'Password changed'
-			);
 			const changeConfirmHtml = this.notificationService.renderTemplate(
 				'password-change-confirm',
 				{}
@@ -413,11 +391,6 @@ export class AuthService {
 
 	async logout(userId: string) {
 		try {
-			await this.createAuditLog(
-				userId,
-				AuditActionEnum.LOGOUT,
-				'User logged out'
-			);
 			return { message: 'Logged out successfully' };
 		} catch (err) {
 			throw new InternalServerErrorException('Failed to logout');
@@ -470,12 +443,6 @@ export class AuthService {
 			user.isFirstLogin = false;
 			await queryRunner.manager.save(user);
 
-			await this.createAuditLog(
-				targetUserId,
-				AuditActionEnum.UPDATE,
-				`Role assigned: ${role}`
-			);
-
 			// send notification/email
 			const roleHtml = this.notificationService.renderTemplate(
 				'role-assigned',
@@ -500,22 +467,4 @@ export class AuthService {
 		}
 	}
 
-	private async createAuditLog(
-		userId: string,
-		action: AuditActionEnum,
-		description: string
-	) {
-		const auditLog = this.auditLogRepository.create({
-			createdBy: userId,
-			user: { id: userId },
-			action,
-			entity: 'User',
-			details: { description },
-			route: '/api/auth',
-			userId,
-			timestamp: new Date(),
-		});
-
-		await this.auditLogRepository.save(auditLog);
-	}
 }

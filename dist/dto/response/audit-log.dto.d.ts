@@ -1,8 +1,6 @@
-import { User } from './user.entity';
 import { AuditActionEnum } from 'src/common/enum/entity.enum';
-import { BaseEntity } from './base.entity';
-export declare class AuditLog extends BaseEntity {
-    user: User | null;
+export declare class AuditLogResponseDto {
+    id: string;
     action: AuditActionEnum;
     entity: string;
     details: any;
@@ -10,4 +8,8 @@ export declare class AuditLog extends BaseEntity {
     timestamp: Date;
     ipAddress: string;
     userAgent: string;
+    userId: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    constructor(auditLog: any);
 }

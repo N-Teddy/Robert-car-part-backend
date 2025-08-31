@@ -72,5 +72,4 @@ export declare class AuthService {
     assignRole(targetUserId: string, role: UserRoleEnum): Promise<{
         message: string;
     }>;
-    private createAuditLog;
 }

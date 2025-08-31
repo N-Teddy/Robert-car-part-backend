@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SupabaseService } from './common/services/supabase.service';
@@ -31,6 +31,8 @@ import supabaseConfig from './config/supabase.config';
 import jwtConfig from './config/jwt.config';
 import emailConfig from './config/email.config';
 import { UserModule } from './modules/user/user.module';
+import { AuditLogModule } from './modules/audit-log/audit-log.module';
+import { AuditLogInterceptor } from './common/interceptor/audit-log.interceptor';
 
 @Module({
 	imports: [
@@ -142,6 +144,7 @@ import { UserModule } from './modules/user/user.module';
 		UserModule,
 		UploadModule,
 		VehicleModule,
+		AuditLogModule
 	],
 	controllers: [AppController],
 	providers: [
@@ -150,6 +153,10 @@ import { UserModule } from './modules/user/user.module';
 		{
 			provide: APP_GUARD,
 			useClass: ThrottlerGuard,
+		},
+		{
+			provide: APP_INTERCEPTOR,
+			useClass: AuditLogInterceptor,
 		},
 	],
 })

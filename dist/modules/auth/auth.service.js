@@ -63,7 +63,6 @@ let AuthService = class AuthService {
             if (!isPasswordValid) {
                 throw new common_1.UnauthorizedException('Invalid credentials');
             }
-            await this.createAuditLog(user.id, entity_enum_1.AuditActionEnum.LOGIN, 'User logged in');
             const payload = {
                 sub: user.id,
                 email: user.email,
@@ -118,7 +117,6 @@ let AuthService = class AuthService {
                 isFirstLogin: true,
             });
             const savedUser = await queryRunner.manager.save(user);
-            await this.createAuditLog(savedUser.id, entity_enum_1.AuditActionEnum.CREATE, 'User registered');
             const payload = {
                 sub: savedUser.id,
                 email: savedUser.email,
@@ -230,7 +228,6 @@ let AuthService = class AuthService {
             user.isFirstLogin = false;
             await this.userRepository.save(user);
             await this.passwordResetTokenRepository.remove(resetTokenEntity);
-            await this.createAuditLog(user.id, entity_enum_1.AuditActionEnum.UPDATE, 'Password reset');
             const resetConfirmHtml = this.notificationService.renderTemplate('password-reset-confirm', {});
             await this.notificationService.sendEmail({
                 to: user.email,
@@ -264,7 +261,6 @@ let AuthService = class AuthService {
             user.password = hashedPassword;
             user.isFirstLogin = false;
             await this.userRepository.save(user);
-            await this.createAuditLog(userId, entity_enum_1.AuditActionEnum.UPDATE, 'Password changed');
             const changeConfirmHtml = this.notificationService.renderTemplate('password-change-confirm', {});
             await this.notificationService.sendEmail({
                 to: user.email,
@@ -315,7 +311,6 @@ let AuthService = class AuthService {
     }
     async logout(userId) {
         try {
-            await this.createAuditLog(userId, entity_enum_1.AuditActionEnum.LOGOUT, 'User logged out');
             return { message: 'Logged out successfully' };
         }
         catch (err) {
@@ -359,7 +354,6 @@ let AuthService = class AuthService {
             user.role = role;
             user.isFirstLogin = false;
             await queryRunner.manager.save(user);
-            await this.createAuditLog(targetUserId, entity_enum_1.AuditActionEnum.UPDATE, `Role assigned: ${role}`);
             const roleHtml = this.notificationService.renderTemplate('role-assigned', { role });
             await this.notificationService.sendEmail({
                 to: user.email,
@@ -376,19 +370,6 @@ let AuthService = class AuthService {
         finally {
             await queryRunner.release();
         }
-    }
-    async createAuditLog(userId, action, description) {
-        const auditLog = this.auditLogRepository.create({
-            createdBy: userId,
-            user: { id: userId },
-            action,
-            entity: 'User',
-            details: { description },
-            route: '/api/auth',
-            userId,
-            timestamp: new Date(),
-        });
-        await this.auditLogRepository.save(auditLog);
     }
 };
 exports.AuthService = AuthService;
