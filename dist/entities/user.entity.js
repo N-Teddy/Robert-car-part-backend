@@ -49,7 +49,13 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "isActive", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => image_entity_1.Image, { nullable: true }),
+    (0, typeorm_1.OneToOne)(() => image_entity_1.Image, (image) => image.user, {
+        nullable: true,
+        eager: false,
+        cascade: false,
+        onDelete: 'SET NULL'
+    }),
+    (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", image_entity_1.Image)
 ], User.prototype, "profileImage", void 0);
 __decorate([

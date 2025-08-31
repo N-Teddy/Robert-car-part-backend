@@ -1,11 +1,12 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Image } from '../../entities/image.entity';
 import { CloudinaryService } from './cloudinary.service';
 import { LocalStorageService } from './local-storage.service';
 import { ImageEnum } from '../../common/enum/entity.enum';
+import { User } from 'src/entities/user.entity';
 
 export interface UploadResult {
 	url: string;
@@ -24,7 +25,11 @@ export class UploadService {
 		private cloudinaryService: CloudinaryService,
 		private localStorageService: LocalStorageService,
 		@InjectRepository(Image)
-		private imageRepository: Repository<Image>
+		private imageRepository: Repository<Image>,
+		@InjectRepository(User)
+		private readonly userRepository: Repository<User>,
+		private readonly dataSource: DataSource
+
 	) {}
 
 	async uploadImage(
@@ -70,7 +75,25 @@ export class UploadService {
 			if (entityId && entityType) {
 				switch (entityType) {
 					case 'user':
-						image.user = { id: entityId } as any;
+						const user = await this.userRepository.findOne({
+							where: { id: entityId },
+							relations: ['profileImage'] // Load existing profile image
+						});
+
+						if (user) {
+							// If user already has a profile image, delete the old one
+							if (user.profileImage) {
+								await this.deleteImage(user.profileImage.id);
+							}
+
+							// Set the bidirectional relationship
+							image.user = user;
+							user.profileImage = image;
+
+							// Save both entities
+							await this.imageRepository.save(image);
+							await this.userRepository.save(user);
+						}
 						break;
 					case 'vehicle':
 						image.vehicle = { id: entityId } as any;
@@ -79,6 +102,8 @@ export class UploadService {
 						image.part = { id: entityId } as any;
 						break;
 				}
+			} else {
+				await this.imageRepository.save(image);
 			}
 
 			const savedImage = await this.imageRepository.save(image);

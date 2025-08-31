@@ -21,12 +21,15 @@ const typeorm_2 = require("typeorm");
 const image_entity_1 = require("../../entities/image.entity");
 const cloudinary_service_1 = require("./cloudinary.service");
 const local_storage_service_1 = require("./local-storage.service");
+const user_entity_1 = require("../../entities/user.entity");
 let UploadService = UploadService_1 = class UploadService {
-    constructor(configService, cloudinaryService, localStorageService, imageRepository) {
+    constructor(configService, cloudinaryService, localStorageService, imageRepository, userRepository, dataSource) {
         this.configService = configService;
         this.cloudinaryService = cloudinaryService;
         this.localStorageService = localStorageService;
         this.imageRepository = imageRepository;
+        this.userRepository = userRepository;
+        this.dataSource = dataSource;
         this.logger = new common_1.Logger(UploadService_1.name);
     }
     async uploadImage(file, imageType, entityId, entityType, folder) {
@@ -46,7 +49,19 @@ let UploadService = UploadService_1 = class UploadService {
             if (entityId && entityType) {
                 switch (entityType) {
                     case 'user':
-                        image.user = { id: entityId };
+                        const user = await this.userRepository.findOne({
+                            where: { id: entityId },
+                            relations: ['profileImage']
+                        });
+                        if (user) {
+                            if (user.profileImage) {
+                                await this.deleteImage(user.profileImage.id);
+                            }
+                            image.user = user;
+                            user.profileImage = image;
+                            await this.imageRepository.save(image);
+                            await this.userRepository.save(user);
+                        }
                         break;
                     case 'vehicle':
                         image.vehicle = { id: entityId };
@@ -55,6 +70,9 @@ let UploadService = UploadService_1 = class UploadService {
                         image.part = { id: entityId };
                         break;
                 }
+            }
+            else {
+                await this.imageRepository.save(image);
             }
             const savedImage = await this.imageRepository.save(image);
             this.logger.log(`Image uploaded successfully: ${savedImage.id}`);
@@ -213,9 +231,12 @@ exports.UploadService = UploadService;
 exports.UploadService = UploadService = UploadService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(3, (0, typeorm_1.InjectRepository)(image_entity_1.Image)),
+    __param(4, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [config_1.ConfigService,
         cloudinary_service_1.CloudinaryService,
         local_storage_service_1.LocalStorageService,
-        typeorm_2.Repository])
+        typeorm_2.Repository,
+        typeorm_2.Repository,
+        typeorm_2.DataSource])
 ], UploadService);
 //# sourceMappingURL=upload.service.js.map

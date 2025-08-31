@@ -19,6 +19,7 @@ const local_storage_service_1 = require("./local-storage.service");
 const static_file_middleware_1 = require("./static-file.middleware");
 const multer_1 = require("multer");
 const uuid_1 = require("uuid");
+const user_entity_1 = require("../../entities/user.entity");
 let UploadModule = class UploadModule {
     configure(consumer) {
         consumer
@@ -62,7 +63,7 @@ exports.UploadModule = UploadModule = __decorate([
                     }
                 },
             }),
-            typeorm_1.TypeOrmModule.forFeature([image_entity_1.Image]),
+            typeorm_1.TypeOrmModule.forFeature([image_entity_1.Image, user_entity_1.User]),
         ],
         controllers: [upload_controller_1.UploadController],
         providers: [upload_service_1.UploadService, cloudinary_service_1.CloudinaryService, local_storage_service_1.LocalStorageService],

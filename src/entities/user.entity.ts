@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, ManyToOne } from 'typeorm';
+import { Column, Entity, OneToMany, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
 import { PasswordResetToken } from './password-reset-token.entity';
 import { Notification } from './notification.entity';
 import { Image } from './image.entity';
@@ -29,7 +29,13 @@ export class User extends BaseEntity {
 	@Column({ default: true })
 	isActive: boolean;
 
-	@ManyToOne(() => Image, { nullable: true })
+	@OneToOne(() => Image, (image) => image.user, {
+		nullable: true,
+		eager: false,
+		cascade: false,
+		onDelete: 'SET NULL'
+	})
+	@JoinColumn() // This creates the foreign key in the users table
 	profileImage?: Image;
 
 	@OneToMany(() => PasswordResetToken, (token) => token.user)

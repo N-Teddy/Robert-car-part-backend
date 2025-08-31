@@ -28,7 +28,10 @@ __decorate([
     __metadata("design:type", String)
 ], Image.prototype, "type", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.profileImage, { nullable: true }),
+    (0, typeorm_1.OneToOne)(() => user_entity_1.User, (user) => user.profileImage, {
+        nullable: true,
+        onDelete: 'CASCADE'
+    }),
     __metadata("design:type", user_entity_1.User)
 ], Image.prototype, "user", void 0);
 __decorate([

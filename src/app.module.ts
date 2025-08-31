@@ -33,6 +33,7 @@ import emailConfig from './config/email.config';
 import { UserModule } from './modules/user/user.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { AuditLogInterceptor } from './common/interceptor/audit-log.interceptor';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
 	imports: [
@@ -144,7 +145,8 @@ import { AuditLogInterceptor } from './common/interceptor/audit-log.interceptor'
 		UserModule,
 		UploadModule,
 		VehicleModule,
-		AuditLogModule
+		AuditLogModule,
+		CategoryModule,
 	],
 	controllers: [AppController],
 	providers: [

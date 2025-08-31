@@ -40,6 +40,7 @@ const email_config_1 = require("./config/email.config");
 const user_module_1 = require("./modules/user/user.module");
 const audit_log_module_1 = require("./modules/audit-log/audit-log.module");
 const audit_log_interceptor_1 = require("./common/interceptor/audit-log.interceptor");
+const category_module_1 = require("./modules/category/category.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -143,7 +144,8 @@ exports.AppModule = AppModule = __decorate([
             user_module_1.UserModule,
             upload_module_1.UploadModule,
             vehicle_module_1.VehicleModule,
-            audit_log_module_1.AuditLogModule
+            audit_log_module_1.AuditLogModule,
+            category_module_1.CategoryModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

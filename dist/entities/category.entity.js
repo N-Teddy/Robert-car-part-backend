@@ -13,17 +13,31 @@ exports.Category = void 0;
 const typeorm_1 = require("typeorm");
 const part_entity_1 = require("./part.entity");
 const base_entity_1 = require("./base.entity");
+const image_entity_1 = require("./image.entity");
 let Category = class Category extends base_entity_1.BaseEntity {
 };
 exports.Category = Category;
 __decorate([
     (0, typeorm_1.Column)(),
+    (0, typeorm_1.Index)(),
     __metadata("design:type", String)
 ], Category.prototype, "name", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Category.prototype, "description", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ unique: true }),
+    __metadata("design:type", String)
+], Category.prototype, "slug", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: 0 }),
+    __metadata("design:type", Number)
+], Category.prototype, "order", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: true }),
+    __metadata("design:type", Boolean)
+], Category.prototype, "isActive", void 0);
 __decorate([
     (0, typeorm_1.TreeChildren)(),
     __metadata("design:type", Array)
@@ -32,6 +46,19 @@ __decorate([
     (0, typeorm_1.TreeParent)(),
     __metadata("design:type", Category)
 ], Category.prototype, "parent", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], Category.prototype, "parentId", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => image_entity_1.Image, { nullable: true }),
+    (0, typeorm_1.JoinColumn)(),
+    __metadata("design:type", image_entity_1.Image)
+], Category.prototype, "image", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], Category.prototype, "imageId", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => part_entity_1.Part, (part) => part.category),
     __metadata("design:type", Array)

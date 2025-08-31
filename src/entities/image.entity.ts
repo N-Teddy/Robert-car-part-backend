@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToOne } from 'typeorm';
 import { User } from './user.entity';
 import { Vehicle } from './vehicle.entity';
 import { Part } from './part.entity';
@@ -13,7 +13,10 @@ export class Image extends BaseEntity {
 	@Column({ type: 'enum', enum: ImageEnum })
 	type: ImageEnum;
 
-	@ManyToOne(() => User, (user) => user.profileImage, { nullable: true })
+	@OneToOne(() => User, (user) => user.profileImage, {
+		nullable: true,
+		onDelete: 'CASCADE'
+	})
 	user?: User;
 
 	@ManyToOne(() => Vehicle, (vehicle) => vehicle.images, { nullable: true })

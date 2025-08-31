@@ -3,6 +3,7 @@ export enum ImageEnum {
 	VEHICLE = 'VEHICLE',
 	PART = 'PART',
 	QR_CODE = 'QR_CODE',
+	CATEGORY = 'CATEGORY',
 }
 
 export enum NotificationEnum {

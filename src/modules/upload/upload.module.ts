@@ -11,6 +11,7 @@ import { StaticFileMiddleware } from './static-file.middleware';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { User } from 'src/entities/user.entity';
 
 @Module({
 	imports: [
@@ -52,7 +53,7 @@ import { v4 as uuidv4 } from 'uuid';
 				}
 			},
 		}),
-		TypeOrmModule.forFeature([Image]),
+		TypeOrmModule.forFeature([Image, User]),
 	],
 	controllers: [UploadController],
 	providers: [UploadService, CloudinaryService, LocalStorageService],
