@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var UserService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
@@ -20,11 +21,12 @@ const typeorm_1 = require("typeorm");
 const notification_service_1 = require("../notification/notification.service");
 const typeorm_2 = require("@nestjs/typeorm");
 const bcrypt = require("bcrypt");
-let UserService = class UserService {
+let UserService = UserService_1 = class UserService {
     constructor(userRepository, dataSource, notificationService) {
         this.userRepository = userRepository;
         this.dataSource = dataSource;
         this.notificationService = notificationService;
+        this.logger = new common_1.Logger(UserService_1.name);
     }
     async findAllStaff(filters) {
         try {
@@ -56,7 +58,7 @@ let UserService = class UserService {
             return { users, total };
         }
         catch (error) {
-            throw new common_1.InternalServerErrorException('Failed to fetch staff members');
+            throw error;
         }
     }
     async createStaff(createStaffDto) {
@@ -93,16 +95,13 @@ let UserService = class UserService {
                 });
             }
             catch (emailError) {
-                console.error('Failed to send welcome email:', emailError.message);
+                this.logger.error('Failed to send welcome email:', emailError.message);
             }
             return savedUser;
         }
         catch (error) {
             await queryRunner.rollbackTransaction();
-            if (error instanceof common_1.BadRequestException) {
-                throw error;
-            }
-            throw new common_1.InternalServerErrorException('Failed to create staff member');
+            throw error;
         }
         finally {
             await queryRunner.release();
@@ -130,11 +129,7 @@ let UserService = class UserService {
             return await this.userRepository.save(user);
         }
         catch (error) {
-            if (error instanceof common_1.NotFoundException ||
-                error instanceof common_1.BadRequestException) {
-                throw error;
-            }
-            throw new common_1.InternalServerErrorException('Failed to update staff member');
+            throw error;
         }
     }
     async deactivateStaff(userId) {
@@ -157,11 +152,7 @@ let UserService = class UserService {
             return await this.userRepository.save(user);
         }
         catch (error) {
-            if (error instanceof common_1.NotFoundException ||
-                error instanceof common_1.BadRequestException) {
-                throw error;
-            }
-            throw new common_1.InternalServerErrorException('Failed to deactivate staff member');
+            throw error;
         }
     }
     async activateStaff(userId) {
@@ -176,10 +167,7 @@ let UserService = class UserService {
             return await this.userRepository.save(user);
         }
         catch (error) {
-            if (error instanceof common_1.NotFoundException) {
-                throw error;
-            }
-            throw new common_1.InternalServerErrorException('Failed to activate staff member');
+            throw error;
         }
     }
     generateTempPassword() {
@@ -187,7 +175,7 @@ let UserService = class UserService {
             return Math.random().toString(36).slice(-8) + 'A1!';
         }
         catch (error) {
-            throw new common_1.InternalServerErrorException('Failed to generate temporary password');
+            throw error;
         }
     }
     async getStaffStatistics() {
@@ -236,7 +224,7 @@ let UserService = class UserService {
             };
         }
         catch (error) {
-            throw new common_1.InternalServerErrorException('Failed to fetch staff statistics');
+            throw error;
         }
     }
     async findById(id) {
@@ -251,10 +239,7 @@ let UserService = class UserService {
             return user;
         }
         catch (error) {
-            if (error instanceof common_1.NotFoundException) {
-                throw error;
-            }
-            throw new common_1.InternalServerErrorException('Failed to fetch user');
+            throw error;
         }
     }
     async updateProfile(userId, updateProfileDto) {
@@ -269,10 +254,7 @@ let UserService = class UserService {
             return await this.userRepository.save(user);
         }
         catch (error) {
-            if (error instanceof common_1.NotFoundException) {
-                throw error;
-            }
-            throw new common_1.InternalServerErrorException('Failed to update profile');
+            throw error;
         }
     }
     async userExists(email) {
@@ -281,7 +263,7 @@ let UserService = class UserService {
             return count > 0;
         }
         catch (error) {
-            throw new common_1.InternalServerErrorException('Failed to check user existence');
+            throw error;
         }
     }
     async getActiveStaff() {
@@ -299,12 +281,12 @@ let UserService = class UserService {
             });
         }
         catch (error) {
-            throw new common_1.InternalServerErrorException('Failed to fetch active staff members');
+            throw error;
         }
     }
 };
 exports.UserService = UserService;
-exports.UserService = UserService = __decorate([
+exports.UserService = UserService = UserService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_2.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [typeorm_1.Repository,

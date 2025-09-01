@@ -36,7 +36,7 @@ export class AuthService {
 		private readonly jwtService: JwtService,
 		private readonly notificationService: NotificationService,
 		private readonly dataSource: DataSource
-	) {}
+	) { }
 
 	async validateUser(email: string, password: string): Promise<any> {
 		try {
@@ -50,7 +50,7 @@ export class AuthService {
 				return result;
 			}
 			return null;
-		} catch (err) {
+		} catch {
 			throw new InternalServerErrorException('Failed to validate user');
 		}
 	}
@@ -100,15 +100,8 @@ export class AuthService {
 				accessToken,
 				refreshToken,
 			};
-		} catch (err) {
-			if (
-				err instanceof UnauthorizedException ||
-				err instanceof BadRequestException ||
-				err instanceof NotFoundException
-			) {
-				throw err;
-			}
-			throw new InternalServerErrorException('Failed to login');
+		} catch (error) {
+			throw error;
 		}
 	}
 
@@ -184,10 +177,9 @@ export class AuthService {
 				accessToken,
 				refreshToken,
 			};
-		} catch (err) {
+		} catch (error) {
 			await queryRunner.rollbackTransaction();
-			if (err instanceof BadRequestException) throw err;
-			throw new InternalServerErrorException('Failed to register');
+			throw error;
 		} finally {
 			await queryRunner.release();
 		}
@@ -247,10 +239,8 @@ export class AuthService {
 				message:
 					'If the email exists, a password reset link has been sent.',
 			};
-		} catch (err) {
-			throw new InternalServerErrorException(
-				'Failed to process forgot password'
-			);
+		} catch (error) {
+			throw error
 		}
 	}
 
@@ -286,6 +276,7 @@ export class AuthService {
 				'password-reset-confirm',
 				{}
 			);
+
 			await this.notificationService.sendEmail({
 				to: user.email,
 				subject: 'Your password has been reset',
@@ -293,11 +284,8 @@ export class AuthService {
 			});
 
 			return { message: 'Password has been reset successfully' };
-		} catch (err) {
-			if (err instanceof BadRequestException) {
-				throw err;
-			}
-			throw new InternalServerErrorException('Failed to reset password');
+		} catch (error) {
+			throw error;
 		}
 	}
 
@@ -342,14 +330,8 @@ export class AuthService {
 			});
 
 			return { message: 'Password changed successfully' };
-		} catch (err) {
-			if (
-				err instanceof BadRequestException ||
-				err instanceof NotFoundException
-			) {
-				throw err;
-			}
-			throw new InternalServerErrorException('Failed to change password');
+		} catch (error) {
+			throw error
 		}
 	}
 
@@ -381,19 +363,8 @@ export class AuthService {
 				accessToken,
 				refreshToken,
 			};
-		} catch (err) {
-			if (err instanceof UnauthorizedException) {
-				throw err;
-			}
-			throw new InternalServerErrorException('Failed to refresh token');
-		}
-	}
-
-	async logout(userId: string) {
-		try {
-			return { message: 'Logged out successfully' };
-		} catch (err) {
-			throw new InternalServerErrorException('Failed to logout');
+		} catch (error) {
+			throw error
 		}
 	}
 
@@ -410,11 +381,8 @@ export class AuthService {
 
 			const { password, ...result } = user;
 			return result;
-		} catch (err) {
-			if (err instanceof NotFoundException) {
-				throw err;
-			}
-			throw new InternalServerErrorException('Failed to get profile');
+		} catch (error) {
+			throw error
 		}
 	}
 
@@ -458,10 +426,10 @@ export class AuthService {
 			await queryRunner.commitTransaction();
 
 			return { message: 'Role updated successfully' };
-		} catch (err) {
+		} catch (error) {
 			// rollback if any error occurs (DB + notification failure)
 			await queryRunner.rollbackTransaction();
-			throw err;
+			throw error;
 		} finally {
 			await queryRunner.release();
 		}

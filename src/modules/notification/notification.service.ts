@@ -23,6 +23,7 @@ import {
 
 @Injectable()
 export class NotificationService {
+
 	private readonly logger = new Logger(NotificationService.name);
 	private transporter: nodemailer.Transporter;
 
@@ -106,12 +107,6 @@ export class NotificationService {
 				title,
 				message: `${user.fullName || user.email} registered and is awaiting role assignment.`,
 				audience,
-				metadata: {
-					newUserId: user.id,
-					email: user.email,
-					fullName: user.fullName,
-					adminPanelUrl,
-				},
 			});
 			const savedNotification =
 				await this.notificationRepository.save(notification);
@@ -139,9 +134,9 @@ export class NotificationService {
 							subject: title,
 							html,
 						});
-					} catch (err) {
+					} catch (error) {
 						this.logger.error(
-							`Failed to email ${recipient.email}: ${err.message}`
+							`Failed to email ${recipient.email}: ${error.message}`
 						);
 					}
 				})
@@ -152,13 +147,10 @@ export class NotificationService {
 			await this.notificationRepository.save(savedNotification);
 
 			return { notified: recipients.length };
-		} catch (err) {
+		} catch (error) {
 			this.logger.error(
 				'Failed to notify admins on new user',
-				err?.stack || String(err)
-			);
-			throw new InternalServerErrorException(
-				'Failed to send notifications'
+				error?.stack || String(error)
 			);
 		}
 	}
@@ -190,10 +182,8 @@ export class NotificationService {
 				] as any,
 				order: { createdAt: 'DESC' as any },
 			});
-		} catch (err) {
-			throw new InternalServerErrorException(
-				'Failed to fetch notifications'
-			);
+		} catch (error) {
+			throw error
 		}
 	}
 
@@ -202,10 +192,8 @@ export class NotificationService {
 			const notifications = await this.getUserNotifications(userId);
 			const count = notifications.filter((n) => !n.isRead).length;
 			return { count };
-		} catch (err) {
-			throw new InternalServerErrorException(
-				'Failed to count unread notifications'
-			);
+		} catch (error) {
+			throw error
 		}
 	}
 
@@ -236,15 +224,8 @@ export class NotificationService {
 				);
 			}
 			return { message: 'Notification marked as read' };
-		} catch (err) {
-			if (
-				err instanceof NotFoundException ||
-				err instanceof ForbiddenException
-			) {
-				throw err;
-			}
-			// throw new InternalServerErrorException('Failed to mark notification as read');
-			throw err;
+		} catch (error) {
+			throw error;
 		}
 	}
 
@@ -257,7 +238,8 @@ export class NotificationService {
 		subject: string;
 		html: string;
 	}) {
-		const fromName = this.configService.get<string>(
+		try {
+			const fromName = this.configService.get<string>(
 			'email.defaultFromName'
 		);
 		const fromEmail = this.configService.get<string>(
@@ -273,360 +255,33 @@ export class NotificationService {
 
 		this.logger.log(`Email sent: ${info.messageId}`);
 		return info;
+		} catch (error) {
+			throw error
+		}
 	}
 
 	renderTemplate(templateName: string, context: any) {
-		const templateDir =
-			this.configService.get<string>('email.templateDir') ||
-			'templates/email';
-		const layoutPath = path.resolve(templateDir, 'layout.hbs');
-		const templatePath = path.resolve(templateDir, `${templateName}.hbs`);
-
-		const layoutSrc = fs.readFileSync(layoutPath, 'utf8');
-		const templateSrc = fs.readFileSync(templatePath, 'utf8');
-
-		// Support partial-like layout injection
-		const layout = Handlebars.compile(layoutSrc);
-		const content = Handlebars.compile(templateSrc)(context);
-
-		return layout({
-			title: context.title || 'Car Parts Shop',
-			body: content,
-		});
-	}
-
-	async notifyVehicleCreated(vehicle: any, createdByUser: User) {
 		try {
-			const audience = NotificationAudienceEnum.ADMINS;
-			const recipients = await this.getAudienceRecipients(audience);
+			const templateDir =
+				this.configService.get<string>('email.templateDir') ||
+				'templates/email';
+			const layoutPath = path.resolve(templateDir, 'layout.hbs');
+			const templatePath = path.resolve(templateDir, `${templateName}.hbs`);
 
-			if (recipients.length === 0) {
-				this.logger.warn(
-					'No recipients found for vehicle creation notification.'
-				);
-				return { notified: 0 };
-			}
+			const layoutSrc = fs.readFileSync(layoutPath, 'utf8');
+			const templateSrc = fs.readFileSync(templatePath, 'utf8');
 
-			const title = 'New Vehicle Added to Inventory';
-			const vehicleUrl = `${this.configService.get<string>('app.frontendUrl')}/admin/vehicles/${vehicle.id}`;
+			// Support partial-like layout injection
+			const layout = Handlebars.compile(layoutSrc);
+			const content = Handlebars.compile(templateSrc)(context);
 
-			// Create a single broadcast notification
-			const notification = this.notificationRepository.create({
-				type: NotificationEnum.SYSTEM_ALERT,
-				title,
-				message: `New vehicle ${vehicle.make} ${vehicle.model} (${vehicle.year}) added by ${createdByUser.fullName || createdByUser.email}.`,
-				audience,
-				metadata: {
-					vehicleId: vehicle.id,
-					make: vehicle.make,
-					model: vehicle.model,
-					year: vehicle.year,
-					vin: vehicle.vin,
-					purchasePrice: vehicle.purchasePrice,
-					createdBy: createdByUser.id,
-					createdByEmail: createdByUser.email,
-					createdByFullName: createdByUser.fullName,
-					vehicleUrl,
-				},
+			return layout({
+				title: context.title || 'Car Parts Shop',
+				body: content,
 			});
-			await this.notificationRepository.save(notification);
-
-			// Send emails to all recipients
-			await Promise.all(
-				recipients.map(async (recipient) => {
-					try {
-						const html = this.renderTemplate(
-							'notify-vehicle-created',
-							{
-								vehicle: {
-									make: vehicle.make,
-									model: vehicle.model,
-									year: vehicle.year,
-									vin: vehicle.vin,
-									purchasePrice: vehicle.purchasePrice,
-									description: vehicle.description,
-									auctionName: vehicle.auctionName,
-									createdAt: vehicle.createdAt,
-								},
-								createdBy: {
-									fullName:
-										createdByUser.fullName ||
-										'Unknown User',
-									email: createdByUser.email,
-								},
-								vehicleUrl,
-							}
-						);
-						await this.sendEmail({
-							to: recipient.email,
-							subject: title,
-							html,
-						});
-					} catch (emailErr) {
-						this.logger.error(
-							`Failed to send email to ${recipient.email}`,
-							emailErr?.stack || String(emailErr)
-						);
-					}
-				})
-			);
-
-			return { notified: recipients.length };
-		} catch (err) {
-			this.logger.error(
-				'Failed to notify on vehicle creation',
-				err?.stack || String(err)
-			);
-			throw new InternalServerErrorException(
-				'Failed to send vehicle creation notifications'
-			);
+		} catch (error) {
+			throw error
 		}
 	}
 
-	async notifyVehicleUpdated(
-		vehicle: any,
-		updatedByUser: User,
-		changes: string[]
-	) {
-		try {
-			const audience = NotificationAudienceEnum.ADMINS;
-			const recipients = await this.getAudienceRecipients(audience);
-
-			if (recipients.length === 0) {
-				this.logger.warn(
-					'No recipients found for vehicle update notification.'
-				);
-				return { notified: 0 };
-			}
-
-			const title = 'Vehicle Information Updated';
-			const vehicleUrl = `${this.configService.get<string>('app.frontendUrl')}/admin/vehicles/${vehicle.id}`;
-
-			// Create a single broadcast notification
-			const notification = this.notificationRepository.create({
-				type: NotificationEnum.SYSTEM_ALERT,
-				title,
-				message: `Vehicle ${vehicle.make} ${vehicle.model} (${vehicle.year}) updated by ${updatedByUser.fullName || updatedByUser.email}. Changes: ${changes.join(', ')}.`,
-				audience,
-				metadata: {
-					vehicleId: vehicle.id,
-					make: vehicle.make,
-					model: vehicle.model,
-					year: vehicle.year,
-					vin: vehicle.vin,
-					changes,
-					updatedBy: updatedByUser.id,
-					updatedByEmail: updatedByUser.email,
-					updatedByFullName: updatedByUser.fullName,
-					vehicleUrl,
-				},
-			});
-			await this.notificationRepository.save(notification);
-
-			// Send emails to all recipients
-			await Promise.all(
-				recipients.map(async (recipient) => {
-					try {
-						const html = this.renderTemplate(
-							'notify-vehicle-updated',
-							{
-								vehicle: {
-									make: vehicle.make,
-									model: vehicle.model,
-									year: vehicle.year,
-									vin: vehicle.vin,
-									changes,
-								},
-								updatedBy: {
-									fullName:
-										updatedByUser.fullName ||
-										'Unknown User',
-									email: updatedByUser.email,
-								},
-								vehicleUrl,
-							}
-						);
-						await this.sendEmail({
-							to: recipient.email,
-							subject: title,
-							html,
-						});
-					} catch (emailErr) {
-						this.logger.error(
-							`Failed to send email to ${recipient.email}`,
-							emailErr?.stack || String(emailErr)
-						);
-					}
-				})
-			);
-
-			return { notified: recipients.length };
-		} catch (err) {
-			this.logger.error(
-				'Failed to notify on vehicle update',
-				err?.stack || String(err)
-			);
-			throw new InternalServerErrorException(
-				'Failed to send vehicle update notifications'
-			);
-		}
-	}
-
-	async notifyVehicleDeleted(vehicle: any, deletedByUser: User) {
-		try {
-			const audience = NotificationAudienceEnum.ADMINS;
-			const recipients = await this.getAudienceRecipients(audience);
-
-			if (recipients.length === 0) {
-				this.logger.warn(
-					'No recipients found for vehicle deletion notification.'
-				);
-				return { notified: 0 };
-			}
-
-			const title = 'Vehicle Removed from Inventory';
-			const adminUrl = `${this.configService.get<string>('app.frontendUrl')}/admin/vehicles`;
-
-			// Create a single broadcast notification
-			const notification = this.notificationRepository.create({
-				type: NotificationEnum.SYSTEM_ALERT,
-				title,
-				message: `Vehicle ${vehicle.make} ${vehicle.model} (${vehicle.year}) with VIN ${vehicle.vin} was removed by ${deletedByUser.fullName || deletedByUser.email}.`,
-				audience,
-				metadata: {
-					make: vehicle.make,
-					model: vehicle.model,
-					year: vehicle.year,
-					vin: vehicle.vin,
-					deletedBy: deletedByUser.id,
-					deletedByEmail: deletedByUser.email,
-					deletedByFullName: deletedByUser.fullName,
-					adminUrl,
-				},
-			});
-			await this.notificationRepository.save(notification);
-
-			// Send emails to all recipients
-			await Promise.all(
-				recipients.map(async (recipient) => {
-					try {
-						const html = this.renderTemplate(
-							'notify-vehicle-deleted',
-							{
-								vehicle: {
-									make: vehicle.make,
-									model: vehicle.model,
-									year: vehicle.year,
-									vin: vehicle.vin,
-								},
-								deletedBy: {
-									fullName:
-										deletedByUser.fullName ||
-										'Unknown User',
-									email: deletedByUser.email,
-								},
-								adminUrl,
-							}
-						);
-						await this.sendEmail({
-							to: recipient.email,
-							subject: title,
-							html,
-						});
-					} catch (emailErr) {
-						this.logger.error(
-							`Failed to send email to ${recipient.email}`,
-							emailErr?.stack || String(emailErr)
-						);
-					}
-				})
-			);
-
-			return { notified: recipients.length };
-		} catch (err) {
-			this.logger.error(
-				'Failed to notify on vehicle deletion',
-				err?.stack || String(err)
-			);
-			throw new InternalServerErrorException(
-				'Failed to send vehicle deletion notifications'
-			);
-		}
-	}
-
-	async notifyVehiclePartedOut(vehicle: any, updatedByUser: User) {
-		try {
-			const audience = NotificationAudienceEnum.ADMINS;
-			const recipients = await this.getAudienceRecipients(audience);
-
-			const title = 'Vehicle Marked as Parted Out';
-			const vehicleUrl = `${this.configService.get<string>('app.frontendUrl')}/admin/vehicles/${vehicle.id}`;
-
-			// Create a single broadcast notification
-			const notification = this.notificationRepository.create({
-				type: NotificationEnum.SYSTEM_ALERT,
-				title,
-				message: `Vehicle ${vehicle.make} ${vehicle.model} (${vehicle.year}) has been marked as parted out by ${updatedByUser.fullName || updatedByUser.email}.`,
-				audience,
-				metadata: {
-					vehicleId: vehicle.id,
-					make: vehicle.make,
-					model: vehicle.model,
-					year: vehicle.year,
-					vin: vehicle.vin,
-					updatedBy: updatedByUser.id,
-					updatedByEmail: updatedByUser.email,
-					updatedByFullName: updatedByUser.fullName,
-					vehicleUrl,
-				},
-			});
-			await this.notificationRepository.save(notification);
-
-			// Send emails to all recipients
-			await Promise.all(
-				recipients.map(async (recipient) => {
-					try {
-						const html = this.renderTemplate(
-							'notify-vehicle-parted-out',
-							{
-								vehicle: {
-									make: vehicle.make,
-									model: vehicle.model,
-									year: vehicle.year,
-									vin: vehicle.vin,
-								},
-								updatedBy: {
-									fullName:
-										updatedByUser.fullName ||
-										'Unknown User',
-									email: updatedByUser.email,
-								},
-								vehicleUrl,
-							}
-						);
-						await this.sendEmail({
-							to: recipient.email,
-							subject: title,
-							html,
-						});
-					} catch (emailErr) {
-						this.logger.error(
-							`Failed to send email to ${recipient.email}`,
-							emailErr?.stack || String(emailErr)
-						);
-					}
-				})
-			);
-
-			return { notified: recipients.length };
-		} catch (err) {
-			this.logger.error(
-				'Failed to notify on vehicle parted out',
-				err?.stack || String(err)
-			);
-			throw new InternalServerErrorException(
-				'Failed to send vehicle parted out notifications'
-			);
-		}
-	}
 }

@@ -29,37 +29,79 @@ let AuthController = class AuthController {
         this.authService = authService;
     }
     async register(registerDto) {
-        return this.authService.register(registerDto);
+        try {
+            return this.authService.register(registerDto);
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async login(req, loginDto) {
-        return this.authService.login(loginDto);
+        try {
+            return this.authService.login(loginDto);
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async forgotPassword(forgotPasswordDto) {
-        return this.authService.forgotPassword(forgotPasswordDto);
+        try {
+            return this.authService.forgotPassword(forgotPasswordDto);
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async resetPassword(resetPasswordDto) {
-        return this.authService.resetPassword(resetPasswordDto);
+        try {
+            return this.authService.resetPassword(resetPasswordDto);
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async changePassword(req, changePasswordDto) {
-        return this.authService.changePassword(req.user.id, changePasswordDto);
+        try {
+            return this.authService.changePassword(req.user.id, changePasswordDto);
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async refreshToken(req) {
-        return this.authService.refreshToken(req.user.id);
-    }
-    async logout(req) {
-        return this.authService.logout(req.user.id);
+        try {
+            return this.authService.refreshToken(req.user.id);
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async getProfile(req) {
-        return this.authService.getProfile(req.user.id);
+        try {
+            return this.authService.getProfile(req.user.id);
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async assignRole(id, body) {
-        return this.authService.assignRole(id, body.role);
+        try {
+            return this.authService.assignRole(id, body.role);
+        }
+        catch (error) {
+            throw error;
+        }
     }
     getProtectedRoute(req) {
-        return {
-            message: 'This is a protected route',
-            user: req.user,
-        };
+        try {
+            return {
+                message: 'This is a protected route',
+                user: req.user,
+            };
+        }
+        catch (error) {
+            throw error;
+        }
     }
 };
 exports.AuthController = AuthController;
@@ -67,10 +109,7 @@ __decorate([
     (0, common_1.Post)('register'),
     (0, swagger_1.ApiOperation)({ summary: 'Register a new user' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'User registered successfully' }),
-    (0, swagger_1.ApiResponse)({
-        status: 400,
-        description: 'Bad request - User already exists',
-    }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request - User already exists' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [auth_1.RegisterDto]),
@@ -82,10 +121,7 @@ __decorate([
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Login user' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Login successful' }),
-    (0, swagger_1.ApiResponse)({
-        status: 401,
-        description: 'Unauthorized - Invalid credentials',
-    }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized - Invalid credentials' }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -111,10 +147,7 @@ __decorate([
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Reset password with token' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Password reset successful' }),
-    (0, swagger_1.ApiResponse)({
-        status: 400,
-        description: 'Bad request - Invalid or expired token',
-    }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request - Invalid or expired token' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [auth_1.ResetPasswordDto]),
@@ -127,10 +160,7 @@ __decorate([
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Change user password' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Password changed successfully' }),
-    (0, swagger_1.ApiResponse)({
-        status: 400,
-        description: 'Bad request - Current password incorrect',
-    }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request - Current password incorrect' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
@@ -151,19 +181,6 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "refreshToken", null);
-__decorate([
-    (0, common_1.Post)('logout'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, non_unknown_role_guard_1.NonUnknownRoleGuard),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiOperation)({ summary: 'Logout user' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Logout successful' }),
-    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
-    __param(0, (0, common_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "logout", null);
 __decorate([
     (0, common_1.Get)('profile'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

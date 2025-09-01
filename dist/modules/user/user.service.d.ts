@@ -6,6 +6,7 @@ export declare class UserService {
     private readonly userRepository;
     private readonly dataSource;
     private readonly notificationService;
+    private readonly logger;
     constructor(userRepository: Repository<User>, dataSource: DataSource, notificationService: NotificationService);
     findAllStaff(filters: StaffFilterDto): Promise<{
         users: User[];

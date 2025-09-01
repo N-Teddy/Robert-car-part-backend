@@ -36,17 +36,19 @@ import { AssignRoleDto } from 'src/dto/request/user';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-	constructor(private readonly authService: AuthService) {}
+
+	constructor(private readonly authService: AuthService) { }
 
 	@Post('register')
 	@ApiOperation({ summary: 'Register a new user' })
 	@ApiResponse({ status: 201, description: 'User registered successfully' })
-	@ApiResponse({
-		status: 400,
-		description: 'Bad request - User already exists',
-	})
+	@ApiResponse({ status: 400, description: 'Bad request - User already exists' })
 	async register(@Body() registerDto: RegisterDto) {
-		return this.authService.register(registerDto);
+		try {
+			return this.authService.register(registerDto);
+		} catch (error) {
+			throw error
+		}
 	}
 
 	@Post('login')
@@ -54,12 +56,13 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Login user' })
 	@ApiResponse({ status: 200, description: 'Login successful' })
-	@ApiResponse({
-		status: 401,
-		description: 'Unauthorized - Invalid credentials',
-	})
+	@ApiResponse({ status: 401, description: 'Unauthorized - Invalid credentials' })
 	async login(@Request() req, @Body() loginDto: LoginDto) {
-		return this.authService.login(loginDto);
+		try {
+			return this.authService.login(loginDto);
+		} catch (error) {
+			throw error
+		}
 	}
 
 	@Post('forgot-password')
@@ -69,7 +72,11 @@ export class AuthController {
 	@ApiOperation({ summary: 'Request password reset' })
 	@ApiResponse({ status: 200, description: 'Password reset email sent' })
 	async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-		return this.authService.forgotPassword(forgotPasswordDto);
+		try {
+			return this.authService.forgotPassword(forgotPasswordDto);
+		} catch (error) {
+			throw error
+		}
 	}
 
 	@Post('reset-password')
@@ -78,12 +85,13 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Reset password with token' })
 	@ApiResponse({ status: 200, description: 'Password reset successful' })
-	@ApiResponse({
-		status: 400,
-		description: 'Bad request - Invalid or expired token',
-	})
+	@ApiResponse({ status: 400, description: 'Bad request - Invalid or expired token' })
 	async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-		return this.authService.resetPassword(resetPasswordDto);
+		try {
+			return this.authService.resetPassword(resetPasswordDto);
+		} catch (error) {
+			throw error
+		}
 	}
 
 	@Post('change-password')
@@ -92,16 +100,17 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Change user password' })
 	@ApiResponse({ status: 200, description: 'Password changed successfully' })
-	@ApiResponse({
-		status: 400,
-		description: 'Bad request - Current password incorrect',
-	})
+	@ApiResponse({ status: 400, description: 'Bad request - Current password incorrect' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	async changePassword(
 		@Request() req,
 		@Body() changePasswordDto: ChangePasswordDto
 	) {
-		return this.authService.changePassword(req.user.id, changePasswordDto);
+		try {
+			return this.authService.changePassword(req.user.id, changePasswordDto);
+		} catch (error) {
+			throw error
+		}
 	}
 
 	@Post('refresh')
@@ -112,19 +121,11 @@ export class AuthController {
 	@ApiResponse({ status: 200, description: 'Token refreshed successfully' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	async refreshToken(@Request() req) {
-		// console.log(req.user)
-		return this.authService.refreshToken(req.user.id);
-	}
-
-	@Post('logout')
-	@UseGuards(JwtAuthGuard, NonUnknownRoleGuard)
-	@ApiBearerAuth()
-	@HttpCode(HttpStatus.OK)
-	@ApiOperation({ summary: 'Logout user' })
-	@ApiResponse({ status: 200, description: 'Logout successful' })
-	@ApiResponse({ status: 401, description: 'Unauthorized' })
-	async logout(@Request() req) {
-		return this.authService.logout(req.user.id);
+		try {
+			return this.authService.refreshToken(req.user.id);
+		} catch (error) {
+			throw error
+		}
 	}
 
 	@Get('profile')
@@ -135,7 +136,11 @@ export class AuthController {
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 404, description: 'User not found' })
 	async getProfile(@Request() req) {
-		return this.authService.getProfile(req.user.id);
+		try {
+			return this.authService.getProfile(req.user.id);
+		} catch (error) {
+			throw error
+		}
 	}
 
 	@Patch('users/:id/role')
@@ -147,7 +152,11 @@ export class AuthController {
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
 	async assignRole(@Param('id') id: string, @Body() body: AssignRoleDto) {
-		return this.authService.assignRole(id, body.role);
+		try {
+			return this.authService.assignRole(id, body.role);
+		} catch (error) {
+			throw error
+		}
 	}
 
 	@Get('test')
@@ -157,9 +166,13 @@ export class AuthController {
 	@ApiResponse({ status: 200, description: 'Access granted' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	getProtectedRoute(@Request() req) {
-		return {
-			message: 'This is a protected route',
-			user: req.user,
-		};
+		try {
+			return {
+				message: 'This is a protected route',
+				user: req.user,
+			};
+		} catch (error) {
+			throw error
+		}
 	}
 }

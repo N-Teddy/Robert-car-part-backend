@@ -45,7 +45,7 @@ let AuthService = class AuthService {
             }
             return null;
         }
-        catch (err) {
+        catch {
             throw new common_1.InternalServerErrorException('Failed to validate user');
         }
     }
@@ -86,13 +86,8 @@ let AuthService = class AuthService {
                 refreshToken,
             };
         }
-        catch (err) {
-            if (err instanceof common_1.UnauthorizedException ||
-                err instanceof common_1.BadRequestException ||
-                err instanceof common_1.NotFoundException) {
-                throw err;
-            }
-            throw new common_1.InternalServerErrorException('Failed to login');
+        catch (error) {
+            throw error;
         }
     }
     async register(registerDto) {
@@ -152,11 +147,9 @@ let AuthService = class AuthService {
                 refreshToken,
             };
         }
-        catch (err) {
+        catch (error) {
             await queryRunner.rollbackTransaction();
-            if (err instanceof common_1.BadRequestException)
-                throw err;
-            throw new common_1.InternalServerErrorException('Failed to register');
+            throw error;
         }
         finally {
             await queryRunner.release();
@@ -204,8 +197,8 @@ let AuthService = class AuthService {
                 message: 'If the email exists, a password reset link has been sent.',
             };
         }
-        catch (err) {
-            throw new common_1.InternalServerErrorException('Failed to process forgot password');
+        catch (error) {
+            throw error;
         }
     }
     async resetPassword(resetPasswordDto) {
@@ -236,11 +229,8 @@ let AuthService = class AuthService {
             });
             return { message: 'Password has been reset successfully' };
         }
-        catch (err) {
-            if (err instanceof common_1.BadRequestException) {
-                throw err;
-            }
-            throw new common_1.InternalServerErrorException('Failed to reset password');
+        catch (error) {
+            throw error;
         }
     }
     async changePassword(userId, changePasswordDto) {
@@ -269,12 +259,8 @@ let AuthService = class AuthService {
             });
             return { message: 'Password changed successfully' };
         }
-        catch (err) {
-            if (err instanceof common_1.BadRequestException ||
-                err instanceof common_1.NotFoundException) {
-                throw err;
-            }
-            throw new common_1.InternalServerErrorException('Failed to change password');
+        catch (error) {
+            throw error;
         }
     }
     async refreshToken(userId) {
@@ -302,19 +288,8 @@ let AuthService = class AuthService {
                 refreshToken,
             };
         }
-        catch (err) {
-            if (err instanceof common_1.UnauthorizedException) {
-                throw err;
-            }
-            throw new common_1.InternalServerErrorException('Failed to refresh token');
-        }
-    }
-    async logout(userId) {
-        try {
-            return { message: 'Logged out successfully' };
-        }
-        catch (err) {
-            throw new common_1.InternalServerErrorException('Failed to logout');
+        catch (error) {
+            throw error;
         }
     }
     async getProfile(userId) {
@@ -329,11 +304,8 @@ let AuthService = class AuthService {
             const { password, ...result } = user;
             return result;
         }
-        catch (err) {
-            if (err instanceof common_1.NotFoundException) {
-                throw err;
-            }
-            throw new common_1.InternalServerErrorException('Failed to get profile');
+        catch (error) {
+            throw error;
         }
     }
     async assignRole(targetUserId, role) {
@@ -363,9 +335,9 @@ let AuthService = class AuthService {
             await queryRunner.commitTransaction();
             return { message: 'Role updated successfully' };
         }
-        catch (err) {
+        catch (error) {
             await queryRunner.rollbackTransaction();
-            throw err;
+            throw error;
         }
         finally {
             await queryRunner.release();

@@ -49,9 +49,6 @@ export declare class AuthService {
         accessToken: string;
         refreshToken: string;
     }>;
-    logout(userId: string): Promise<{
-        message: string;
-    }>;
     getProfile(userId: string): Promise<{
         email: string;
         fullName: string;

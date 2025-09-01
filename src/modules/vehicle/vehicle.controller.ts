@@ -70,31 +70,19 @@ const validateImageMimeType = (file: Express.Multer.File) => {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class VehicleController {
+
 	constructor(
 		private readonly vehicleService: VehicleService,
 		private readonly uploadService: UploadService
 	) {}
 
 	@Post()
-	@ApiOperation({
-		summary: 'Create a new vehicle',
-		description:
-			'Create a new vehicle with the provided details. VIN must be unique.',
-	})
-	@ApiResponse({
-		status: 201,
-		description: 'Vehicle created successfully',
-		type: VehicleResponseDto,
-	})
+	@ApiOperation({ summary: 'Create a new vehicle', description: 'Create a new vehicle with the provided details. VIN must be unique.' })
+	@ApiResponse({ status: 201, description: 'Vehicle created successfully', type: VehicleResponseDto })
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 409, description: 'VIN already exists' })
-	@Roles(
-		UserRoleEnum.ADMIN,
-		UserRoleEnum.MANAGER,
-		UserRoleEnum.DEV,
-		UserRoleEnum.SALES
-	)
+	@Roles( UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV, UserRoleEnum.SALES )
 	async createVehicle(
 		@Body() createVehicleDto: CreateVehicleDto,
 		@Request() req: any
@@ -114,16 +102,8 @@ export class VehicleController {
 	}
 
 	@Post('bulk')
-	@ApiOperation({
-		summary: 'Create multiple vehicles',
-		description:
-			'Create multiple vehicles in a single request. Duplicate VINs will be skipped.',
-	})
-	@ApiResponse({
-		status: 201,
-		description: 'Bulk vehicle creation completed',
-		type: BulkCreateResponseDto,
-	})
+	@ApiOperation({ summary: 'Create multiple vehicles', description: 'Create multiple vehicles in a single request. Duplicate VINs will be skipped.' })
+	@ApiResponse({ status: 201, description: 'Bulk vehicle creation completed', type: BulkCreateResponseDto })
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV)
@@ -151,15 +131,8 @@ export class VehicleController {
 	}
 
 	@Put('bulk')
-	@ApiOperation({
-		summary: 'Update multiple vehicles',
-		description: 'Update multiple vehicles in a single request.',
-	})
-	@ApiResponse({
-		status: 200,
-		description: 'Bulk vehicle update completed',
-		type: BulkUpdateResponseDto,
-	})
+	@ApiOperation({ summary: 'Update multiple vehicles', description: 'Update multiple vehicles in a single request.' })
+	@ApiResponse({ status: 200, description: 'Bulk vehicle update completed', type: BulkUpdateResponseDto })
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV)
@@ -187,82 +160,22 @@ export class VehicleController {
 	}
 
 	@Get()
-	@ApiOperation({
-		summary: 'Get all vehicles',
-		description:
-			'Retrieve vehicles with optional search, filtering, and pagination.',
-	})
-	@ApiResponse({
-		status: 200,
-		description: 'Vehicles retrieved successfully',
-		type: VehiclesResponseDto,
-	})
+	@ApiOperation({ summary: 'Get all vehicles', description: 'Retrieve vehicles with optional search, filtering, and pagination.' })
+	@ApiResponse({ status: 200, description: 'Vehicles retrieved successfully', type: VehiclesResponseDto })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
-	@ApiQuery({
-		name: 'make',
-		required: false,
-		description: 'Filter by vehicle make',
-	})
-	@ApiQuery({
-		name: 'model',
-		required: false,
-		description: 'Filter by vehicle model',
-	})
-	@ApiQuery({
-		name: 'year',
-		required: false,
-		description: 'Filter by vehicle year',
-	})
-	@ApiQuery({
-		name: 'vin',
-		required: false,
-		description: 'Filter by VIN (partial match)',
-	})
-	@ApiQuery({
-		name: 'isPartedOut',
-		required: false,
-		description: 'Filter by parted out status',
-	})
-	@ApiQuery({
-		name: 'minPrice',
-		required: false,
-		description: 'Minimum purchase price',
-	})
-	@ApiQuery({
-		name: 'maxPrice',
-		required: false,
-		description: 'Maximum purchase price',
-	})
-	@ApiQuery({
-		name: 'purchaseDateFrom',
-		required: false,
-		description: 'Purchase date from (YYYY-MM-DD)',
-	})
-	@ApiQuery({
-		name: 'purchaseDateTo',
-		required: false,
-		description: 'Purchase date to (YYYY-MM-DD)',
-	})
-	@ApiQuery({
-		name: 'page',
-		required: false,
-		description: 'Page number (default: 1)',
-	})
-	@ApiQuery({
-		name: 'limit',
-		required: false,
-		description: 'Items per page (default: 10, max: 100)',
-	})
-	@ApiQuery({
-		name: 'sortBy',
-		required: false,
-		description: 'Sort field (default: createdAt)',
-	})
-	@ApiQuery({
-		name: 'sortOrder',
-		required: false,
-		description: 'Sort order: ASC or DESC (default: DESC)',
-	})
+	@ApiQuery({ name: 'make', required: false, description: 'Filter by vehicle make' })
+	@ApiQuery({ name: 'model', required: false, description: 'Filter by vehicle model' })
+	@ApiQuery({ name: 'year', required: false, description: 'Filter by vehicle year' })
+	@ApiQuery({ name: 'vin', required: false, description: 'Filter by VIN (partial match)' })
+	@ApiQuery({ name: 'isPartedOut', required: false, description: 'Filter by parted out status' })
+	@ApiQuery({ name: 'minPrice', required: false, description: 'Minimum purchase price' })
+	@ApiQuery({ name: 'maxPrice', required: false, description: 'Maximum purchase price' })
+	@ApiQuery({ name: 'purchaseDateFrom', required: false, description: 'Purchase date from (YYYY-MM-DD)' })
+	@ApiQuery({ name: 'purchaseDateTo', required: false, description: 'Purchase date to (YYYY-MM-DD)' })
+	@ApiQuery({ name: 'page', required: false, description: 'Page number (default: 1)' })
+	@ApiQuery({ name: 'limit', required: false, description: 'Items per page (default: 10, max: 100)' })
+	@ApiQuery({ name: 'sortBy', required: false, description: 'Sort field (default: createdAt)' })
+	@ApiQuery({ name: 'sortOrder', required: false, description: 'Sort order: ASC or DESC (default: DESC)' })
 	async findAll(
 		@Query() searchDto: VehicleSearchDto,
 		@Query() paginationDto: VehiclePaginationDto
@@ -280,16 +193,8 @@ export class VehicleController {
 	}
 
 	@Get('stats')
-	@ApiOperation({
-		summary: 'Get vehicle statistics',
-		description:
-			'Retrieve comprehensive statistics about all vehicles including financial metrics.',
-	})
-	@ApiResponse({
-		status: 200,
-		description: 'Vehicle statistics retrieved successfully',
-		type: VehicleStatsResponseDto,
-	})
+	@ApiOperation({ summary: 'Get vehicle statistics', description: 'Retrieve comprehensive statistics about all vehicles including financial metrics.' })
+	@ApiResponse({ status: 200, description: 'Vehicle statistics retrieved successfully', type: VehicleStatsResponseDto })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV)
 	async getVehicleStats(): Promise<VehicleStatsResponseDto> {
@@ -302,16 +207,8 @@ export class VehicleController {
 	}
 
 	@Get('export')
-	@ApiOperation({
-		summary: 'Export vehicles',
-		description:
-			'Export vehicles to CSV or PDF format with optional filtering.',
-	})
-	@ApiResponse({
-		status: 200,
-		description: 'Vehicle export completed successfully',
-		type: VehicleExportResponseDto,
-	})
+	@ApiOperation({ summary: 'Export vehicles', description: 'Export vehicles to CSV or PDF format with optional filtering.' })
+	@ApiResponse({ status: 200, description: 'Vehicle export completed successfully', type: VehicleExportResponseDto })
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV)
@@ -329,16 +226,8 @@ export class VehicleController {
 	}
 
 	@Get(':id')
-	@ApiOperation({
-		summary: 'Get vehicle by ID',
-		description:
-			'Retrieve a specific vehicle by its ID with all related data.',
-	})
-	@ApiResponse({
-		status: 200,
-		description: 'Vehicle retrieved successfully',
-		type: VehicleResponseDto,
-	})
+	@ApiOperation({ summary: 'Get vehicle by ID', description: 'Retrieve a specific vehicle by its ID with all related data.' })
+	@ApiResponse({ status: 200, description: 'Vehicle retrieved successfully', type: VehicleResponseDto })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 404, description: 'Vehicle not found' })
 	async findOne(@Param('id') id: string): Promise<VehicleResponseDto> {
@@ -351,16 +240,8 @@ export class VehicleController {
 	}
 
 	@Get('vin/:vin')
-	@ApiOperation({
-		summary: 'Get vehicle by VIN',
-		description:
-			'Retrieve a specific vehicle by its VIN with all related data.',
-	})
-	@ApiResponse({
-		status: 200,
-		description: 'Vehicle retrieved successfully',
-		type: VehicleResponseDto,
-	})
+	@ApiOperation({ summary: 'Get vehicle by VIN', description: 'Retrieve a specific vehicle by its VIN with all related data.' })
+	@ApiResponse({ status: 200, description: 'Vehicle retrieved successfully', type: VehicleResponseDto })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 404, description: 'Vehicle not found' })
 	async findByVin(@Param('vin') vin: string): Promise<VehicleResponseDto> {
@@ -373,26 +254,13 @@ export class VehicleController {
 	}
 
 	@Put(':id')
-	@ApiOperation({
-		summary: 'Update vehicle',
-		description:
-			'Update an existing vehicle. VIN uniqueness will be validated if changed.',
-	})
-	@ApiResponse({
-		status: 200,
-		description: 'Vehicle updated successfully',
-		type: VehicleResponseDto,
-	})
+	@ApiOperation({ summary: 'Update vehicle', description: 'Update an existing vehicle. VIN uniqueness will be validated if changed.' })
+	@ApiResponse({ status: 200, description: 'Vehicle updated successfully', type: VehicleResponseDto })
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 404, description: 'Vehicle not found' })
 	@ApiResponse({ status: 409, description: 'VIN already exists' })
-	@Roles(
-		UserRoleEnum.ADMIN,
-		UserRoleEnum.MANAGER,
-		UserRoleEnum.DEV,
-		UserRoleEnum.SALES
-	)
+	@Roles( UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV, UserRoleEnum.SALES )
 	async updateVehicle(
 		@Param('id') id: string,
 		@Body() updateVehicleDto: UpdateVehicleDto,
@@ -414,25 +282,12 @@ export class VehicleController {
 	}
 
 	@Put(':id/parted-out')
-	@ApiOperation({
-		summary: 'Mark vehicle as parted out',
-		description:
-			'Mark a vehicle as parted out when parts start being sold.',
-	})
-	@ApiResponse({
-		status: 200,
-		description: 'Vehicle marked as parted out successfully',
-		type: VehicleResponseDto,
-	})
+	@ApiOperation({ summary: 'Mark vehicle as parted out', description: 'Mark a vehicle as parted out when parts start being sold.' })
+	@ApiResponse({ status: 200, description: 'Vehicle marked as parted out successfully', type: VehicleResponseDto })
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 404, description: 'Vehicle not found' })
-	@Roles(
-		UserRoleEnum.ADMIN,
-		UserRoleEnum.MANAGER,
-		UserRoleEnum.DEV,
-		UserRoleEnum.SALES
-	)
+	@Roles( UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV, UserRoleEnum.SALES )
 	async markAsPartedOut(
 		@Param('id') id: string,
 		@Request() req: any
@@ -453,23 +308,12 @@ export class VehicleController {
 
 	@Post(':id/images')
 	@UseInterceptors(FilesInterceptor('files', 10))
-	@ApiOperation({
-		summary: 'Upload vehicle images',
-		description: 'Upload multiple images for a specific vehicle.',
-	})
-	@ApiResponse({
-		status: 201,
-		description: 'Vehicle images uploaded successfully',
-	})
+	@ApiOperation({ summary: 'Upload vehicle images', description: 'Upload multiple images for a specific vehicle.' })
+	@ApiResponse({ status: 201, description: 'Vehicle images uploaded successfully' })
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 404, description: 'Vehicle not found' })
-	@Roles(
-		UserRoleEnum.ADMIN,
-		UserRoleEnum.MANAGER,
-		UserRoleEnum.DEV,
-		UserRoleEnum.SALES
-	)
+	@Roles( UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV, UserRoleEnum.SALES )
 	async uploadVehicleImages(
 		@Param('id') id: string,
 		@UploadedFiles(
@@ -523,16 +367,9 @@ export class VehicleController {
 	}
 
 	@Delete(':id')
-	@ApiOperation({
-		summary: 'Delete vehicle',
-		description:
-			'Permanently delete a vehicle. Cannot delete if it has existing parts.',
-	})
+	@ApiOperation({ summary: 'Delete vehicle', description: 'Permanently delete a vehicle. Cannot delete if it has existing parts.' })
 	@ApiResponse({ status: 200, description: 'Vehicle deleted successfully' })
-	@ApiResponse({
-		status: 400,
-		description: 'Bad request - Vehicle has parts',
-	})
+	@ApiResponse({ status: 400, description: 'Bad request - Vehicle has parts' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 404, description: 'Vehicle not found' })
 	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER)

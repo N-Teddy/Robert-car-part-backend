@@ -83,12 +83,6 @@ export class VehicleService {
 				const createdByUser = await this.userRepository.findOne({
 					where: { id: userId },
 				});
-				if (createdByUser) {
-					await this.notificationService.notifyVehicleCreated(
-						savedVehicle,
-						createdByUser
-					);
-				}
 			} catch (notificationError) {
 				this.logger.warn(
 					`Failed to send vehicle creation notification: ${notificationError.message}`
@@ -349,11 +343,6 @@ export class VehicleService {
 						where: { id: userId },
 					});
 					if (updatedByUser) {
-						await this.notificationService.notifyVehicleUpdated(
-							updatedVehicle,
-							updatedByUser,
-							changes
-						);
 					}
 				} catch (notificationError) {
 					this.logger.warn(
@@ -423,10 +412,10 @@ export class VehicleService {
 					where: { id: userId },
 				});
 				if (deletedByUser) {
-					await this.notificationService.notifyVehicleDeleted(
-						vehicle,
-						deletedByUser
-					);
+					// await this.notificationService.notifyVehicleDeleted(
+					// 	vehicle,
+					// 	deletedByUser
+					// );
 				}
 			} catch (notificationError) {
 				this.logger.warn(
@@ -478,10 +467,6 @@ export class VehicleService {
 					where: { id: userId },
 				});
 				if (updatedByUser) {
-					await this.notificationService.notifyVehiclePartedOut(
-						updatedVehicle,
-						updatedByUser
-					);
 				}
 			} catch (notificationError) {
 				this.logger.warn(

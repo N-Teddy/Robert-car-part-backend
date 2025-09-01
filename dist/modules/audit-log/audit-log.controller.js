@@ -26,34 +26,48 @@ let AuditLogController = class AuditLogController {
         this.auditLogService = auditLogService;
     }
     async findAll(page = 1, limit = 10) {
-        const result = await this.auditLogService.findAll(page, limit);
-        return {
-            data: result.data.map(log => new audit_log_dto_1.AuditLogResponseDto(log)),
-            total: result.total,
-            page,
-            limit,
-            totalPages: Math.ceil(result.total / limit),
-        };
+        try {
+            const result = await this.auditLogService.findAll(page, limit);
+            return {
+                data: result.data.map(log => new audit_log_dto_1.AuditLogResponseDto(log)),
+                total: result.total,
+                page,
+                limit,
+                totalPages: Math.ceil(result.total / limit),
+            };
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async findById(id) {
-        const auditLog = await this.auditLogService.findById(id);
-        return new audit_log_dto_1.AuditLogResponseDto(auditLog);
+        try {
+            const auditLog = await this.auditLogService.findById(id);
+            return new audit_log_dto_1.AuditLogResponseDto(auditLog);
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async findByUserId(userId, page = 1, limit = 10) {
-        const result = await this.auditLogService.findByUserId(userId, page, limit);
-        return {
-            data: result.data.map(log => new audit_log_dto_1.AuditLogResponseDto(log)),
-            total: result.total,
-            page,
-            limit,
-            totalPages: Math.ceil(result.total / limit),
-        };
+        try {
+            const result = await this.auditLogService.findByUserId(userId, page, limit);
+            return {
+                data: result.data.map(log => new audit_log_dto_1.AuditLogResponseDto(log)),
+                total: result.total,
+                page,
+                limit,
+                totalPages: Math.ceil(result.total / limit),
+            };
+        }
+        catch (error) {
+            throw error;
+        }
     }
 };
 exports.AuditLogController = AuditLogController;
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, common_1.Query)('page', new common_1.ParseIntPipe({ optional: true }))),
     __param(1, (0, common_1.Query)('limit', new common_1.ParseIntPipe({ optional: true }))),
     __metadata("design:type", Function),
@@ -62,7 +76,6 @@ __decorate([
 ], AuditLogController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -70,7 +83,6 @@ __decorate([
 ], AuditLogController.prototype, "findById", null);
 __decorate([
     (0, common_1.Get)('user/:userId'),
-    (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, common_1.Param)('userId')),
     __param(1, (0, common_1.Query)('page', new common_1.ParseIntPipe({ optional: true }))),
     __param(2, (0, common_1.Query)('limit', new common_1.ParseIntPipe({ optional: true }))),
@@ -80,6 +92,7 @@ __decorate([
 ], AuditLogController.prototype, "findByUserId", null);
 exports.AuditLogController = AuditLogController = __decorate([
     (0, common_1.Controller)('audit-logs'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV),
     __metadata("design:paramtypes", [audit_log_service_1.AuditLogService])

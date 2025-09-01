@@ -26,16 +26,4 @@ export declare class NotificationService {
         html: string;
     }): Promise<any>;
     renderTemplate(templateName: string, context: any): string;
-    notifyVehicleCreated(vehicle: any, createdByUser: User): Promise<{
-        notified: number;
-    }>;
-    notifyVehicleUpdated(vehicle: any, updatedByUser: User, changes: string[]): Promise<{
-        notified: number;
-    }>;
-    notifyVehicleDeleted(vehicle: any, deletedByUser: User): Promise<{
-        notified: number;
-    }>;
-    notifyVehiclePartedOut(vehicle: any, updatedByUser: User): Promise<{
-        notified: number;
-    }>;
 }

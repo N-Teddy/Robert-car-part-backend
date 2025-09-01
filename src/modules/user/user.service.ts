@@ -2,6 +2,7 @@ import {
 	BadRequestException,
 	Injectable,
 	InternalServerErrorException,
+	Logger,
 	NotFoundException,
 } from '@nestjs/common';
 import { UserRoleEnum } from 'src/common/enum/entity.enum';
@@ -20,12 +21,16 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
+
+	private readonly logger = new Logger(UserService.name);
+
 	constructor(
 		@InjectRepository(User)
 		private readonly userRepository: Repository<User>,
 		private readonly dataSource: DataSource,
 		private readonly notificationService: NotificationService
-	) {}
+
+	) { }
 
 	// Staff Management - Only for ADMIN, MANAGER, DEV roles
 	async findAllStaff(
@@ -65,9 +70,7 @@ export class UserService {
 
 			return { users, total };
 		} catch (error) {
-			throw new InternalServerErrorException(
-				'Failed to fetch staff members'
-			);
+			throw error
 		}
 	}
 
@@ -118,21 +121,13 @@ export class UserService {
 				});
 			} catch (emailError) {
 				// Log email error but don't fail the operation
-				console.error(
-					'Failed to send welcome email:',
-					emailError.message
-				);
+				this.logger.error('Failed to send welcome email:', emailError.message);
 			}
 
 			return savedUser;
 		} catch (error) {
 			await queryRunner.rollbackTransaction();
-			if (error instanceof BadRequestException) {
-				throw error;
-			}
-			throw new InternalServerErrorException(
-				'Failed to create staff member'
-			);
+			throw error
 		} finally {
 			await queryRunner.release();
 		}
@@ -171,15 +166,7 @@ export class UserService {
 			Object.assign(user, updateStaffDto);
 			return await this.userRepository.save(user);
 		} catch (error) {
-			if (
-				error instanceof NotFoundException ||
-				error instanceof BadRequestException
-			) {
-				throw error;
-			}
-			throw new InternalServerErrorException(
-				'Failed to update staff member'
-			);
+			throw error;
 		}
 	}
 
@@ -209,15 +196,7 @@ export class UserService {
 			user.isActive = false;
 			return await this.userRepository.save(user);
 		} catch (error) {
-			if (
-				error instanceof NotFoundException ||
-				error instanceof BadRequestException
-			) {
-				throw error;
-			}
-			throw new InternalServerErrorException(
-				'Failed to deactivate staff member'
-			);
+			throw error;
 		}
 	}
 
@@ -234,12 +213,7 @@ export class UserService {
 			user.isActive = true;
 			return await this.userRepository.save(user);
 		} catch (error) {
-			if (error instanceof NotFoundException) {
-				throw error;
-			}
-			throw new InternalServerErrorException(
-				'Failed to activate staff member'
-			);
+			throw error
 		}
 	}
 
@@ -248,9 +222,7 @@ export class UserService {
 		try {
 			return Math.random().toString(36).slice(-8) + 'A1!';
 		} catch (error) {
-			throw new InternalServerErrorException(
-				'Failed to generate temporary password'
-			);
+			throw error
 		}
 	}
 
@@ -302,9 +274,7 @@ export class UserService {
 				}, {}),
 			};
 		} catch (error) {
-			throw new InternalServerErrorException(
-				'Failed to fetch staff statistics'
-			);
+			throw error
 		}
 	}
 
@@ -322,10 +292,7 @@ export class UserService {
 
 			return user;
 		} catch (error) {
-			if (error instanceof NotFoundException) {
-				throw error;
-			}
-			throw new InternalServerErrorException('Failed to fetch user');
+			throw error
 		}
 	}
 
@@ -346,10 +313,7 @@ export class UserService {
 			Object.assign(user, updateProfileDto);
 			return await this.userRepository.save(user);
 		} catch (error) {
-			if (error instanceof NotFoundException) {
-				throw error;
-			}
-			throw new InternalServerErrorException('Failed to update profile');
+			throw error
 		}
 	}
 
@@ -359,9 +323,7 @@ export class UserService {
 			const count = await this.userRepository.count({ where: { email } });
 			return count > 0;
 		} catch (error) {
-			throw new InternalServerErrorException(
-				'Failed to check user existence'
-			);
+			throw error
 		}
 	}
 
@@ -380,9 +342,7 @@ export class UserService {
 				order: { fullName: 'ASC' },
 			});
 		} catch (error) {
-			throw new InternalServerErrorException(
-				'Failed to fetch active staff members'
-			);
+			throw error
 		}
 	}
 }

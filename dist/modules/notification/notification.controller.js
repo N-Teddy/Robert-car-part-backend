@@ -25,24 +25,24 @@ let NotificationController = class NotificationController {
         try {
             return await this.notificationService.getUserNotifications(req.user.id);
         }
-        catch (err) {
-            throw err;
+        catch (error) {
+            throw error;
         }
     }
     async count(req) {
         try {
             return await this.notificationService.getUnreadCount(req.user.id);
         }
-        catch (err) {
-            throw err;
+        catch (error) {
+            throw error;
         }
     }
     async markRead(id, req) {
         try {
             return await this.notificationService.markAsRead(id, req.user.id);
         }
-        catch (err) {
-            throw err;
+        catch (error) {
+            throw error;
         }
     }
 };

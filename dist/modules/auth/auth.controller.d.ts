@@ -39,9 +39,6 @@ export declare class AuthController {
         accessToken: string;
         refreshToken: string;
     }>;
-    logout(req: any): Promise<{
-        message: string;
-    }>;
     getProfile(req: any): Promise<{
         email: string;
         fullName: string;

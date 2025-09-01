@@ -16,48 +16,59 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('audit-logs')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV)
 export class AuditLogController {
+    
     constructor(private readonly auditLogService: AuditLogService) { }
 
     @Get()
-    @ApiBearerAuth()
     async findAll(
         @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
         @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 10,
     ) {
-        const result = await this.auditLogService.findAll(page, limit);
-        return {
-            data: result.data.map(log => new AuditLogResponseDto(log)),
-            total: result.total,
-            page,
-            limit,
-            totalPages: Math.ceil(result.total / limit),
-        };
+        try {
+            const result = await this.auditLogService.findAll(page, limit);
+            return {
+                data: result.data.map(log => new AuditLogResponseDto(log)),
+                total: result.total,
+                page,
+                limit,
+                totalPages: Math.ceil(result.total / limit),
+            };
+        } catch (error) {
+            throw error
+        }
     }
 
     @Get(':id')
-    @ApiBearerAuth()
     async findById(@Param('id') id: string) {
-        const auditLog = await this.auditLogService.findById(id);
-        return new AuditLogResponseDto(auditLog);
+        try {
+            const auditLog = await this.auditLogService.findById(id);
+            return new AuditLogResponseDto(auditLog);
+        } catch (error) {
+            throw error
+        }
     }
 
     @Get('user/:userId')
-    @ApiBearerAuth()
     async findByUserId(
         @Param('userId') userId: string,
         @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
         @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 10,
     ) {
-        const result = await this.auditLogService.findByUserId(userId, page, limit);
-        return {
-            data: result.data.map(log => new AuditLogResponseDto(log)),
-            total: result.total,
-            page,
-            limit,
-            totalPages: Math.ceil(result.total / limit),
-        };
+        try {
+            const result = await this.auditLogService.findByUserId(userId, page, limit);
+            return {
+                data: result.data.map(log => new AuditLogResponseDto(log)),
+                total: result.total,
+                page,
+                limit,
+                totalPages: Math.ceil(result.total / limit),
+            };
+        } catch (error) {
+            throw error
+        }
     }
 }

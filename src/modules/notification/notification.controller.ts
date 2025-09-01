@@ -30,8 +30,8 @@ export class NotificationController {
 			return await this.notificationService.getUserNotifications(
 				req.user.id
 			);
-		} catch (err) {
-			throw err;
+		} catch (error) {
+			throw error;
 		}
 	}
 
@@ -41,8 +41,8 @@ export class NotificationController {
 	async count(@Request() req) {
 		try {
 			return await this.notificationService.getUnreadCount(req.user.id);
-		} catch (err) {
-			throw err;
+		} catch (error) {
+			throw error;
 		}
 	}
 
@@ -52,8 +52,8 @@ export class NotificationController {
 	async markRead(@Param('id') id: string, @Request() req) {
 		try {
 			return await this.notificationService.markAsRead(id, req.user.id);
-		} catch (err) {
-			throw err;
+		} catch (error) {
+			throw error;
 		}
 	}
 }

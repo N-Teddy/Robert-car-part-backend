@@ -8,8 +8,6 @@ export declare class AuditLogService {
     create(createAuditLogDto: CreateAuditLogRequestDto): Promise<AuditLog>;
     logRequest(request: any, response: any, userId?: string): Promise<void>;
     private createLogAsync;
-    private extractEntityFromRoute;
-    private sanitizeHeaders;
     findAll(page?: number, limit?: number): Promise<{
         data: AuditLog[];
         total: number;
@@ -19,4 +17,6 @@ export declare class AuditLogService {
         data: AuditLog[];
         total: number;
     }>;
+    private extractEntityFromRoute;
+    private sanitizeHeaders;
 }

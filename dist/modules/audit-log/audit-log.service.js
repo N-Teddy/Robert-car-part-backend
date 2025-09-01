@@ -25,51 +25,106 @@ let AuditLogService = AuditLogService_1 = class AuditLogService {
         this.logger = new common_1.Logger(AuditLogService_1.name);
     }
     async create(createAuditLogDto) {
-        const auditLog = this.auditLogRepository.create(createAuditLogDto);
-        return this.auditLogRepository.save(auditLog);
+        try {
+            const auditLog = this.auditLogRepository.create(createAuditLogDto);
+            return this.auditLogRepository.save(auditLog);
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async logRequest(request, response, userId) {
-        const method = request.method.toUpperCase();
-        const actionMap = {
-            POST: entity_enum_1.AuditActionEnum.CREATE,
-            PUT: entity_enum_1.AuditActionEnum.UPDATE,
-            PATCH: entity_enum_1.AuditActionEnum.UPDATE,
-            DELETE: entity_enum_1.AuditActionEnum.DELETE,
-        };
-        const action = actionMap[method];
-        if (!action)
-            return;
-        this.createLogAsync(action, request, response, userId).catch(error => {
-            this.logger.error('Failed to create audit log:', error.message);
-        });
+        try {
+            const method = request.method.toUpperCase();
+            const actionMap = {
+                POST: entity_enum_1.AuditActionEnum.CREATE,
+                PUT: entity_enum_1.AuditActionEnum.UPDATE,
+                PATCH: entity_enum_1.AuditActionEnum.UPDATE,
+                DELETE: entity_enum_1.AuditActionEnum.DELETE,
+            };
+            const action = actionMap[method];
+            if (!action)
+                return;
+            this.createLogAsync(action, request, response, userId).catch(error => {
+                this.logger.error('Failed to create audit log:', error.message);
+            });
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async createLogAsync(action, request, response, userId) {
-        const entity = this.extractEntityFromRoute(request.route);
-        const ipAddress = request.ip || request.connection?.remoteAddress;
-        const userAgent = request.get('user-agent');
-        const details = {
-            request: {
-                body: request.body,
-                params: request.params,
-                query: request.query,
-                headers: this.sanitizeHeaders(request.headers),
-            },
-            response: {
-                statusCode: response.statusCode,
-                statusMessage: response.statusMessage,
-            },
-            timestamp: new Date().toISOString(),
-        };
-        const createAuditLogDto = {
-            action,
-            entity,
-            details,
-            route: request.route?.path || request.url,
-            ipAddress,
-            userAgent,
-            userId,
-        };
-        await this.create(createAuditLogDto);
+        try {
+            const entity = this.extractEntityFromRoute(request.route);
+            const ipAddress = request.ip || request.connection?.remoteAddress;
+            const userAgent = request.get('user-agent');
+            const details = {
+                request: {
+                    body: request.body,
+                    params: request.params,
+                    query: request.query,
+                    headers: this.sanitizeHeaders(request.headers),
+                },
+                response: {
+                    statusCode: response.statusCode,
+                    statusMessage: response.statusMessage,
+                },
+                timestamp: new Date().toISOString(),
+            };
+            const createAuditLogDto = {
+                action,
+                entity,
+                details,
+                route: request.route?.path || request.url,
+                ipAddress,
+                userAgent,
+                userId,
+            };
+            await this.create(createAuditLogDto);
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async findAll(page = 1, limit = 10) {
+        try {
+            const [data, total] = await this.auditLogRepository.findAndCount({
+                relations: ['user'],
+                order: { timestamp: 'DESC' },
+                skip: (page - 1) * limit,
+                take: limit,
+            });
+            return { data, total };
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async findById(id) {
+        try {
+            return this.auditLogRepository.findOne({
+                where: { id },
+                relations: ['user'],
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    async findByUserId(userId, page = 1, limit = 10) {
+        try {
+            const [data, total] = await this.auditLogRepository.findAndCount({
+                where: { user: { id: userId } },
+                relations: ['user'],
+                order: { timestamp: 'DESC' },
+                skip: (page - 1) * limit,
+                take: limit,
+            });
+            return { data, total };
+        }
+        catch (error) {
+            throw error;
+        }
     }
     extractEntityFromRoute(route) {
         if (!route)
@@ -90,31 +145,6 @@ let AuditLogService = AuditLogService_1 = class AuditLogService {
             });
         });
         return sanitized;
-    }
-    async findAll(page = 1, limit = 10) {
-        const [data, total] = await this.auditLogRepository.findAndCount({
-            relations: ['user'],
-            order: { timestamp: 'DESC' },
-            skip: (page - 1) * limit,
-            take: limit,
-        });
-        return { data, total };
-    }
-    async findById(id) {
-        return this.auditLogRepository.findOne({
-            where: { id },
-            relations: ['user'],
-        });
-    }
-    async findByUserId(userId, page = 1, limit = 10) {
-        const [data, total] = await this.auditLogRepository.findAndCount({
-            where: { user: { id: userId } },
-            relations: ['user'],
-            order: { timestamp: 'DESC' },
-            skip: (page - 1) * limit,
-            take: limit,
-        });
-        return { data, total };
     }
 };
 exports.AuditLogService = AuditLogService;
