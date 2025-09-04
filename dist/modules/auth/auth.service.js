@@ -25,14 +25,16 @@ const password_reset_token_entity_1 = require("../../entities/password-reset-tok
 const audit_log_entity_1 = require("../../entities/audit-log.entity");
 const entity_enum_1 = require("../../common/enum/entity.enum");
 const notification_service_1 = require("../notification/notification.service");
+const event_emitter_1 = require("@nestjs/event-emitter");
 let AuthService = AuthService_1 = class AuthService {
-    constructor(userRepository, passwordResetTokenRepository, auditLogRepository, jwtService, notificationService, dataSource) {
+    constructor(userRepository, passwordResetTokenRepository, auditLogRepository, jwtService, notificationService, dataSource, eventEmitter) {
         this.userRepository = userRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.auditLogRepository = auditLogRepository;
         this.jwtService = jwtService;
         this.notificationService = notificationService;
         this.dataSource = dataSource;
+        this.eventEmitter = eventEmitter;
         this.logger = new common_1.Logger(AuthService_1.name);
     }
     async validateUser(email, password) {
@@ -130,14 +132,10 @@ let AuthService = AuthService_1 = class AuthService {
                 expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
             });
             await queryRunner.commitTransaction();
-            await this.notificationService.notifyAdminsOnNewUser(savedUser);
-            const welcomeHtml = this.notificationService.renderTemplate('welcome-pending-role', {
-                name: savedUser.fullName || 'there',
-            });
-            await this.notificationService.sendEmail({
-                to: savedUser.email,
-                subject: 'Welcome - Pending Role Assignment',
-                html: welcomeHtml,
+            this.eventEmitter.emit('user.registered', {
+                userId: savedUser.id,
+                email: savedUser.email,
+                name: savedUser.fullName,
             });
             return {
                 id: savedUser.id,
@@ -257,11 +255,8 @@ let AuthService = AuthService_1 = class AuthService {
             user.password = hashedPassword;
             user.isFirstLogin = false;
             await this.userRepository.save(user);
-            const changeConfirmHtml = this.notificationService.renderTemplate('password-change-confirm', {});
-            await this.notificationService.sendEmail({
-                to: user.email,
-                subject: 'Your password has been changed',
-                html: changeConfirmHtml,
+            this.eventEmitter.emit('password.changed', {
+                userId,
             });
             return { message: 'Password changed successfully' };
         }
@@ -332,11 +327,9 @@ let AuthService = AuthService_1 = class AuthService {
             user.role = role;
             user.isFirstLogin = false;
             await queryRunner.manager.save(user);
-            const roleHtml = this.notificationService.renderTemplate('role-assigned', { role });
-            await this.notificationService.sendEmail({
-                to: user.email,
-                subject: 'Your role has been updated',
-                html: roleHtml,
+            this.eventEmitter.emit('role.assigned', {
+                userId: user.id,
+                role,
             });
             await queryRunner.commitTransaction();
             return { message: 'Role updated successfully' };
@@ -361,6 +354,7 @@ exports.AuthService = AuthService = AuthService_1 = __decorate([
         typeorm_2.Repository,
         jwt_1.JwtService,
         notification_service_1.NotificationService,
-        typeorm_2.DataSource])
+        typeorm_2.DataSource,
+        event_emitter_1.EventEmitter2])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

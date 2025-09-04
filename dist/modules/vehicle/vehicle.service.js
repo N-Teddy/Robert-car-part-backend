@@ -23,14 +23,16 @@ const vehicle_profit_entity_1 = require("../../entities/vehicle-profit.entity");
 const image_entity_1 = require("../../entities/image.entity");
 const user_entity_1 = require("../../entities/user.entity");
 const notification_service_1 = require("../notification/notification.service");
+const event_emitter_1 = require("@nestjs/event-emitter");
 let VehicleService = VehicleService_1 = class VehicleService {
-    constructor(vehicleRepository, partRepository, vehicleProfitRepository, imageRepository, userRepository, notificationService) {
+    constructor(vehicleRepository, partRepository, vehicleProfitRepository, imageRepository, userRepository, notificationService, eventEmitter) {
         this.vehicleRepository = vehicleRepository;
         this.partRepository = partRepository;
         this.vehicleProfitRepository = vehicleProfitRepository;
         this.imageRepository = imageRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.eventEmitter = eventEmitter;
         this.logger = new common_1.Logger(VehicleService_1.name);
     }
     async createVehicle(createVehicleDto, userId) {
@@ -48,13 +50,19 @@ let VehicleService = VehicleService_1 = class VehicleService {
                 updatedBy: userId,
             });
             const savedVehicle = await this.vehicleRepository.save(vehicle);
-            try {
-                const createdByUser = await this.userRepository.findOne({
-                    where: { id: userId },
+            this.eventEmitter.emit('vehicle.created', {
+                userId,
+                vehicleId: vehicle.id,
+                vehicleName: `${vehicle.make} ${vehicle.model} ${vehicle.year}`,
+            });
+            const admins = await this.userRepository.find({ where: { role: 'admin' } });
+            for (const admin of admins) {
+                this.eventEmitter.emit('vehicle.created.admin', {
+                    userId: admin.id,
+                    vehicleId: vehicle.id,
+                    vehicleName: `${vehicle.make} ${vehicle.model} ${vehicle.year}`,
+                    createdBy: userId,
                 });
-            }
-            catch (notificationError) {
-                this.logger.warn(`Failed to send vehicle creation notification: ${notificationError.message}`);
             }
             this.logger.log(`Vehicle created successfully: ${savedVehicle.id}`);
             return savedVehicle;
@@ -578,6 +586,7 @@ exports.VehicleService = VehicleService = VehicleService_1 = __decorate([
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
-        notification_service_1.NotificationService])
+        notification_service_1.NotificationService,
+        event_emitter_1.EventEmitter2])
 ], VehicleService);
 //# sourceMappingURL=vehicle.service.js.map

@@ -1,10 +1,8 @@
+// src/entities/notification.entity.ts
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { User } from './user.entity';
-import {
-	NotificationEnum,
-	NotificationAudienceEnum,
-} from 'src/common/enum/entity.enum';
 import { BaseEntity } from './base.entity';
+import { User } from './user.entity';
+import { NotificationEnum } from 'src/common/enum/entity.enum';
 
 @Entity('notifications')
 export class Notification extends BaseEntity {
@@ -28,11 +26,4 @@ export class Notification extends BaseEntity {
 
 	@Column({ default: false, name: 'email_sent' })
 	emailSent: boolean;
-
-	@Column({
-		type: 'enum',
-		enum: NotificationAudienceEnum,
-		default: NotificationAudienceEnum.ADMINS,
-	})
-	audience: NotificationAudienceEnum;
 }

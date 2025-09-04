@@ -35,7 +35,6 @@ export class User extends BaseEntity {
 		cascade: false,
 		onDelete: 'SET NULL'
 	})
-	@JoinColumn() // This creates the foreign key in the users table
 	profileImage?: Image;
 
 	@OneToMany(() => PasswordResetToken, (token) => token.user)

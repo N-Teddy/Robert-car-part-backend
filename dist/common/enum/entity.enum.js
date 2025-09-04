@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotificationAudienceEnum = exports.AuditActionEnum = exports.UserRoleEnum = exports.ReportPeriodEnum = exports.ReportTypeEnum = exports.DeliveryMethodEnum = exports.OrderStatusEnum = exports.NotificationEnum = exports.ImageEnum = void 0;
+exports.NotificationAudienceEnum = exports.AuditActionEnum = exports.UserRoleEnum = exports.ReportPeriodEnum = exports.ReportTypeEnum = exports.DeliveryMethodEnum = exports.OrderStatusEnum = exports.NotificationEnum = exports.EntityType = exports.ImageEnum = void 0;
 var ImageEnum;
 (function (ImageEnum) {
     ImageEnum["USER_PROFILE"] = "USER PROFILE";
@@ -9,6 +9,9 @@ var ImageEnum;
     ImageEnum["QR_CODE"] = "QR_CODE";
     ImageEnum["CATEGORY"] = "CATEGORY";
 })(ImageEnum || (exports.ImageEnum = ImageEnum = {}));
+var EntityType;
+(function (EntityType) {
+})(EntityType || (exports.EntityType = EntityType = {}));
 var NotificationEnum;
 (function (NotificationEnum) {
     NotificationEnum["ORDER_CREATED"] = "ORDER CREATED";

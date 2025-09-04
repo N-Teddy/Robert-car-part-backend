@@ -8,11 +8,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuditLogInterceptor = void 0;
 const common_1 = require("@nestjs/common");
 const operators_1 = require("rxjs/operators");
-const audit_log_service_1 = require("../../modules/audit-log/audit-log.service");
+const audit_log_service_1 = require("src/modules/audit-log/audit-log.service");
 let AuditLogInterceptor = class AuditLogInterceptor {
     constructor(auditLogService) {
         this.auditLogService = auditLogService;
@@ -31,6 +32,6 @@ let AuditLogInterceptor = class AuditLogInterceptor {
 exports.AuditLogInterceptor = AuditLogInterceptor;
 exports.AuditLogInterceptor = AuditLogInterceptor = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [audit_log_service_1.AuditLogService])
+    __metadata("design:paramtypes", [typeof (_a = typeof audit_log_service_1.AuditLogService !== "undefined" && audit_log_service_1.AuditLogService) === "function" ? _a : Object])
 ], AuditLogInterceptor);
 //# sourceMappingURL=audit-log.interceptor.js.map

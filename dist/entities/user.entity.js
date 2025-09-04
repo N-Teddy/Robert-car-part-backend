@@ -55,7 +55,6 @@ __decorate([
         cascade: false,
         onDelete: 'SET NULL'
     }),
-    (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", image_entity_1.Image)
 ], User.prototype, "profileImage", void 0);
 __decorate([

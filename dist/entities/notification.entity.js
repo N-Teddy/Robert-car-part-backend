@@ -11,9 +11,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Notification = void 0;
 const typeorm_1 = require("typeorm");
+const base_entity_1 = require("./base.entity");
 const user_entity_1 = require("./user.entity");
 const entity_enum_1 = require("../common/enum/entity.enum");
-const base_entity_1 = require("./base.entity");
 let Notification = class Notification extends base_entity_1.BaseEntity {
 };
 exports.Notification = Notification;
@@ -45,14 +45,6 @@ __decorate([
     (0, typeorm_1.Column)({ default: false, name: 'email_sent' }),
     __metadata("design:type", Boolean)
 ], Notification.prototype, "emailSent", void 0);
-__decorate([
-    (0, typeorm_1.Column)({
-        type: 'enum',
-        enum: entity_enum_1.NotificationAudienceEnum,
-        default: entity_enum_1.NotificationAudienceEnum.ADMINS,
-    }),
-    __metadata("design:type", String)
-], Notification.prototype, "audience", void 0);
 exports.Notification = Notification = __decorate([
     (0, typeorm_1.Entity)('notifications')
 ], Notification);

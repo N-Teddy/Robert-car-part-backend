@@ -7,6 +7,7 @@ import { UserRoleEnum } from '../../common/enum/entity.enum';
 import { NotificationService } from '../notification/notification.service';
 import { ChangePasswordDto, ForgotPasswordDto, LoginDto, RegisterDto, ResetPasswordDto } from 'src/dto/request/auth';
 import { Image } from 'src/entities/image.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 export declare class AuthService {
     private readonly userRepository;
     private readonly passwordResetTokenRepository;
@@ -14,8 +15,9 @@ export declare class AuthService {
     private readonly jwtService;
     private readonly notificationService;
     private readonly dataSource;
+    private eventEmitter;
     private readonly logger;
-    constructor(userRepository: Repository<User>, passwordResetTokenRepository: Repository<PasswordResetToken>, auditLogRepository: Repository<AuditLog>, jwtService: JwtService, notificationService: NotificationService, dataSource: DataSource);
+    constructor(userRepository: Repository<User>, passwordResetTokenRepository: Repository<PasswordResetToken>, auditLogRepository: Repository<AuditLog>, jwtService: JwtService, notificationService: NotificationService, dataSource: DataSource, eventEmitter: EventEmitter2);
     validateUser(email: string, password: string): Promise<any>;
     login(loginDto: LoginDto): Promise<{
         id: string;
@@ -62,6 +64,22 @@ export declare class AuthService {
         resetTokens: PasswordResetToken[];
         notifications: import("../../entities/notification.entity").Notification[];
         auditLogs: AuditLog[];
+        notificationPreferences: {
+            email?: {
+                enabled: boolean;
+                types?: import("../../common/enum/notification.enum").NotificationType[];
+            };
+            inApp?: {
+                enabled: boolean;
+                types?: import("../../common/enum/notification.enum").NotificationType[];
+            };
+            push?: {
+                enabled: boolean;
+                types?: import("../../common/enum/notification.enum").NotificationType[];
+            };
+        };
+        emailVerified: boolean;
+        lastNotificationReadAt: Date;
         id: string;
         createdBy?: string | null;
         updatedBy?: string | null;

@@ -2,7 +2,6 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { ResponseInterceptor } from './common/interceptor/response.interceptor';
 import { setupSwagger } from './config/swagger.cofig';
 
 async function bootstrap() {
@@ -18,8 +17,6 @@ async function bootstrap() {
 		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
 	});
 
-	// Global Interceptor
-	app.useGlobalInterceptors(new ResponseInterceptor(app.get(Reflector)));
 
 	// Swagger Setup
 	setupSwagger(app);

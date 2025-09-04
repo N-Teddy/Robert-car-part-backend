@@ -1,6 +1,6 @@
-import { User } from './user.entity';
-import { NotificationEnum, NotificationAudienceEnum } from 'src/common/enum/entity.enum';
 import { BaseEntity } from './base.entity';
+import { User } from './user.entity';
+import { NotificationEnum } from 'src/common/enum/entity.enum';
 export declare class Notification extends BaseEntity {
     type: NotificationEnum;
     title: string;
@@ -9,5 +9,4 @@ export declare class Notification extends BaseEntity {
     metadata: Record<string, any>;
     user?: User | null;
     emailSent: boolean;
-    audience: NotificationAudienceEnum;
 }

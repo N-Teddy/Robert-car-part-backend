@@ -5,6 +5,8 @@ export declare enum ImageEnum {
     QR_CODE = "QR_CODE",
     CATEGORY = "CATEGORY"
 }
+export declare enum EntityType {
+}
 export declare enum NotificationEnum {
     ORDER_CREATED = "ORDER CREATED",
     ORDER_UPDATED = "ORDER UPDATED",

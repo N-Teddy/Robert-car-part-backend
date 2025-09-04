@@ -50,6 +50,22 @@ export declare class AuthController {
         resetTokens: import("../../entities/password-reset-token.entity").PasswordResetToken[];
         notifications: import("../../entities/notification.entity").Notification[];
         auditLogs: import("../../entities/audit-log.entity").AuditLog[];
+        notificationPreferences: {
+            email?: {
+                enabled: boolean;
+                types?: import("../../common/enum/notification.enum").NotificationType[];
+            };
+            inApp?: {
+                enabled: boolean;
+                types?: import("../../common/enum/notification.enum").NotificationType[];
+            };
+            push?: {
+                enabled: boolean;
+                types?: import("../../common/enum/notification.enum").NotificationType[];
+            };
+        };
+        emailVerified: boolean;
+        lastNotificationReadAt: Date;
         id: string;
         createdBy?: string | null;
         updatedBy?: string | null;

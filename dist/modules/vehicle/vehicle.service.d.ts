@@ -6,6 +6,7 @@ import { Image } from '../../entities/image.entity';
 import { User } from '../../entities/user.entity';
 import { NotificationService } from '../notification/notification.service';
 import { CreateVehicleDto, UpdateVehicleDto, BulkCreateVehicleDto, BulkUpdateVehicleDto, VehicleSearchDto, VehiclePaginationDto, VehicleExportDto } from '../../dto/request/vehicle.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 export interface VehicleWithStats extends Vehicle {
     totalParts: number;
     totalPartsRevenue: number;
@@ -20,8 +21,9 @@ export declare class VehicleService {
     private imageRepository;
     private userRepository;
     private notificationService;
+    private eventEmitter;
     private readonly logger;
-    constructor(vehicleRepository: Repository<Vehicle>, partRepository: Repository<Part>, vehicleProfitRepository: Repository<VehicleProfit>, imageRepository: Repository<Image>, userRepository: Repository<User>, notificationService: NotificationService);
+    constructor(vehicleRepository: Repository<Vehicle>, partRepository: Repository<Part>, vehicleProfitRepository: Repository<VehicleProfit>, imageRepository: Repository<Image>, userRepository: Repository<User>, notificationService: NotificationService, eventEmitter: EventEmitter2);
     createVehicle(createVehicleDto: CreateVehicleDto, userId: string): Promise<Vehicle>;
     createVehiclesBulk(bulkCreateDto: BulkCreateVehicleDto, userId: string): Promise<any[]>;
     findAll(searchDto?: VehicleSearchDto, paginationDto?: VehiclePaginationDto): Promise<{

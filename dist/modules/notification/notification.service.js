@@ -17,389 +17,478 @@ exports.NotificationService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const config_1 = require("@nestjs/config");
+const event_emitter_1 = require("@nestjs/event-emitter");
+const bull_1 = require("@nestjs/bull");
+const schedule_1 = require("@nestjs/schedule");
 const nodemailer = require("nodemailer");
+const handlebars = require("handlebars");
 const fs = require("fs");
 const path = require("path");
-const Handlebars = require("handlebars");
+const config_1 = require("@nestjs/config");
 const notification_entity_1 = require("../../entities/notification.entity");
 const user_entity_1 = require("../../entities/user.entity");
-const entity_enum_1 = require("../../common/enum/entity.enum");
+const audit_log_service_1 = require("../audit-log/audit-log.service");
+const notification_gateway_1 = require("./notification.gateway");
+const notification_enum_1 = require("../../common/enum/notification.enum");
 let NotificationService = NotificationService_1 = class NotificationService {
-    constructor(notificationRepository, userRepository, configService) {
+    constructor(notificationRepository, userRepository, notificationQueue, configService, eventEmitter, auditLogService, notificationGateway) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
+        this.notificationQueue = notificationQueue;
         this.configService = configService;
+        this.eventEmitter = eventEmitter;
+        this.auditLogService = auditLogService;
+        this.notificationGateway = notificationGateway;
         this.logger = new common_1.Logger(NotificationService_1.name);
-        this.defaultEmailTemplate = 'generic-notification';
-        this.initializeEmailTransport();
-        this.registerHandlebarsHelpers();
+        this.emailTemplates = new Map();
+        this.retryInterval = 60000;
+        this.initializeEmailTransporter();
+        this.loadEmailTemplates();
     }
-    initializeEmailTransport() {
+    initializeEmailTransporter() {
         this.transporter = nodemailer.createTransport({
-            host: this.configService.get('email.host'),
-            port: this.configService.get('email.port'),
-            secure: this.configService.get('email.secure'),
-            auth: this.configService.get('email.secure')
-                ? {
-                    user: this.configService.get('email.user'),
-                    pass: this.configService.get('email.pass'),
-                }
-                : undefined,
+            host: this.configService.get('SMTP_HOST'),
+            port: this.configService.get('SMTP_PORT'),
+            secure: this.configService.get('SMTP_SECURE') === 'true',
+            auth: {
+                user: this.configService.get('SMTP_USER'),
+                pass: this.configService.get('SMTP_PASS'),
+            },
         });
     }
-    registerHandlebarsHelpers() {
-        Handlebars.registerHelper('formatDate', (date) => {
-            return new Intl.DateTimeFormat('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-            }).format(new Date(date));
-        });
-        Handlebars.registerHelper('uppercase', (str) => {
-            return str?.toUpperCase() || '';
-        });
-        Handlebars.registerHelper('ifEquals', function (arg1, arg2, options) {
-            return arg1 === arg2 ? options.fn(this) : options.inverse(this);
-        });
-    }
-    async createNotification(params) {
-        const { type, title, message, metadata = {}, audience = entity_enum_1.NotificationAudienceEnum.ADMINS, sendEmail = false, emailTemplate = this.defaultEmailTemplate, emailContext = {}, createdBy = null } = params;
+    loadEmailTemplates() {
+        const templateDir = path.join(process.cwd(), 'templates', 'email');
         try {
-            const notification = this.notificationRepository.create({
-                type,
-                title,
-                message,
-                metadata,
-                audience,
-                createdBy,
-                isRead: false,
-                emailSent: false
-            });
-            const savedNotification = await this.notificationRepository.save(notification);
-            if (sendEmail) {
-                this.handleEmailNotificationAsync(savedNotification, emailTemplate, emailContext).catch(error => {
-                    this.logger.error('Async email handling failed:', error);
-                });
+            const layoutPath = path.join(templateDir, 'layout.hbs');
+            if (fs.existsSync(layoutPath)) {
+                const layoutTemplate = fs.readFileSync(layoutPath, 'utf-8');
+                handlebars.registerPartial('layout', layoutTemplate);
             }
-            return savedNotification;
-        }
-        catch (error) {
-            this.logger.error('Failed to create notification', error.stack || String(error));
-            throw error;
-        }
-    }
-    async handleEmailNotificationAsync(notification, templateName, emailContext) {
-        try {
-            const recipients = await this.getAudienceRecipients(notification.audience);
-            if (recipients.length === 0) {
-                this.logger.warn(`No recipients found for audience: ${notification.audience}`);
-                return;
-            }
-            this.logger.log(`Sending emails to ${recipients.length} recipients`);
-            const batchSize = 10;
-            for (let i = 0; i < recipients.length; i += batchSize) {
-                const batch = recipients.slice(i, i + batchSize);
-                await Promise.allSettled(batch.map(recipient => this.sendEmailToRecipient(notification, templateName, emailContext, recipient)));
-                if (i + batchSize < recipients.length) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
+            const templateFiles = fs.readdirSync(templateDir);
+            templateFiles.forEach(file => {
+                if (file !== 'layout.hbs' && file.endsWith('.hbs')) {
+                    const templateName = file.replace('.hbs', '');
+                    const templatePath = path.join(templateDir, file);
+                    const templateContent = fs.readFileSync(templatePath, 'utf-8');
+                    const compiledTemplate = handlebars.compile(templateContent);
+                    this.emailTemplates.set(templateName, compiledTemplate);
                 }
-            }
-            await this.notificationRepository.update({ id: notification.id }, { emailSent: true });
-            this.logger.log(`Successfully processed emails for notification: ${notification.id}`);
-        }
-        catch (error) {
-            this.logger.error('Failed to handle email notification', error.stack || String(error));
-        }
-    }
-    async sendEmailToRecipient(notification, templateName, emailContext, recipient) {
-        try {
-            const html = await this.renderEmailTemplate(templateName, {
-                ...emailContext,
-                title: notification.title,
-                message: notification.message,
-                notificationType: notification.type,
-                recipientName: recipient.fullName || recipient.email,
-                recipientEmail: recipient.email,
-                notificationId: notification.id
-            });
-            await this.sendEmail({
-                to: recipient.email,
-                subject: notification.title,
-                html,
-            });
-            this.logger.debug(`Email sent successfully to: ${recipient.email}`);
-        }
-        catch (error) {
-            this.logger.error(`Failed to send email to ${recipient.email}: ${error.message}`);
-        }
-    }
-    async renderEmailTemplate(templateName, context) {
-        const templateDir = this.configService.get('email.templateDir') || 'templates/email';
-        try {
-            const templatePath = path.resolve(templateDir, `${templateName}.hbs`);
-            if (fs.existsSync(templatePath)) {
-                const templateSrc = fs.readFileSync(templatePath, 'utf8');
-                const template = Handlebars.compile(templateSrc);
-                return this.wrapInLayout(template(context), context);
-            }
-            this.logger.warn(`Template ${templateName} not found, using default template`);
-            const defaultTemplatePath = path.resolve(templateDir, `${this.defaultEmailTemplate}.hbs`);
-            if (fs.existsSync(defaultTemplatePath)) {
-                const templateSrc = fs.readFileSync(defaultTemplatePath, 'utf8');
-                const template = Handlebars.compile(templateSrc);
-                return this.wrapInLayout(template(context), context);
-            }
-            return this.createBasicEmailHtml(context);
-        }
-        catch (error) {
-            this.logger.error('Failed to render email template, using basic HTML', error);
-            return this.createBasicEmailHtml(context);
-        }
-    }
-    wrapInLayout(content, context) {
-        const templateDir = this.configService.get('email.templateDir') || 'templates/email';
-        const layoutPath = path.resolve(templateDir, 'layout.hbs');
-        if (fs.existsSync(layoutPath)) {
-            try {
-                const layoutSrc = fs.readFileSync(layoutPath, 'utf8');
-                const layout = Handlebars.compile(layoutSrc);
-                return layout({
-                    ...context,
-                    title: context.title || 'Notification',
-                    body: content
-                });
-            }
-            catch (error) {
-                this.logger.warn('Failed to apply layout, using content directly', error);
-            }
-        }
-        return content;
-    }
-    createBasicEmailHtml(context) {
-        return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <title>${context.title || 'Notification'}</title>
-          <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: #f4f4f4; padding: 10px; border-radius: 5px; }
-            .content { margin: 20px 0; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h2>${context.title || 'Notification'}</h2>
-            </div>
-            <div class="content">
-              <p>${context.message || 'You have a new notification.'}</p>
-              ${context.notificationType ? `<p><strong>Type:</strong> ${context.notificationType}</p>` : ''}
-            </div>
-          </div>
-        </body>
-      </html>
-    `;
-    }
-    async getAudienceRecipients(audience) {
-        try {
-            switch (audience) {
-                case entity_enum_1.NotificationAudienceEnum.ADMINS:
-                    return await this.userRepository.find({
-                        where: {
-                            role: (0, typeorm_2.In)([entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV]),
-                            isActive: true
-                        },
-                    });
-                case entity_enum_1.NotificationAudienceEnum.ALL_EXCEPT_UNKNOWN:
-                    return await this.userRepository.find({
-                        where: {
-                            role: (0, typeorm_2.In)([
-                                entity_enum_1.UserRoleEnum.ADMIN,
-                                entity_enum_1.UserRoleEnum.MANAGER,
-                                entity_enum_1.UserRoleEnum.DEV,
-                                entity_enum_1.UserRoleEnum.SALES,
-                                entity_enum_1.UserRoleEnum.CUSTOMER
-                            ]),
-                            isActive: true
-                        },
-                    });
-                case entity_enum_1.NotificationAudienceEnum.ALL:
-                    return await this.userRepository.find({
-                        where: { isActive: true }
-                    });
-                default:
-                    this.logger.warn(`Unknown audience type: ${audience}`);
-                    return [];
-            }
-        }
-        catch (error) {
-            this.logger.error('Failed to get audience recipients', error);
-            return [];
-        }
-    }
-    async notifyAdminsOnNewUser(user) {
-        try {
-            const audience = entity_enum_1.NotificationAudienceEnum.ADMINS;
-            const recipients = await this.getAudienceRecipients(audience);
-            if (recipients.length === 0) {
-                this.logger.warn('No recipients found for notification.');
-                return { notified: 0 };
-            }
-            const title = 'New User Registration - Role Assignment Required';
-            const adminPanelUrl = `${this.configService.get('app.frontendUrl')}/admin/users`;
-            const notification = this.notificationRepository.create({
-                type: entity_enum_1.NotificationEnum.SYSTEM_ALERT,
-                title,
-                message: `${user.fullName || user.email} registered and is awaiting role assignment.`,
-                audience,
-            });
-            const savedNotification = await this.notificationRepository.save(notification);
-            await Promise.all(recipients.map(async (recipient) => {
-                try {
-                    const html = this.renderTemplate('notify-admin-new-user', {
-                        user: {
-                            id: user.id,
-                            email: user.email,
-                            fullName: user.fullName || 'Not provided',
-                            createdAt: user.createdAt,
-                        },
-                        adminPanelUrl,
-                        title: 'New User Registration',
-                    });
-                    await this.sendEmail({
-                        to: recipient.email,
-                        subject: title,
-                        html,
-                    });
-                }
-                catch (error) {
-                    this.logger.error(`Failed to email ${recipient.email}: ${error.message}`);
-                }
-            }));
-            savedNotification.emailSent = true;
-            await this.notificationRepository.save(savedNotification);
-            return { notified: recipients.length };
-        }
-        catch (error) {
-            this.logger.error('Failed to notify admins on new user', error?.stack || String(error));
-        }
-    }
-    async getUserNotifications(userId) {
-        try {
-            const user = await this.userRepository.findOne({
-                where: { id: userId },
-            });
-            if (!user)
-                return [];
-            const visibleAudiences = [
-                entity_enum_1.NotificationAudienceEnum.ALL,
-                entity_enum_1.NotificationAudienceEnum.ALL_EXCEPT_UNKNOWN,
-            ];
-            if ([
-                entity_enum_1.UserRoleEnum.ADMIN,
-                entity_enum_1.UserRoleEnum.MANAGER,
-                entity_enum_1.UserRoleEnum.DEV,
-            ].includes(user.role)) {
-                visibleAudiences.push(entity_enum_1.NotificationAudienceEnum.ADMINS);
-            }
-            return await this.notificationRepository.find({
-                where: [
-                    { audience: (0, typeorm_2.In)(visibleAudiences) },
-                    { user: { id: userId } },
-                ],
-                order: { createdAt: 'DESC' },
             });
         }
         catch (error) {
-            throw error;
+            this.logger.error('Failed to load email templates', error);
         }
+    }
+    async createNotification(dto) {
+        const user = await this.userRepository.findOne({ where: { id: dto.userId } });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        if (!this.shouldSendNotification(user, dto.type, dto.channel)) {
+            this.logger.log(`User ${user.id} has disabled ${dto.channel} notifications for type ${dto.type}`);
+            return null;
+        }
+        const notification = this.notificationRepository.create({
+            ...dto,
+            user,
+            status: notification_enum_1.NotificationStatus.PENDING,
+            priority: dto.priority || notification_enum_1.NotificationPriority.MEDIUM,
+        });
+        const savedNotification = await this.notificationRepository.save(notification);
+        await this.queueNotification(savedNotification);
+        return savedNotification;
+    }
+    shouldSendNotification(user, type, channel) {
+        const preferences = user.notificationPreferences || {};
+        if (channel === notification_enum_1.NotificationChannel.EMAIL) {
+            const emailPrefs = preferences.email;
+            if (!emailPrefs?.enabled)
+                return false;
+            if (emailPrefs.types && !emailPrefs.types.includes(type))
+                return false;
+        }
+        if (channel === notification_enum_1.NotificationChannel.IN_APP) {
+            const inAppPrefs = preferences.inApp;
+            if (inAppPrefs && !inAppPrefs.enabled)
+                return false;
+            if (inAppPrefs?.types && !inAppPrefs.types.includes(type))
+                return false;
+        }
+        return true;
+    }
+    async queueNotification(notification) {
+        const delay = this.getDelayForPriority(notification.priority);
+        await this.notificationQueue.add('process-notification', { notificationId: notification.id }, {
+            delay,
+            attempts: notification.maxRetries,
+            backoff: {
+                type: 'fixed',
+                delay: this.retryInterval,
+            },
+        });
+        await this.notificationRepository.update(notification.id, {
+            status: notification_enum_1.NotificationStatus.QUEUED,
+        });
+    }
+    getDelayForPriority(priority) {
+        switch (priority) {
+            case notification_enum_1.NotificationPriority.CRITICAL:
+                return 0;
+            case notification_enum_1.NotificationPriority.HIGH:
+                return 1000;
+            case notification_enum_1.NotificationPriority.MEDIUM:
+                return 5000;
+            case notification_enum_1.NotificationPriority.LOW:
+                return 30000;
+            default:
+                return 5000;
+        }
+    }
+    async processNotification(notificationId) {
+        const notification = await this.notificationRepository.findOne({
+            where: { id: notificationId },
+            relations: ['user'],
+        });
+        if (!notification) {
+            this.logger.error(`Notification ${notificationId} not found`);
+            return;
+        }
+        try {
+            await this.notificationRepository.update(notification.id, {
+                status: notification_enum_1.NotificationStatus.PROCESSING,
+            });
+            if (notification.channel === notification_enum_1.NotificationChannel.EMAIL) {
+                await this.sendEmailNotification(notification);
+            }
+            else if (notification.channel === notification_enum_1.NotificationChannel.IN_APP) {
+                await this.sendInAppNotification(notification);
+            }
+            await this.notificationRepository.update(notification.id, {
+                status: notification_enum_1.NotificationStatus.SENT,
+                sentAt: new Date(),
+            });
+        }
+        catch (error) {
+            await this.handleNotificationError(notification, error);
+        }
+    }
+    async sendEmailNotification(notification) {
+        const template = this.getEmailTemplate(notification.type);
+        if (!template) {
+            throw new Error(`Email template not found for type: ${notification.type}`);
+        }
+        const html = template({
+            user: notification.user,
+            ...notification.payload,
+        });
+        const mailOptions = {
+            from: `${this.configService.get('DEFAULT_FROM_NAME')} <${this.configService.get('DEFAULT_FROM_EMAIL')}>`,
+            to: notification.user.email,
+            subject: notification.title,
+            html,
+        };
+        await this.transporter.sendMail(mailOptions);
+        this.logger.log(`Email sent to ${notification.user.email} for notification ${notification.id}`);
+    }
+    async sendInAppNotification(notification) {
+        this.notificationGateway.sendNotificationToUser(notification.userId, {
+            id: notification.id,
+            type: notification.type,
+            title: notification.title,
+            content: notification.content,
+            priority: notification.priority,
+            createdAt: notification.createdAt,
+        });
+        await this.notificationRepository.update(notification.id, {
+            status: notification_enum_1.NotificationStatus.DELIVERED,
+            deliveredAt: new Date(),
+        });
+    }
+    async handleNotificationError(notification, error) {
+        const errorMessage = error.message || 'Unknown error';
+        if (notification.retryCount < notification.maxRetries) {
+            const nextRetryAt = new Date(Date.now() + this.retryInterval);
+            await this.notificationRepository.update(notification.id, {
+                status: notification_enum_1.NotificationStatus.RETRY,
+                retryCount: notification.retryCount + 1,
+                nextRetryAt,
+                errorMessage,
+            });
+            await this.notificationQueue.add('process-notification', { notificationId: notification.id }, { delay: this.retryInterval });
+        }
+        else {
+            await this.notificationRepository.update(notification.id, {
+                status: notification_enum_1.NotificationStatus.FAILED,
+                failedAt: new Date(),
+                errorMessage,
+            });
+        }
+        this.logger.error(`Failed to send notification ${notification.id}: ${errorMessage}`);
+    }
+    getEmailTemplate(type) {
+        const templateMap = {
+            [notification_enum_1.NotificationType.WELCOME]: 'welcome-pending-role',
+            [notification_enum_1.NotificationType.PASSWORD_RESET]: 'password-reset',
+            [notification_enum_1.NotificationType.PASSWORD_CHANGED]: 'password-change-confirm',
+            [notification_enum_1.NotificationType.ROLE_ASSIGNED]: 'role-assigned',
+            [notification_enum_1.NotificationType.VEHICLE_CREATED]: 'notify-vehicle-created',
+            [notification_enum_1.NotificationType.VEHICLE_UPDATED]: 'notify-vehicle-updated',
+            [notification_enum_1.NotificationType.VEHICLE_DELETED]: 'notify-vehicle-deleted',
+            [notification_enum_1.NotificationType.VEHICLE_PARTED_OUT]: 'notify-vehicle-parted-out',
+            [notification_enum_1.NotificationType.NEW_DEVICE_LOGIN]: 'new_device_login',
+            [notification_enum_1.NotificationType.PROFILE_UPDATED]: 'profile_updated',
+            [notification_enum_1.NotificationType.ACCOUNT_ACTIVATED]: 'account_activated',
+            [notification_enum_1.NotificationType.ACCOUNT_DEACTIVATED]: 'account_deactivated',
+            [notification_enum_1.NotificationType.EMAIL_VERIFICATION]: 'email_verification',
+            [notification_enum_1.NotificationType.NEW_CATEGORY]: 'new_category',
+            [notification_enum_1.NotificationType.CATEGORY_UPDATED]: 'category_updated',
+            [notification_enum_1.NotificationType.SYSTEM_ANNOUNCEMENT]: 'system_announcement',
+        };
+        const templateName = templateMap[type];
+        return templateName ? this.emailTemplates.get(templateName) : null;
+    }
+    async getUserNotifications(userId, query) {
+        const queryBuilder = this.notificationRepository.createQueryBuilder('notification')
+            .where('notification.userId = :userId', { userId })
+            .orderBy('notification.createdAt', 'DESC');
+        if (query.status) {
+            queryBuilder.andWhere('notification.status = :status', { status: query.status });
+        }
+        if (query.type) {
+            queryBuilder.andWhere('notification.type = :type', { type: query.type });
+        }
+        const [notifications, total] = await queryBuilder
+            .skip(query.offset || 0)
+            .take(query.limit || 20)
+            .getManyAndCount();
+        return { notifications, total };
+    }
+    async markAsRead(userId, notificationId) {
+        const notification = await this.notificationRepository.findOne({
+            where: { id: notificationId, userId },
+        });
+        if (!notification) {
+            throw new Error('Notification not found');
+        }
+        notification.status = notification_enum_1.NotificationStatus.READ;
+        notification.readAt = new Date();
+        const updated = await this.notificationRepository.save(notification);
+        await this.userRepository.update(userId, {
+            lastNotificationReadAt: new Date(),
+        });
+        return updated;
+    }
+    async markAllAsRead(userId) {
+        await this.notificationRepository.update({
+            userId,
+            status: (0, typeorm_2.Not)(notification_enum_1.NotificationStatus.READ),
+            channel: notification_enum_1.NotificationChannel.IN_APP,
+        }, {
+            status: notification_enum_1.NotificationStatus.READ,
+            readAt: new Date(),
+        });
+        await this.userRepository.update(userId, {
+            lastNotificationReadAt: new Date(),
+        });
     }
     async getUnreadCount(userId) {
-        try {
-            const notifications = await this.getUserNotifications(userId);
-            const count = notifications.filter((n) => !n.isRead).length;
-            return { count };
-        }
-        catch (error) {
-            throw error;
-        }
+        return this.notificationRepository.count({
+            where: {
+                userId,
+                status: (0, typeorm_2.Not)(notification_enum_1.NotificationStatus.READ),
+                channel: notification_enum_1.NotificationChannel.IN_APP,
+            },
+        });
     }
-    async markAsRead(notificationId, userId) {
-        try {
-            const notification = await this.notificationRepository.findOne({
-                where: { id: notificationId },
-                relations: ['user'],
-                select: {
-                    id: true,
-                    isRead: true,
-                    user: { id: true },
-                },
-            });
-            if (!notification) {
-                throw new common_1.NotFoundException('Notification not found');
-            }
-            if (notification.user && notification.user.id !== userId) {
-                throw new common_1.ForbiddenException("Cannot modify others' notifications");
-            }
-            if (!notification.isRead) {
-                await this.notificationRepository.update({ id: notification.id }, { isRead: true });
-            }
-            return { message: 'Notification marked as read' };
+    async updateUserPreferences(userId, preferences) {
+        const user = await this.userRepository.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new Error('User not found');
         }
-        catch (error) {
-            throw error;
-        }
+        user.notificationPreferences = {
+            ...user.notificationPreferences,
+            ...preferences,
+        };
+        return this.userRepository.save(user);
     }
-    async sendEmail({ to, subject, html, }) {
-        try {
-            const fromName = this.configService.get('email.defaultFromName');
-            const fromEmail = this.configService.get('email.defaultFromEmail');
-            const info = await this.transporter.sendMail({
-                from: `${fromName} <${fromEmail}>`,
-                to,
-                subject,
-                html,
-            });
-            this.logger.log(`Email sent: ${info.messageId}`);
-            return info;
-        }
-        catch (error) {
-            throw error;
-        }
+    async cleanupOldNotifications() {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const result = await this.notificationRepository.delete({
+            createdAt: (0, typeorm_2.LessThan)(thirtyDaysAgo),
+            status: (0, typeorm_2.In)([notification_enum_1.NotificationStatus.READ, notification_enum_1.NotificationStatus.FAILED]),
+        });
+        this.logger.log(`Cleaned up ${result.affected} old notifications`);
     }
-    renderTemplate(templateName, context) {
-        try {
-            const templateDir = this.configService.get('email.templateDir') ||
-                'templates/email';
-            const layoutPath = path.resolve(templateDir, 'layout.hbs');
-            const templatePath = path.resolve(templateDir, `${templateName}.hbs`);
-            const layoutSrc = fs.readFileSync(layoutPath, 'utf8');
-            const templateSrc = fs.readFileSync(templatePath, 'utf8');
-            const layout = Handlebars.compile(layoutSrc);
-            const content = Handlebars.compile(templateSrc)(context);
-            return layout({
-                title: context.title || 'Car Parts Shop',
-                body: content,
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+    async handleUserRegistered(payload) {
+        await this.createNotification({
+            userId: payload.userId,
+            type: notification_enum_1.NotificationType.WELCOME,
+            channel: notification_enum_1.NotificationChannel.EMAIL,
+            priority: notification_enum_1.NotificationPriority.HIGH,
+            title: 'Welcome to Car Parts Shop!',
+            content: `Welcome ${payload.name}! Your account has been created successfully.`,
+            payload: {
+                name: payload.name,
+                email: payload.email,
+            },
+        });
+    }
+    async handlePasswordResetRequested(payload) {
+        const user = await this.userRepository.findOne({ where: { id: payload.userId } });
+        await this.createNotification({
+            userId: payload.userId,
+            type: notification_enum_1.NotificationType.PASSWORD_RESET,
+            channel: notification_enum_1.NotificationChannel.EMAIL,
+            priority: notification_enum_1.NotificationPriority.CRITICAL,
+            title: 'Password Reset Request',
+            content: 'You have requested to reset your password.',
+            payload: {
+                resetLink: `${this.configService.get('FRONTEND_URL')}/reset-password?token=${payload.resetToken}`,
+                userName: user.fullName,
+            },
+        });
+    }
+    async handlePasswordChanged(payload) {
+        await this.createNotification({
+            userId: payload.userId,
+            type: notification_enum_1.NotificationType.PASSWORD_CHANGED,
+            channel: notification_enum_1.NotificationChannel.EMAIL,
+            priority: notification_enum_1.NotificationPriority.HIGH,
+            title: 'Password Changed Successfully',
+            content: 'Your password has been changed successfully.',
+            payload: {},
+        });
+        await this.createNotification({
+            userId: payload.userId,
+            type: notification_enum_1.NotificationType.PASSWORD_CHANGED,
+            channel: notification_enum_1.NotificationChannel.IN_APP,
+            priority: notification_enum_1.NotificationPriority.HIGH,
+            title: 'Password Changed',
+            content: 'Your password has been updated.',
+            payload: {},
+        });
+    }
+    async handleRoleAssigned(payload) {
+        await this.createNotification({
+            userId: payload.userId,
+            type: notification_enum_1.NotificationType.ROLE_ASSIGNED,
+            channel: notification_enum_1.NotificationChannel.EMAIL,
+            priority: notification_enum_1.NotificationPriority.HIGH,
+            title: 'Role Assigned',
+            content: `You have been assigned the role: ${payload.role}`,
+            payload: { role: payload.role },
+        });
+    }
+    async handleVehicleCreated(payload) {
+        await this.createNotification({
+            userId: payload.userId,
+            type: notification_enum_1.NotificationType.VEHICLE_CREATED,
+            channel: notification_enum_1.NotificationChannel.IN_APP,
+            priority: notification_enum_1.NotificationPriority.MEDIUM,
+            title: 'Vehicle Listed Successfully',
+            content: `Your vehicle "${payload.vehicleName}" has been listed.`,
+            payload: { vehicleId: payload.vehicleId, vehicleName: payload.vehicleName },
+        });
+    }
+    async handleVehicleUpdated(payload) {
+        await this.createNotification({
+            userId: payload.userId,
+            type: notification_enum_1.NotificationType.VEHICLE_UPDATED,
+            channel: notification_enum_1.NotificationChannel.IN_APP,
+            priority: notification_enum_1.NotificationPriority.LOW,
+            title: 'Vehicle Updated',
+            content: `Your vehicle "${payload.vehicleName}" has been updated.`,
+            payload: { vehicleId: payload.vehicleId, vehicleName: payload.vehicleName },
+        });
+    }
+    async handleVehicleDeleted(payload) {
+        await this.createNotification({
+            userId: payload.userId,
+            type: notification_enum_1.NotificationType.VEHICLE_DELETED,
+            channel: notification_enum_1.NotificationChannel.EMAIL,
+            priority: notification_enum_1.NotificationPriority.MEDIUM,
+            title: 'Vehicle Deleted',
+            content: `Your vehicle "${payload.vehicleName}" has been removed from listings.`,
+            payload: { vehicleName: payload.vehicleName },
+        });
+    }
+    async handleVehiclePartedOut(payload) {
+        await this.createNotification({
+            userId: payload.userId,
+            type: notification_enum_1.NotificationType.VEHICLE_PARTED_OUT,
+            channel: notification_enum_1.NotificationChannel.EMAIL,
+            priority: notification_enum_1.NotificationPriority.HIGH,
+            title: 'Vehicle Parted Out',
+            content: `Your vehicle "${payload.vehicleName}" has been successfully parted out.`,
+            payload: { vehicleId: payload.vehicleId, vehicleName: payload.vehicleName },
+        });
     }
 };
 exports.NotificationService = NotificationService;
+__decorate([
+    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_DAY_AT_MIDNIGHT),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], NotificationService.prototype, "cleanupOldNotifications", null);
+__decorate([
+    (0, event_emitter_1.OnEvent)('user.registered'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationService.prototype, "handleUserRegistered", null);
+__decorate([
+    (0, event_emitter_1.OnEvent)('password.reset.requested'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationService.prototype, "handlePasswordResetRequested", null);
+__decorate([
+    (0, event_emitter_1.OnEvent)('password.changed'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationService.prototype, "handlePasswordChanged", null);
+__decorate([
+    (0, event_emitter_1.OnEvent)('role.assigned'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationService.prototype, "handleRoleAssigned", null);
+__decorate([
+    (0, event_emitter_1.OnEvent)('vehicle.created'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationService.prototype, "handleVehicleCreated", null);
+__decorate([
+    (0, event_emitter_1.OnEvent)('vehicle.updated'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationService.prototype, "handleVehicleUpdated", null);
+__decorate([
+    (0, event_emitter_1.OnEvent)('vehicle.deleted'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationService.prototype, "handleVehicleDeleted", null);
+__decorate([
+    (0, event_emitter_1.OnEvent)('vehicle.parted.out'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationService.prototype, "handleVehiclePartedOut", null);
 exports.NotificationService = NotificationService = NotificationService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(notification_entity_1.Notification)),
     __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(2, (0, bull_1.InjectQueue)('notifications')),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        typeorm_2.Repository,
-        config_1.ConfigService])
+        typeorm_2.Repository, Object, config_1.ConfigService,
+        event_emitter_1.EventEmitter2,
+        audit_log_service_1.AuditLogService,
+        notification_gateway_1.NotificationGateway])
 ], NotificationService);
 //# sourceMappingURL=notification.service.js.map

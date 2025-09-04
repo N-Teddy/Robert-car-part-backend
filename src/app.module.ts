@@ -6,10 +6,6 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SupabaseService } from './common/services/supabase.service';
-import { AuthModule } from './modules/auth/auth.module';
-import { NotificationModule } from './modules/notification/notification.module';
-import { SeedModule } from './seed/seed.module';
-import { VehicleModule } from './modules/vehicle/vehicle.module';
 
 // Import all entities
 import { User } from './entities/user.entity';
@@ -29,10 +25,6 @@ import appConfig from './config/app.config';
 import supabaseConfig from './config/supabase.config';
 import jwtConfig from './config/jwt.config';
 import emailConfig from './config/email.config';
-import { UserModule } from './modules/user/user.module';
-import { AuditLogModule } from './modules/audit-log/audit-log.module';
-import { AuditLogInterceptor } from './common/interceptor/audit-log.interceptor';
-import { CategoryModule } from './modules/category/category.module';
 
 @Module({
 	imports: [
@@ -138,13 +130,6 @@ import { CategoryModule } from './modules/category/category.module';
 				];
 			},
 		}),
-		AuthModule,
-		NotificationModule,
-		SeedModule,
-		UserModule,
-		VehicleModule,
-		AuditLogModule,
-		CategoryModule,
 	],
 	controllers: [AppController],
 	providers: [
@@ -154,10 +139,7 @@ import { CategoryModule } from './modules/category/category.module';
 			provide: APP_GUARD,
 			useClass: ThrottlerGuard,
 		},
-		{
-			provide: APP_INTERCEPTOR,
-			useClass: AuditLogInterceptor,
-		},
+		
 	],
 })
 export class AppModule {}

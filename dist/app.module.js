@@ -15,10 +15,6 @@ const core_1 = require("@nestjs/core");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const supabase_service_1 = require("./common/services/supabase.service");
-const auth_module_1 = require("./modules/auth/auth.module");
-const notification_module_1 = require("./modules/notification/notification.module");
-const seed_module_1 = require("./seed/seed.module");
-const vehicle_module_1 = require("./modules/vehicle/vehicle.module");
 const user_entity_1 = require("./entities/user.entity");
 const password_reset_token_entity_1 = require("./entities/password-reset-token.entity");
 const vehicle_entity_1 = require("./entities/vehicle.entity");
@@ -36,10 +32,6 @@ const app_config_1 = require("./config/app.config");
 const supabase_config_1 = require("./config/supabase.config");
 const jwt_config_1 = require("./config/jwt.config");
 const email_config_1 = require("./config/email.config");
-const user_module_1 = require("./modules/user/user.module");
-const audit_log_module_1 = require("./modules/audit-log/audit-log.module");
-const audit_log_interceptor_1 = require("./common/interceptor/audit-log.interceptor");
-const category_module_1 = require("./modules/category/category.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -137,13 +129,6 @@ exports.AppModule = AppModule = __decorate([
                     ];
                 },
             }),
-            auth_module_1.AuthModule,
-            notification_module_1.NotificationModule,
-            seed_module_1.SeedModule,
-            user_module_1.UserModule,
-            vehicle_module_1.VehicleModule,
-            audit_log_module_1.AuditLogModule,
-            category_module_1.CategoryModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
@@ -152,10 +137,6 @@ exports.AppModule = AppModule = __decorate([
             {
                 provide: core_1.APP_GUARD,
                 useClass: throttler_1.ThrottlerGuard,
-            },
-            {
-                provide: core_1.APP_INTERCEPTOR,
-                useClass: audit_log_interceptor_1.AuditLogInterceptor,
             },
         ],
     })

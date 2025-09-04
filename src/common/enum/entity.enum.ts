@@ -6,6 +6,10 @@ export enum ImageEnum {
 	CATEGORY = 'CATEGORY',
 }
 
+export enum EntityType {
+	
+}
+
 export enum NotificationEnum {
 	ORDER_CREATED = 'ORDER CREATED',
 	ORDER_UPDATED = 'ORDER UPDATED',
