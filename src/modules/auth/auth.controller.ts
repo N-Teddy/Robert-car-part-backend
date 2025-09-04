@@ -9,12 +9,16 @@ import {
 	HttpStatus,
 	Patch,
 	Param,
+	UseInterceptors,
+	BadRequestException,
+	UploadedFile,
 } from '@nestjs/common';
 import {
 	ApiTags,
 	ApiOperation,
 	ApiResponse,
 	ApiBearerAuth,
+	ApiConsumes,
 } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
@@ -32,6 +36,7 @@ import {
 	ResetPasswordDto,
 } from 'src/dto/request/auth';
 import { AssignRoleDto } from 'src/dto/request/user';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -40,14 +45,39 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) { }
 
 	@Post('register')
-	@ApiOperation({ summary: 'Register a new user' })
+	@ApiConsumes('multipart/form-data')
+	@ApiOperation({ summary: 'Register a new user with profile image' })
 	@ApiResponse({ status: 201, description: 'User registered successfully' })
-	@ApiResponse({ status: 400, description: 'Bad request - User already exists' })
-	async register(@Body() registerDto: RegisterDto) {
+	@ApiResponse({ status: 400, description: 'Bad request - Invalid data or missing profile image' })
+	@UseInterceptors(
+		FileInterceptor('profileImage', {
+			limits: {
+				fileSize: 5 * 1024 * 1024, // 5MB limit
+			},
+			fileFilter: (req, file, cb) => {
+				// Validate file type
+				const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+				if (allowedMimeTypes.includes(file.mimetype)) {
+					cb(null, true);
+				} else {
+					cb(new BadRequestException('Only JPEG, PNG, GIF, and WebP images are allowed'), false);
+				}
+			},
+		})
+	)
+	async register(
+		@Body() registerDto: RegisterDto,
+		@UploadedFile() profileImageFile: Express.Multer.File
+	) {
 		try {
-			return this.authService.register(registerDto);
+			// Validate that file was uploaded
+			if (!profileImageFile) {
+				throw new BadRequestException('Profile image is required');
+			}
+
+			return await this.authService.register(registerDto, profileImageFile);
 		} catch (error) {
-			throw error
+			throw error;
 		}
 	}
 

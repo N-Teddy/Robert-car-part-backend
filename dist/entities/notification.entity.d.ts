@@ -6,6 +6,7 @@ export declare class Notification extends BaseEntity {
     title: string;
     message: string;
     isRead: boolean;
+    metadata: Record<string, any>;
     user?: User | null;
     emailSent: boolean;
     audience: NotificationAudienceEnum;

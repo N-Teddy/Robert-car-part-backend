@@ -14,6 +14,7 @@ export declare class RegisterDto {
     password: string;
     fullName: string;
     phoneNumber?: string;
+    profileImage: any;
 }
 export declare class ResetPasswordDto {
     token: string;

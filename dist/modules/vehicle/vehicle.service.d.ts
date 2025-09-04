@@ -4,7 +4,6 @@ import { Part } from '../../entities/part.entity';
 import { VehicleProfit } from '../../entities/vehicle-profit.entity';
 import { Image } from '../../entities/image.entity';
 import { User } from '../../entities/user.entity';
-import { UploadService } from '../upload/upload.service';
 import { NotificationService } from '../notification/notification.service';
 import { CreateVehicleDto, UpdateVehicleDto, BulkCreateVehicleDto, BulkUpdateVehicleDto, VehicleSearchDto, VehiclePaginationDto, VehicleExportDto } from '../../dto/request/vehicle.dto';
 export interface VehicleWithStats extends Vehicle {
@@ -20,10 +19,9 @@ export declare class VehicleService {
     private vehicleProfitRepository;
     private imageRepository;
     private userRepository;
-    private uploadService;
     private notificationService;
     private readonly logger;
-    constructor(vehicleRepository: Repository<Vehicle>, partRepository: Repository<Part>, vehicleProfitRepository: Repository<VehicleProfit>, imageRepository: Repository<Image>, userRepository: Repository<User>, uploadService: UploadService, notificationService: NotificationService);
+    constructor(vehicleRepository: Repository<Vehicle>, partRepository: Repository<Part>, vehicleProfitRepository: Repository<VehicleProfit>, imageRepository: Repository<Image>, userRepository: Repository<User>, notificationService: NotificationService);
     createVehicle(createVehicleDto: CreateVehicleDto, userId: string): Promise<Vehicle>;
     createVehiclesBulk(bulkCreateDto: BulkCreateVehicleDto, userId: string): Promise<any[]>;
     findAll(searchDto?: VehicleSearchDto, paginationDto?: VehiclePaginationDto): Promise<{

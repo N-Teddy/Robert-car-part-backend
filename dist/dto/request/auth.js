@@ -104,6 +104,15 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "phoneNumber", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Profile image file (required)',
+        type: 'string',
+        format: 'binary',
+    }),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Object)
+], RegisterDto.prototype, "profileImage", void 0);
 class ResetPasswordDto {
 }
 exports.ResetPasswordDto = ResetPasswordDto;

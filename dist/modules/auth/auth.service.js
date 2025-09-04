@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var AuthService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
@@ -24,7 +25,7 @@ const password_reset_token_entity_1 = require("../../entities/password-reset-tok
 const audit_log_entity_1 = require("../../entities/audit-log.entity");
 const entity_enum_1 = require("../../common/enum/entity.enum");
 const notification_service_1 = require("../notification/notification.service");
-let AuthService = class AuthService {
+let AuthService = AuthService_1 = class AuthService {
     constructor(userRepository, passwordResetTokenRepository, auditLogRepository, jwtService, notificationService, dataSource) {
         this.userRepository = userRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
@@ -32,6 +33,7 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
         this.notificationService = notificationService;
         this.dataSource = dataSource;
+        this.logger = new common_1.Logger(AuthService_1.name);
     }
     async validateUser(email, password) {
         try {
@@ -90,7 +92,7 @@ let AuthService = class AuthService {
             throw error;
         }
     }
-    async register(registerDto) {
+    async register(registerDto, profileImageFile) {
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
@@ -112,6 +114,7 @@ let AuthService = class AuthService {
                 isFirstLogin: true,
             });
             const savedUser = await queryRunner.manager.save(user);
+            await queryRunner.manager.save(user_entity_1.User, savedUser);
             const payload = {
                 sub: savedUser.id,
                 email: savedUser.email,
@@ -149,6 +152,9 @@ let AuthService = class AuthService {
         }
         catch (error) {
             await queryRunner.rollbackTransaction();
+            if (error instanceof common_1.BadRequestException && profileImageFile) {
+                this.logger.warn(`Cleaning up failed registration for email: ${registerDto.email}`);
+            }
             throw error;
         }
         finally {
@@ -345,7 +351,7 @@ let AuthService = class AuthService {
     }
 };
 exports.AuthService = AuthService;
-exports.AuthService = AuthService = __decorate([
+exports.AuthService = AuthService = AuthService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __param(1, (0, typeorm_1.InjectRepository)(password_reset_token_entity_1.PasswordResetToken)),

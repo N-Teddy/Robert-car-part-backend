@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BulkUploadDto = exports.UpdateImageDto = exports.UploadImageDto = void 0;
+exports.BulkUploadDto = exports.UploadImageDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 const entity_enum_1 = require("../../common/enum/entity.enum");
@@ -46,29 +46,6 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UploadImageDto.prototype, "entityType", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({
-        description: 'Subfolder for organizing images (optional)',
-        example: 'profile-photos',
-        required: false,
-    }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], UploadImageDto.prototype, "folder", void 0);
-class UpdateImageDto {
-}
-exports.UpdateImageDto = UpdateImageDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({
-        description: 'Subfolder for organizing images (optional)',
-        example: 'profile-photos',
-        required: false,
-    }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], UpdateImageDto.prototype, "folder", void 0);
 class BulkUploadDto {
 }
 exports.BulkUploadDto = BulkUploadDto;
@@ -102,14 +79,4 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], BulkUploadDto.prototype, "entityType", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({
-        description: 'Subfolder for organizing images (optional)',
-        example: 'vehicle-gallery',
-        required: false,
-    }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], BulkUploadDto.prototype, "folder", void 0);
 //# sourceMappingURL=upload.dto.js.map

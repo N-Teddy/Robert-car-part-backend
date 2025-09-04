@@ -14,15 +14,12 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VehicleController = void 0;
 const common_1 = require("@nestjs/common");
-const platform_express_1 = require("@nestjs/platform-express");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 const vehicle_service_1 = require("./vehicle.service");
-const upload_service_1 = require("../upload/upload.service");
 const entity_enum_1 = require("../../common/enum/entity.enum");
-const entity_enum_2 = require("../../common/enum/entity.enum");
 const vehicle_dto_1 = require("../../dto/request/vehicle.dto");
 const vehicle_dto_2 = require("../../dto/response/vehicle.dto");
 const validateImageMimeType = (file) => {
@@ -39,9 +36,8 @@ const validateImageMimeType = (file) => {
     return true;
 };
 let VehicleController = class VehicleController {
-    constructor(vehicleService, uploadService) {
+    constructor(vehicleService) {
         this.vehicleService = vehicleService;
-        this.uploadService = uploadService;
     }
     async createVehicle(createVehicleDto, req) {
         const vehicle = await this.vehicleService.createVehicle(createVehicleDto, req.user.id);
@@ -133,35 +129,6 @@ let VehicleController = class VehicleController {
             data: vehicleWithStats,
         };
     }
-    async uploadVehicleImages(id, files, folder) {
-        if (!files || files.length === 0) {
-            throw new common_1.BadRequestException('No files uploaded');
-        }
-        for (const file of files) {
-            validateImageMimeType(file);
-        }
-        const uploadedImages = [];
-        for (const file of files) {
-            try {
-                const result = await this.uploadService.uploadImage(file, entity_enum_1.ImageEnum.VEHICLE, id, 'vehicle', folder);
-                uploadedImages.push({
-                    id: result.imageId,
-                    url: result.url,
-                    filename: file.originalname,
-                });
-            }
-            catch (error) {
-                uploadedImages.push({
-                    error: error.message,
-                    filename: file.originalname,
-                });
-            }
-        }
-        return {
-            message: 'Vehicle images uploaded successfully',
-            data: uploadedImages,
-        };
-    }
     async deleteVehicle(id, req) {
         await this.vehicleService.deleteVehicle(id, req.user.id);
         return {
@@ -177,7 +144,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 409, description: 'VIN already exists' }),
-    (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV, entity_enum_2.UserRoleEnum.SALES),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV, entity_enum_1.UserRoleEnum.SALES),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -190,7 +157,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Bulk vehicle creation completed', type: vehicle_dto_2.BulkCreateResponseDto }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
-    (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -203,7 +170,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Bulk vehicle update completed', type: vehicle_dto_2.BulkUpdateResponseDto }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
-    (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -240,7 +207,7 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Get vehicle statistics', description: 'Retrieve comprehensive statistics about all vehicles including financial metrics.' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Vehicle statistics retrieved successfully', type: vehicle_dto_2.VehicleStatsResponseDto }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
-    (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
@@ -251,7 +218,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Vehicle export completed successfully', type: vehicle_dto_2.VehicleExportResponseDto }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
-    (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [vehicle_dto_1.VehicleExportDto]),
@@ -287,7 +254,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Vehicle not found' }),
     (0, swagger_1.ApiResponse)({ status: 409, description: 'VIN already exists' }),
-    (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV, entity_enum_2.UserRoleEnum.SALES),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV, entity_enum_1.UserRoleEnum.SALES),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Request)()),
@@ -302,7 +269,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Vehicle not found' }),
-    (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV, entity_enum_2.UserRoleEnum.SALES),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV, entity_enum_1.UserRoleEnum.SALES),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -310,33 +277,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], VehicleController.prototype, "markAsPartedOut", null);
 __decorate([
-    (0, common_1.Post)(':id/images'),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files', 10)),
-    (0, swagger_1.ApiOperation)({ summary: 'Upload vehicle images', description: 'Upload multiple images for a specific vehicle.' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Vehicle images uploaded successfully' }),
-    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
-    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: 'Vehicle not found' }),
-    (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV, entity_enum_2.UserRoleEnum.SALES),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.UploadedFiles)(new common_1.ParseFilePipe({
-        validators: [
-            new common_1.MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
-        ],
-    }))),
-    __param(2, (0, common_1.Query)('folder')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Array, String]),
-    __metadata("design:returntype", Promise)
-], VehicleController.prototype, "uploadVehicleImages", null);
-__decorate([
     (0, common_1.Delete)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Delete vehicle', description: 'Permanently delete a vehicle. Cannot delete if it has existing parts.' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Vehicle deleted successfully' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request - Vehicle has parts' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Vehicle not found' }),
-    (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -348,7 +295,6 @@ exports.VehicleController = VehicleController = __decorate([
     (0, common_1.Controller)('vehicles'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, swagger_1.ApiBearerAuth)(),
-    __metadata("design:paramtypes", [vehicle_service_1.VehicleService,
-        upload_service_1.UploadService])
+    __metadata("design:paramtypes", [vehicle_service_1.VehicleService])
 ], VehicleController);
 //# sourceMappingURL=vehicle.controller.js.map

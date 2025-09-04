@@ -6,13 +6,15 @@ export declare class UploadController {
     private readonly uploadService;
     constructor(uploadService: UploadService);
     uploadImage(file: Express.Multer.File, uploadDto: UploadImageDto): Promise<UploadResponseDto>;
-    updateImage(id: string, file: Express.Multer.File, body: {
-        folder?: string;
-    }): Promise<UploadResponseDto>;
+    updateImage(id: string, file: Express.Multer.File): Promise<UploadResponseDto>;
     deleteImage(id: string): Promise<{
         message: string;
     }>;
     uploadMultipleImages(files: Express.Multer.File[], uploadDto: BulkUploadDto): Promise<BulkUploadResponseDto>;
+    replaceEntityImages(files: Express.Multer.File[], uploadDto: BulkUploadDto): Promise<BulkUploadResponseDto>;
+    deleteEntityImages(entityType: string, entityId: string): Promise<{
+        message: string;
+    }>;
     getUploadStats(): Promise<UploadStatsResponseDto>;
     getImagesByType(type: ImageEnum): Promise<ImagesResponseDto>;
     getImagesByEntity(entityType: string, entityId: string): Promise<ImagesResponseDto>;

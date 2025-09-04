@@ -14,7 +14,6 @@ exports.CloudinaryService = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const cloudinary_1 = require("cloudinary");
-const entity_enum_1 = require("../../common/enum/entity.enum");
 let CloudinaryService = CloudinaryService_1 = class CloudinaryService {
     constructor(configService) {
         this.configService = configService;
@@ -25,15 +24,15 @@ let CloudinaryService = CloudinaryService_1 = class CloudinaryService {
             api_secret: this.configService.get('cloudinary.apiSecret'),
         });
     }
-    async uploadImage(file, imageType, folder) {
+    getFolderNameFromImageType(imageType) {
+        return imageType.toLowerCase().replace(/_/g, '-').replace(/\s+/g, '-');
+    }
+    async uploadImage(file, imageType) {
         try {
             const base64Image = file.buffer.toString('base64');
             const dataURI = `data:${file.mimetype};base64,${base64Image}`;
-            let uploadFolder = 'car-parts-shop';
-            if (folder) {
-                uploadFolder = `${uploadFolder}/${folder}`;
-            }
-            uploadFolder = `${uploadFolder}/${imageType.toLowerCase().replace(' ', '-')}`;
+            const folderName = this.getFolderNameFromImageType(imageType);
+            const uploadFolder = `car-parts-shop/${folderName}`;
             const result = await cloudinary_1.v2.uploader.upload(dataURI, {
                 folder: uploadFolder,
                 resource_type: 'image',
@@ -64,10 +63,10 @@ let CloudinaryService = CloudinaryService_1 = class CloudinaryService {
             throw new Error(`Failed to delete image: ${error.message}`);
         }
     }
-    async updateImage(publicId, file) {
+    async updateImage(publicId, file, imageType) {
         try {
             await this.deleteImage(publicId);
-            const result = await this.uploadImage(file, entity_enum_1.ImageEnum.USER_PROFILE);
+            const result = await this.uploadImage(file, imageType);
             return result;
         }
         catch (error) {

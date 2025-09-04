@@ -34,8 +34,11 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Notification.prototype, "isRead", void 0);
 __decorate([
+    (0, typeorm_1.Column)('jsonb', { nullable: true }),
+    __metadata("design:type", Object)
+], Notification.prototype, "metadata", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.notifications, { nullable: true }),
-    (0, typeorm_1.JoinColumn)({ name: 'user_id' }),
     __metadata("design:type", user_entity_1.User)
 ], Notification.prototype, "user", void 0);
 __decorate([

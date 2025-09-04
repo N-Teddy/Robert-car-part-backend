@@ -9,7 +9,6 @@ import { SupabaseService } from './common/services/supabase.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { SeedModule } from './seed/seed.module';
-import { UploadModule } from './modules/upload/upload.module';
 import { VehicleModule } from './modules/vehicle/vehicle.module';
 
 // Import all entities
@@ -143,7 +142,6 @@ import { CategoryModule } from './modules/category/category.module';
 		NotificationModule,
 		SeedModule,
 		UserModule,
-		UploadModule,
 		VehicleModule,
 		AuditLogModule,
 		CategoryModule,

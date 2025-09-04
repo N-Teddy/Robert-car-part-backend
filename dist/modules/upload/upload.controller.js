@@ -52,18 +52,22 @@ let UploadController = class UploadController {
         if (!Object.values(entity_enum_1.ImageEnum).includes(uploadDto.type)) {
             throw new common_1.BadRequestException('Invalid image type');
         }
-        const result = await this.uploadService.uploadImage(file, uploadDto.type, uploadDto.entityId, uploadDto.entityType, uploadDto.folder);
+        const result = await this.uploadService.uploadImage(file, uploadDto.type, uploadDto.entityId, uploadDto.entityType);
         return {
             message: 'Image uploaded successfully',
             data: result,
         };
     }
-    async updateImage(id, file, body) {
+    async updateImage(id, file) {
         if (!file) {
             throw new common_1.BadRequestException('No file uploaded');
         }
         validateImageMimeType(file);
-        const result = await this.uploadService.updateImage(id, file, body.folder);
+        const existingImage = await this.uploadService.getImageById(id);
+        if (!existingImage) {
+            throw new common_1.BadRequestException('Image not found');
+        }
+        const result = await this.uploadService.updateImage(id, file, existingImage.type);
         return {
             message: 'Image updated successfully',
             data: result,
@@ -88,7 +92,7 @@ let UploadController = class UploadController {
         const results = [];
         for (const file of files) {
             try {
-                const result = await this.uploadService.uploadImage(file, uploadDto.type, uploadDto.entityId, uploadDto.entityType, uploadDto.folder);
+                const result = await this.uploadService.uploadImage(file, uploadDto.type, uploadDto.entityId, uploadDto.entityType);
                 results.push({ data: result });
             }
             catch (error) {
@@ -101,6 +105,28 @@ let UploadController = class UploadController {
         return {
             message: 'Bulk upload completed',
             data: results,
+        };
+    }
+    async replaceEntityImages(files, uploadDto) {
+        if (!files || files.length === 0) {
+            throw new common_1.BadRequestException('No files uploaded');
+        }
+        if (!uploadDto.entityId || !uploadDto.entityType) {
+            throw new common_1.BadRequestException('Entity ID and type are required');
+        }
+        for (const file of files) {
+            validateImageMimeType(file);
+        }
+        const result = await this.uploadService.replaceEntityImages(files, uploadDto.type, uploadDto.entityId, uploadDto.entityType);
+        return {
+            message: 'Entity images replaced successfully',
+            data: result.successful.map(res => ({ data: res })),
+        };
+    }
+    async deleteEntityImages(entityType, entityId) {
+        await this.uploadService.deleteAllEntityImages(entityId, entityType);
+        return {
+            message: 'All entity images deleted successfully',
         };
     }
     async getUploadStats() {
@@ -162,11 +188,6 @@ __decorate([
                     description: 'Type of entity this image belongs to (optional)',
                     example: 'user',
                 },
-                folder: {
-                    type: 'string',
-                    description: 'Subfolder for organizing images (optional)',
-                    example: 'profile-photos',
-                },
             },
         },
     }),
@@ -205,11 +226,6 @@ __decorate([
                     format: 'binary',
                     description: 'New image file to replace the existing one (max 5MB)',
                 },
-                folder: {
-                    type: 'string',
-                    description: 'Subfolder for organizing images (optional)',
-                    example: 'profile-photos',
-                },
             },
         },
     }),
@@ -227,9 +243,8 @@ __decorate([
             new common_1.MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
         ],
     }))),
-    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], UploadController.prototype, "updateImage", null);
 __decorate([
@@ -251,7 +266,7 @@ __decorate([
     (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files', 10)),
     (0, swagger_1.ApiOperation)({
         summary: 'Upload multiple images',
-        description: 'Upload multiple image files with metadata. Each file must be under 5MB and in supported image format (jpg, jpeg, png, gif, webp). Admin, Manager, or Dev role required. Use the same field name "files" for each file in your form data.',
+        description: 'Upload multiple image files with metadata. Each file must be under 5MB and in supported image format (jpg, jpeg, png, gif, webp). Admin, Manager, or Dev role required.',
     }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({
@@ -285,11 +300,6 @@ __decorate([
                     description: 'Type of entity these images belong to (optional)',
                     example: 'vehicle',
                 },
-                folder: {
-                    type: 'string',
-                    description: 'Subfolder for organizing images (optional)',
-                    example: 'vehicle-gallery',
-                },
             },
         },
     }),
@@ -311,6 +321,78 @@ __decorate([
     __metadata("design:paramtypes", [Array, upload_dto_1.BulkUploadDto]),
     __metadata("design:returntype", Promise)
 ], UploadController.prototype, "uploadMultipleImages", null);
+__decorate([
+    (0, common_1.Post)('image/bulk/entity'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files', 10)),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Replace all images for an entity',
+        description: 'Delete all existing images for an entity and upload new ones. Admin, Manager, or Dev role required.',
+    }),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: 'object',
+            required: ['files', 'type', 'entityId', 'entityType'],
+            properties: {
+                files: {
+                    type: 'array',
+                    items: {
+                        type: 'string',
+                        format: 'binary',
+                    },
+                    description: 'New image files to upload (max 5MB each)',
+                },
+                type: {
+                    type: 'string',
+                    enum: Object.values(entity_enum_1.ImageEnum),
+                    description: 'Type of image being uploaded',
+                    example: entity_enum_1.ImageEnum.VEHICLE,
+                },
+                entityId: {
+                    type: 'string',
+                    format: 'uuid',
+                    description: 'ID of the entity',
+                    example: '123e4567-e89b-12d3-a456-426614174000',
+                },
+                entityType: {
+                    type: 'string',
+                    enum: ['user', 'vehicle', 'part'],
+                    description: 'Type of entity',
+                    example: 'vehicle',
+                },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Entity images replaced successfully',
+        type: upload_dto_2.BulkUploadResponseDto,
+    }),
+    (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV),
+    __param(0, (0, common_1.UploadedFiles)(new common_1.ParseFilePipe({
+        validators: [
+            new common_1.MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+        ],
+    }))),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Array, upload_dto_1.BulkUploadDto]),
+    __metadata("design:returntype", Promise)
+], UploadController.prototype, "replaceEntityImages", null);
+__decorate([
+    (0, common_1.Delete)('image/entity/:entityType/:entityId'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Delete all images for an entity',
+        description: 'Delete all images associated with a specific entity.',
+    }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Entity images deleted successfully' }),
+    (0, roles_decorator_1.Roles)(entity_enum_2.UserRoleEnum.ADMIN, entity_enum_2.UserRoleEnum.MANAGER, entity_enum_2.UserRoleEnum.DEV),
+    __param(0, (0, common_1.Param)('entityType')),
+    __param(1, (0, common_1.Param)('entityId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], UploadController.prototype, "deleteEntityImages", null);
 __decorate([
     (0, common_1.Get)('stats'),
     (0, swagger_1.ApiOperation)({ summary: 'Get upload statistics' }),

@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ChangePasswordDto {
@@ -78,6 +78,15 @@ export class RegisterDto {
 	@IsOptional()
 	@IsString()
 	phoneNumber?: string;
+
+	// Profile image is now required
+	@ApiProperty({
+		description: 'Profile image file (required)',
+		type: 'string',
+		format: 'binary',
+	})
+	@IsNotEmpty()
+	profileImage: any;
 }
 
 export class ResetPasswordDto {

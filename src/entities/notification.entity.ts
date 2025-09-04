@@ -20,11 +20,10 @@ export class Notification extends BaseEntity {
 	@Column({ default: false })
 	isRead: boolean;
 
-	// @Column('jsonb', { nullable: true })
-	// metadata: Record<string, any>;
+	@Column('jsonb', { nullable: true })
+	metadata: Record<string, any>;
 
 	@ManyToOne(() => User, (user) => user.notifications, { nullable: true })
-	@JoinColumn({ name: 'user_id' })
 	user?: User | null;
 
 	@Column({ default: false, name: 'email_sent' })

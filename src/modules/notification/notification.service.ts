@@ -21,11 +21,24 @@ import {
 	NotificationAudienceEnum,
 } from '../../common/enum/entity.enum';
 
+interface CreateNotificationParams {
+	type: NotificationEnum;
+	title: string;
+	message: string;
+	metadata?: Record<string, any>;
+	audience?: NotificationAudienceEnum;
+	sendEmail?: boolean;
+	emailTemplate?: string;
+	emailContext?: Record<string, any>;
+	createdBy?: string | null;
+}
+
 @Injectable()
 export class NotificationService {
 
 	private readonly logger = new Logger(NotificationService.name);
 	private transporter: nodemailer.Transporter;
+	private readonly defaultEmailTemplate = 'generic-notification';
 
 	constructor(
 		@InjectRepository(Notification)
@@ -34,19 +47,58 @@ export class NotificationService {
 		private readonly userRepository: Repository<User>,
 		private readonly configService: ConfigService
 	) {
+		this.initializeEmailTransport();
+		this.registerHandlebarsHelpers();
+	}
+
+// 	// Simple admin notification
+// await notificationService.createNotification({
+// 	type: NotificationEnum.SYSTEM_ALERT,
+// 	title: 'System Update',
+// 	message: 'System will be updated tonight at 2 AM',
+// 	audience: NotificationAudienceEnum.ADMINS,
+// 	createdBy: currentUserId
+// });
+
+// // Notification with email to all active users
+// await notificationService.createNotification({
+// 	type: NotificationEnum.ORDER_CREATED,
+// 	title: 'New Feature Released',
+// 	message: 'Check out our latest features in the dashboard',
+// 	audience: NotificationAudienceEnum.ALL_EXCEPT_UNKNOWN,
+// 	sendEmail: true,
+// 	emailTemplate: 'feature-release',
+// 	emailContext: { featureName: 'Advanced Analytics', releaseDate: new Date() },
+// 	createdBy: systemUserId
+// });
+
+// // Low stock alert with metadata
+// await notificationService.createNotification({
+// 	type: NotificationEnum.LOW_STOCK,
+// 	title: 'Inventory Low',
+// 	message: 'Product XYZ stock is critically low',
+// 	metadata: { productId: '123', currentStock: 2, threshold: 10 },
+// 	audience: NotificationAudienceEnum.ADMINS,
+// 	sendEmail: true,
+// 	createdBy: inventorySystemId
+// });
+
+
+	private initializeEmailTransport() {
 		this.transporter = nodemailer.createTransport({
 			host: this.configService.get<string>('email.host'),
 			port: this.configService.get<number>('email.port'),
 			secure: this.configService.get<boolean>('email.secure'),
 			auth: this.configService.get<boolean>('email.secure')
 				? {
-						user: this.configService.get<string>('email.user'),
-						pass: this.configService.get<string>('email.pass'),
-					}
+					user: this.configService.get<string>('email.user'),
+					pass: this.configService.get<string>('email.pass'),
+				}
 				: undefined,
 		});
+	}
 
-		// Register Handlebars helpers to format dates in Handlebars:
+	private registerHandlebarsHelpers() {
 		Handlebars.registerHelper('formatDate', (date: Date) => {
 			return new Intl.DateTimeFormat('en-US', {
 				year: 'numeric',
@@ -56,35 +108,286 @@ export class NotificationService {
 				minute: '2-digit',
 			}).format(new Date(date));
 		});
+
+		// Additional helpful helpers
+		Handlebars.registerHelper('uppercase', (str: string) => {
+			return str?.toUpperCase() || '';
+		});
+
+		Handlebars.registerHelper('ifEquals', function (arg1, arg2, options) {
+			return arg1 === arg2 ? options.fn(this) : options.inverse(this);
+		});
 	}
 
-	private async getAudienceRecipients(audience: NotificationAudienceEnum) {
-		switch (audience) {
-			case NotificationAudienceEnum.ADMINS:
-				return this.userRepository.find({
-					where: {
-						role: In([
-							UserRoleEnum.ADMIN,
-							UserRoleEnum.MANAGER,
-							UserRoleEnum.DEV,
-						]),
-					},
+	/**
+ * Single service function to create notifications with optional email sending
+ */
+	async createNotification(params: CreateNotificationParams): Promise<Notification> {
+		const {
+			type,
+			title,
+			message,
+			metadata = {},
+			audience = NotificationAudienceEnum.ADMINS,
+			sendEmail = false,
+			emailTemplate = this.defaultEmailTemplate,
+			emailContext = {},
+			createdBy = null
+		} = params;
+
+		try {
+			// Create and save the notification
+			const notification = this.notificationRepository.create({
+				type,
+				title,
+				message,
+				metadata,
+				audience,
+				createdBy,
+				isRead: false,
+				emailSent: false
+			});
+
+			const savedNotification = await this.notificationRepository.save(notification);
+
+			// Handle email sending asynchronously to not block the main operation
+			if (sendEmail) {
+				this.handleEmailNotificationAsync(
+					savedNotification,
+					emailTemplate,
+					emailContext
+				).catch(error => {
+					this.logger.error('Async email handling failed:', error);
 				});
-			case NotificationAudienceEnum.ALL_EXCEPT_UNKNOWN:
-				return this.userRepository.find({
-					where: {
-						role: In([
-							UserRoleEnum.ADMIN,
-							UserRoleEnum.MANAGER,
-							UserRoleEnum.DEV,
-							UserRoleEnum.SALES,
-							UserRoleEnum.CUSTOMER,
-						]),
-					},
+			}
+
+			return savedNotification;
+		} catch (error) {
+			this.logger.error('Failed to create notification', error.stack || String(error));
+			throw error;
+		}
+	}
+
+	/**
+	 * Handle email notification asynchronously
+	 */
+	private async handleEmailNotificationAsync(
+		notification: Notification,
+		templateName: string,
+		emailContext: Record<string, any>
+	): Promise<void> {
+		try {
+			const recipients = await this.getAudienceRecipients(notification.audience);
+
+			if (recipients.length === 0) {
+				this.logger.warn(`No recipients found for audience: ${notification.audience}`);
+				return;
+			}
+
+			this.logger.log(`Sending emails to ${recipients.length} recipients`);
+
+			// Process emails in batches to avoid overwhelming the email service
+			const batchSize = 10;
+			for (let i = 0; i < recipients.length; i += batchSize) {
+				const batch = recipients.slice(i, i + batchSize);
+
+				await Promise.allSettled(
+					batch.map(recipient =>
+						this.sendEmailToRecipient(notification, templateName, emailContext, recipient)
+					)
+				);
+
+				// Small delay between batches to be gentle on the email service
+				if (i + batchSize < recipients.length) {
+					await new Promise(resolve => setTimeout(resolve, 100));
+				}
+			}
+
+			// Update notification email status
+			await this.notificationRepository.update(
+				{ id: notification.id },
+				{ emailSent: true }
+			);
+
+			this.logger.log(`Successfully processed emails for notification: ${notification.id}`);
+
+		} catch (error) {
+			this.logger.error('Failed to handle email notification', error.stack || String(error));
+		}
+	}
+
+	/**
+	 * Send email to individual recipient with proper error handling
+	 */
+	private async sendEmailToRecipient(
+		notification: Notification,
+		templateName: string,
+		emailContext: Record<string, any>,
+		recipient: User
+	): Promise<void> {
+		try {
+			const html = await this.renderEmailTemplate(
+				templateName,
+				{
+					...emailContext,
+					title: notification.title,
+					message: notification.message,
+					notificationType: notification.type,
+					recipientName: recipient.fullName || recipient.email,
+					recipientEmail: recipient.email,
+					notificationId: notification.id
+				}
+			);
+
+			await this.sendEmail({
+				to: recipient.email,
+				subject: notification.title,
+				html,
+			});
+
+			this.logger.debug(`Email sent successfully to: ${recipient.email}`);
+
+		} catch (error) {
+			this.logger.error(
+				`Failed to send email to ${recipient.email}: ${error.message}`
+			);
+			// Don't throw - continue with other recipients
+		}
+	}
+
+	/**
+	 * Render email template with fallback mechanism
+	 */
+	private async renderEmailTemplate(
+		templateName: string,
+		context: any
+	): Promise<string> {
+		const templateDir = this.configService.get<string>('email.templateDir') || 'templates/email';
+
+		try {
+			// Try the specified template first
+			const templatePath = path.resolve(templateDir, `${templateName}.hbs`);
+			if (fs.existsSync(templatePath)) {
+				const templateSrc = fs.readFileSync(templatePath, 'utf8');
+				const template = Handlebars.compile(templateSrc);
+				return this.wrapInLayout(template(context), context);
+			}
+
+			// Fallback to default template
+			this.logger.warn(`Template ${templateName} not found, using default template`);
+			const defaultTemplatePath = path.resolve(templateDir, `${this.defaultEmailTemplate}.hbs`);
+
+			if (fs.existsSync(defaultTemplatePath)) {
+				const templateSrc = fs.readFileSync(defaultTemplatePath, 'utf8');
+				const template = Handlebars.compile(templateSrc);
+				return this.wrapInLayout(template(context), context);
+			}
+
+			// Ultimate fallback - basic HTML
+			return this.createBasicEmailHtml(context);
+
+		} catch (error) {
+			this.logger.error('Failed to render email template, using basic HTML', error);
+			return this.createBasicEmailHtml(context);
+		}
+	}
+
+	/**
+	 * Wrap content in email layout
+	 */
+	private wrapInLayout(content: string, context: any): string {
+		const templateDir = this.configService.get<string>('email.templateDir') || 'templates/email';
+		const layoutPath = path.resolve(templateDir, 'layout.hbs');
+
+		if (fs.existsSync(layoutPath)) {
+			try {
+				const layoutSrc = fs.readFileSync(layoutPath, 'utf8');
+				const layout = Handlebars.compile(layoutSrc);
+				return layout({
+					...context,
+					title: context.title || 'Notification',
+					body: content
 				});
-			case NotificationAudienceEnum.ALL:
-			default:
-				return this.userRepository.find();
+			} catch (error) {
+				this.logger.warn('Failed to apply layout, using content directly', error);
+			}
+		}
+
+		return content;
+	}
+
+	/**
+	 * Create basic HTML fallback for emails
+	 */
+	private createBasicEmailHtml(context: any): string {
+		return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>${context.title || 'Notification'}</title>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #f4f4f4; padding: 10px; border-radius: 5px; }
+            .content { margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h2>${context.title || 'Notification'}</h2>
+            </div>
+            <div class="content">
+              <p>${context.message || 'You have a new notification.'}</p>
+              ${context.notificationType ? `<p><strong>Type:</strong> ${context.notificationType}</p>` : ''}
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+	}
+
+	/**
+	 * Get recipients based on audience type
+	 */
+	private async getAudienceRecipients(audience: NotificationAudienceEnum): Promise<User[]> {
+		try {
+			switch (audience) {
+				case NotificationAudienceEnum.ADMINS:
+					return await this.userRepository.find({
+						where: {
+							role: In([UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV]),
+							isActive: true
+						},
+					});
+
+				case NotificationAudienceEnum.ALL_EXCEPT_UNKNOWN:
+					return await this.userRepository.find({
+						where: {
+							role: In([
+								UserRoleEnum.ADMIN,
+								UserRoleEnum.MANAGER,
+								UserRoleEnum.DEV,
+								UserRoleEnum.SALES,
+								UserRoleEnum.CUSTOMER
+							]),
+							isActive: true
+						},
+					});
+
+				case NotificationAudienceEnum.ALL:
+					return await this.userRepository.find({
+						where: { isActive: true }
+					});
+
+				default:
+					this.logger.warn(`Unknown audience type: ${audience}`);
+					return [];
+			}
+		} catch (error) {
+			this.logger.error('Failed to get audience recipients', error);
+			return [];
 		}
 	}
 

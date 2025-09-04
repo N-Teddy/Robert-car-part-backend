@@ -1,3 +1,4 @@
+// upload.dto.ts
 import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ImageEnum } from '../../common/enum/entity.enum';
@@ -29,26 +30,6 @@ export class UploadImageDto {
 	@IsOptional()
 	@IsString()
 	entityType?: string;
-
-	@ApiProperty({
-		description: 'Subfolder for organizing images (optional)',
-		example: 'profile-photos',
-		required: false,
-	})
-	@IsOptional()
-	@IsString()
-	folder?: string;
-}
-
-export class UpdateImageDto {
-	@ApiProperty({
-		description: 'Subfolder for organizing images (optional)',
-		example: 'profile-photos',
-		required: false,
-	})
-	@IsOptional()
-	@IsString()
-	folder?: string;
 }
 
 export class BulkUploadDto {
@@ -78,13 +59,4 @@ export class BulkUploadDto {
 	@IsOptional()
 	@IsString()
 	entityType?: string;
-
-	@ApiProperty({
-		description: 'Subfolder for organizing images (optional)',
-		example: 'vehicle-gallery',
-		required: false,
-	})
-	@IsOptional()
-	@IsString()
-	folder?: string;
 }

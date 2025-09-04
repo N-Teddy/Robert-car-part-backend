@@ -16,7 +16,6 @@ const part_entity_1 = require("../../entities/part.entity");
 const vehicle_profit_entity_1 = require("../../entities/vehicle-profit.entity");
 const image_entity_1 = require("../../entities/image.entity");
 const user_entity_1 = require("../../entities/user.entity");
-const upload_module_1 = require("../upload/upload.module");
 const notification_module_1 = require("../notification/notification.module");
 let VehicleModule = class VehicleModule {
 };
@@ -25,7 +24,6 @@ exports.VehicleModule = VehicleModule = __decorate([
     (0, common_1.Module)({
         imports: [
             typeorm_1.TypeOrmModule.forFeature([vehicle_entity_1.Vehicle, part_entity_1.Part, vehicle_profit_entity_1.VehicleProfit, image_entity_1.Image, user_entity_1.User]),
-            upload_module_1.UploadModule,
             notification_module_1.NotificationModule,
         ],
         controllers: [vehicle_controller_1.VehicleController],

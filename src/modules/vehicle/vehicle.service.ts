@@ -12,7 +12,6 @@ import { Part } from '../../entities/part.entity';
 import { VehicleProfit } from '../../entities/vehicle-profit.entity';
 import { Image } from '../../entities/image.entity';
 import { User } from '../../entities/user.entity';
-import { UploadService } from '../upload/upload.service';
 import { NotificationService } from '../notification/notification.service';
 import { ImageEnum } from '../../common/enum/entity.enum';
 import {
@@ -48,7 +47,6 @@ export class VehicleService {
 		private imageRepository: Repository<Image>,
 		@InjectRepository(User)
 		private userRepository: Repository<User>,
-		private uploadService: UploadService,
 		private notificationService: NotificationService
 	) {}
 
@@ -423,12 +421,6 @@ export class VehicleService {
 				);
 			}
 
-			// Delete associated images
-			if (vehicle.images && vehicle.images.length > 0) {
-				for (const image of vehicle.images) {
-					await this.uploadService.deleteImage(image.id);
-				}
-			}
 
 			// Delete vehicle
 			await this.vehicleRepository.remove(vehicle);
@@ -604,23 +596,6 @@ export class VehicleService {
 			}
 
 			const uploadedImages = [];
-
-			for (const file of files) {
-				const result = await this.uploadService.uploadImage(
-					file,
-					ImageEnum.VEHICLE,
-					vehicleId,
-					'vehicle',
-					folder
-				);
-
-				const image = await this.imageRepository.findOne({
-					where: { id: result.imageId },
-				});
-				if (image) {
-					uploadedImages.push(image);
-				}
-			}
 
 			this.logger.log(
 				`Uploaded ${uploadedImages.length} images for vehicle: ${vehicleId}`

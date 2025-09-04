@@ -31,39 +31,42 @@ let LocalStorageService = LocalStorageService_1 = class LocalStorageService {
             this.logger.log('Created uploads directory');
         }
     }
-    async uploadImage(file, imageType, folder) {
+    getFolderNameFromImageType(imageType) {
+        return imageType.toLowerCase().replace(/_/g, '-').replace(/\s+/g, '-');
+    }
+    generateFileName(file, imageType) {
+        const typePart = this.getFolderNameFromImageType(imageType);
+        const timestamp = Date.now();
+        const extension = this.getFileExtension(file.originalname);
+        return `${typePart}-${timestamp}${extension}`;
+    }
+    async uploadImage(file, imageType) {
         try {
-            const typeDir = (0, path_1.join)(this.uploadsDir, imageType.toLowerCase().replace(' ', '-'));
+            const folderName = this.getFolderNameFromImageType(imageType);
+            const typeDir = (0, path_1.join)(this.uploadsDir, folderName);
             await fs_1.promises.mkdir(typeDir, { recursive: true });
-            let finalDir = typeDir;
-            if (folder) {
-                finalDir = (0, path_1.join)(typeDir, folder);
-                await fs_1.promises.mkdir(finalDir, { recursive: true });
+            const fileName = this.generateFileName(file, imageType);
+            const filePath = (0, path_1.join)(typeDir, fileName);
+            if (!file.path) {
+                throw new Error('File path not found - disk storage expected');
             }
-            const fileName = file.filename ||
-                `${Date.now()}-${Math.random().toString(36).substring(7)}${this.getFileExtension(file.originalname)}`;
-            const filePath = (0, path_1.join)(finalDir, fileName);
-            if (file.path) {
-                await fs_1.promises.copyFile(file.path, filePath);
-                await fs_1.promises.unlink(file.path);
-            }
-            else if (file.buffer) {
-                await fs_1.promises.writeFile(filePath, file.buffer);
-            }
-            else {
-                throw new Error('File has neither path nor buffer');
-            }
-            const baseUrl = this.configService.get('app.baseUrl') ||
-                'http://localhost:3000';
-            const url = `${baseUrl}/uploads/${imageType.toLowerCase().replace(' ', '-')}/${folder ? folder + '/' : ''}${fileName}`;
+            await fs_1.promises.rename(file.path, filePath);
+            this.logger.log(`File moved from ${file.path} to ${filePath}`);
+            const url = this.getPublicUrl(filePath);
             this.logger.log(`Image stored locally: ${filePath}`);
             return {
                 url,
                 localPath: filePath,
+                filename: fileName,
             };
         }
         catch (error) {
-            this.logger.error(`Failed to store image locally: ${error.message}`);
+            this.logger.error(`Failed to store image locally: ${error}`);
+            if (file.path) {
+                await fs_1.promises.unlink(file.path).catch(cleanupError => {
+                    this.logger.warn(`Failed to cleanup temp file: ${cleanupError.message}`);
+                });
+            }
             throw new Error(`Failed to store image: ${error.message}`);
         }
     }
@@ -73,14 +76,21 @@ let LocalStorageService = LocalStorageService_1 = class LocalStorageService {
             this.logger.log(`Image deleted locally: ${localPath}`);
         }
         catch (error) {
-            this.logger.error(`Failed to delete local image: ${error.message}`);
-            throw new Error(`Failed to delete image: ${error.message}`);
+            if (error.code !== 'ENOENT') {
+                this.logger.error(`Failed to delete local image: ${error.message}`);
+                throw new Error(`Failed to delete image: ${error.message}`);
+            }
+            this.logger.warn(`Image already deleted: ${localPath}`);
         }
     }
-    async updateImage(oldLocalPath, file, imageType, folder) {
+    async updateImage(oldLocalPath, file, imageType) {
         try {
-            await this.deleteImage(oldLocalPath);
-            const result = await this.uploadImage(file, imageType, folder);
+            if (oldLocalPath) {
+                await this.deleteImage(oldLocalPath).catch(error => {
+                    this.logger.warn(`Failed to delete old image: ${error.message}`);
+                });
+            }
+            const result = await this.uploadImage(file, imageType);
             return result;
         }
         catch (error) {
@@ -89,8 +99,15 @@ let LocalStorageService = LocalStorageService_1 = class LocalStorageService {
         }
     }
     getFileExtension(filename) {
-        const ext = filename.split('.').pop();
-        return ext ? `.${ext}` : '';
+        const lastDotIndex = filename.lastIndexOf('.');
+        if (lastDotIndex === -1)
+            return '';
+        return filename.slice(lastDotIndex);
+    }
+    getPublicUrl(localPath) {
+        const relativePath = localPath.replace(this.uploadsDir, '').replace(/\\/g, '/');
+        const baseUrl = this.configService.get('app.baseUrl') || 'http://localhost:3000';
+        return `${baseUrl}/uploads${relativePath}`;
     }
     async getImageStats() {
         try {

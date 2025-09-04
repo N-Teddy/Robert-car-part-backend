@@ -24,13 +24,17 @@ const entity_enum_1 = require("../../common/enum/entity.enum");
 const non_unknown_role_guard_1 = require("./guards/non-unknown-role.guard");
 const auth_1 = require("../../dto/request/auth");
 const user_1 = require("../../dto/request/user");
+const platform_express_1 = require("@nestjs/platform-express");
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
     }
-    async register(registerDto) {
+    async register(registerDto, profileImageFile) {
         try {
-            return this.authService.register(registerDto);
+            if (!profileImageFile) {
+                throw new common_1.BadRequestException('Profile image is required');
+            }
+            return await this.authService.register(registerDto, profileImageFile);
         }
         catch (error) {
             throw error;
@@ -107,12 +111,28 @@ let AuthController = class AuthController {
 exports.AuthController = AuthController;
 __decorate([
     (0, common_1.Post)('register'),
-    (0, swagger_1.ApiOperation)({ summary: 'Register a new user' }),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
+    (0, swagger_1.ApiOperation)({ summary: 'Register a new user with profile image' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'User registered successfully' }),
-    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request - User already exists' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request - Invalid data or missing profile image' }),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('profileImage', {
+        limits: {
+            fileSize: 5 * 1024 * 1024,
+        },
+        fileFilter: (req, file, cb) => {
+            const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (allowedMimeTypes.includes(file.mimetype)) {
+                cb(null, true);
+            }
+            else {
+                cb(new common_1.BadRequestException('Only JPEG, PNG, GIF, and WebP images are allowed'), false);
+            }
+        },
+    })),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [auth_1.RegisterDto]),
+    __metadata("design:paramtypes", [auth_1.RegisterDto, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "register", null);
 __decorate([

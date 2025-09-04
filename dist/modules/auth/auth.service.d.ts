@@ -6,6 +6,7 @@ import { AuditLog } from '../../entities/audit-log.entity';
 import { UserRoleEnum } from '../../common/enum/entity.enum';
 import { NotificationService } from '../notification/notification.service';
 import { ChangePasswordDto, ForgotPasswordDto, LoginDto, RegisterDto, ResetPasswordDto } from 'src/dto/request/auth';
+import { Image } from 'src/entities/image.entity';
 export declare class AuthService {
     private readonly userRepository;
     private readonly passwordResetTokenRepository;
@@ -13,6 +14,7 @@ export declare class AuthService {
     private readonly jwtService;
     private readonly notificationService;
     private readonly dataSource;
+    private readonly logger;
     constructor(userRepository: Repository<User>, passwordResetTokenRepository: Repository<PasswordResetToken>, auditLogRepository: Repository<AuditLog>, jwtService: JwtService, notificationService: NotificationService, dataSource: DataSource);
     validateUser(email: string, password: string): Promise<any>;
     login(loginDto: LoginDto): Promise<{
@@ -22,11 +24,11 @@ export declare class AuthService {
         phoneNumber: string;
         role: UserRoleEnum;
         isFirstLogin: boolean;
-        profileImage: import("../../entities/image.entity").Image;
+        profileImage: Image;
         accessToken: string;
         refreshToken: string;
     }>;
-    register(registerDto: RegisterDto): Promise<{
+    register(registerDto: RegisterDto, profileImageFile: Express.Multer.File): Promise<{
         id: string;
         email: string;
         fullName: string;
@@ -56,7 +58,7 @@ export declare class AuthService {
         role: UserRoleEnum;
         isFirstLogin: boolean;
         isActive: boolean;
-        profileImage?: import("../../entities/image.entity").Image;
+        profileImage?: Image;
         resetTokens: PasswordResetToken[];
         notifications: import("../../entities/notification.entity").Notification[];
         auditLogs: AuditLog[];

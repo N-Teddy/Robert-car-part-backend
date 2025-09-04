@@ -4,6 +4,7 @@ import {
 	BadRequestException,
 	NotFoundException,
 	InternalServerErrorException,
+	Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,7 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { User } from '../../entities/user.entity';
 import { PasswordResetToken } from '../../entities/password-reset-token.entity';
 import { AuditLog } from '../../entities/audit-log.entity';
-import { UserRoleEnum, AuditActionEnum } from '../../common/enum/entity.enum';
+import { UserRoleEnum, AuditActionEnum, ImageEnum } from '../../common/enum/entity.enum';
 import { NotificationService } from '../notification/notification.service';
 import {
 	ChangePasswordDto,
@@ -23,9 +24,13 @@ import {
 	RegisterDto,
 	ResetPasswordDto,
 } from 'src/dto/request/auth';
+import { Image } from 'src/entities/image.entity';
 
 @Injectable()
 export class AuthService {
+
+		private readonly logger = new Logger(AuthService.name);
+
 	constructor(
 		@InjectRepository(User)
 		private readonly userRepository: Repository<User>,
@@ -105,7 +110,10 @@ export class AuthService {
 		}
 	}
 
-	async register(registerDto: RegisterDto) {
+	async register(
+		registerDto: RegisterDto,
+		profileImageFile: Express.Multer.File
+	) {
 		const queryRunner = this.dataSource.createQueryRunner();
 		await queryRunner.connect();
 		await queryRunner.startTransaction();
@@ -117,9 +125,7 @@ export class AuthService {
 				where: { email },
 			});
 			if (existingUser) {
-				throw new BadRequestException(
-					'User with this email already exists'
-				);
+				throw new BadRequestException('User with this email already exists');
 			}
 
 			const hashedPassword = await bcrypt.hash(password, 12);
@@ -134,6 +140,9 @@ export class AuthService {
 			});
 
 			const savedUser = await queryRunner.manager.save(user);
+
+			// Update user with profile image relationship
+			await queryRunner.manager.save(User, savedUser);
 
 			const payload = {
 				sub: savedUser.id,
@@ -153,7 +162,7 @@ export class AuthService {
 
 			await queryRunner.commitTransaction();
 
-			// 🚨 Send notifications AFTER successful commit
+			// Send notifications AFTER successful commit
 			await this.notificationService.notifyAdminsOnNewUser(savedUser);
 			const welcomeHtml = this.notificationService.renderTemplate(
 				'welcome-pending-role',
@@ -177,8 +186,16 @@ export class AuthService {
 				accessToken,
 				refreshToken,
 			};
+
 		} catch (error) {
 			await queryRunner.rollbackTransaction();
+
+			// Clean up any partially uploaded files if transaction fails
+			if (error instanceof BadRequestException && profileImageFile) {
+				this.logger.warn(`Cleaning up failed registration for email: ${registerDto.email}`);
+				// You might want to add cleanup logic here for any uploaded files
+			}
+
 			throw error;
 		} finally {
 			await queryRunner.release();

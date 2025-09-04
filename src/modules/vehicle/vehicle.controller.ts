@@ -27,7 +27,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { VehicleService } from './vehicle.service';
-import { UploadService } from '../upload/upload.service';
 import { ImageEnum } from '../../common/enum/entity.enum';
 import { UserRoleEnum } from '../../common/enum/entity.enum';
 import {
@@ -73,7 +72,6 @@ export class VehicleController {
 
 	constructor(
 		private readonly vehicleService: VehicleService,
-		private readonly uploadService: UploadService
 	) {}
 
 	@Post()
@@ -303,66 +301,6 @@ export class VehicleController {
 		return {
 			message: 'Vehicle marked as parted out successfully',
 			data: vehicleWithStats,
-		};
-	}
-
-	@Post(':id/images')
-	@UseInterceptors(FilesInterceptor('files', 10))
-	@ApiOperation({ summary: 'Upload vehicle images', description: 'Upload multiple images for a specific vehicle.' })
-	@ApiResponse({ status: 201, description: 'Vehicle images uploaded successfully' })
-	@ApiResponse({ status: 400, description: 'Bad request' })
-	@ApiResponse({ status: 401, description: 'Unauthorized' })
-	@ApiResponse({ status: 404, description: 'Vehicle not found' })
-	@Roles( UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV, UserRoleEnum.SALES )
-	async uploadVehicleImages(
-		@Param('id') id: string,
-		@UploadedFiles(
-			new ParseFilePipe({
-				validators: [
-					new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // 5MB
-				],
-			})
-		)
-		files: Express.Multer.File[],
-		@Query('folder') folder?: string
-	) {
-		if (!files || files.length === 0) {
-			throw new BadRequestException('No files uploaded');
-		}
-
-		// Validate MIME types for all files
-		for (const file of files) {
-			validateImageMimeType(file);
-		}
-
-		const uploadedImages = [];
-
-		for (const file of files) {
-			try {
-				const result = await this.uploadService.uploadImage(
-					file,
-					ImageEnum.VEHICLE,
-					id,
-					'vehicle',
-					folder
-				);
-
-				uploadedImages.push({
-					id: result.imageId,
-					url: result.url,
-					filename: file.originalname,
-				});
-			} catch (error) {
-				uploadedImages.push({
-					error: error.message,
-					filename: file.originalname,
-				});
-			}
-		}
-
-		return {
-			message: 'Vehicle images uploaded successfully',
-			data: uploadedImages,
 		};
 	}
 

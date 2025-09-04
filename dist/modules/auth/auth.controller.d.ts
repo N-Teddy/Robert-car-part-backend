@@ -5,7 +5,7 @@ import { AssignRoleDto } from 'src/dto/request/user';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
-    register(registerDto: RegisterDto): Promise<{
+    register(registerDto: RegisterDto, profileImageFile: Express.Multer.File): Promise<{
         id: string;
         email: string;
         fullName: string;

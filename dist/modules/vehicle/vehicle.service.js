@@ -22,17 +22,14 @@ const part_entity_1 = require("../../entities/part.entity");
 const vehicle_profit_entity_1 = require("../../entities/vehicle-profit.entity");
 const image_entity_1 = require("../../entities/image.entity");
 const user_entity_1 = require("../../entities/user.entity");
-const upload_service_1 = require("../upload/upload.service");
 const notification_service_1 = require("../notification/notification.service");
-const entity_enum_1 = require("../../common/enum/entity.enum");
 let VehicleService = VehicleService_1 = class VehicleService {
-    constructor(vehicleRepository, partRepository, vehicleProfitRepository, imageRepository, userRepository, uploadService, notificationService) {
+    constructor(vehicleRepository, partRepository, vehicleProfitRepository, imageRepository, userRepository, notificationService) {
         this.vehicleRepository = vehicleRepository;
         this.partRepository = partRepository;
         this.vehicleProfitRepository = vehicleProfitRepository;
         this.imageRepository = imageRepository;
         this.userRepository = userRepository;
-        this.uploadService = uploadService;
         this.notificationService = notificationService;
         this.logger = new common_1.Logger(VehicleService_1.name);
     }
@@ -285,11 +282,6 @@ let VehicleService = VehicleService_1 = class VehicleService {
             catch (notificationError) {
                 this.logger.warn(`Failed to send vehicle deletion notification: ${notificationError.message}`);
             }
-            if (vehicle.images && vehicle.images.length > 0) {
-                for (const image of vehicle.images) {
-                    await this.uploadService.deleteImage(image.id);
-                }
-            }
             await this.vehicleRepository.remove(vehicle);
             this.logger.log(`Vehicle deleted successfully: ${id}`);
         }
@@ -422,15 +414,6 @@ let VehicleService = VehicleService_1 = class VehicleService {
                 throw new common_1.NotFoundException(`Vehicle with ID ${vehicleId} not found`);
             }
             const uploadedImages = [];
-            for (const file of files) {
-                const result = await this.uploadService.uploadImage(file, entity_enum_1.ImageEnum.VEHICLE, vehicleId, 'vehicle', folder);
-                const image = await this.imageRepository.findOne({
-                    where: { id: result.imageId },
-                });
-                if (image) {
-                    uploadedImages.push(image);
-                }
-            }
             this.logger.log(`Uploaded ${uploadedImages.length} images for vehicle: ${vehicleId}`);
             return uploadedImages;
         }
@@ -595,7 +578,6 @@ exports.VehicleService = VehicleService = VehicleService_1 = __decorate([
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
-        upload_service_1.UploadService,
         notification_service_1.NotificationService])
 ], VehicleService);
 //# sourceMappingURL=vehicle.service.js.map
