@@ -16,6 +16,7 @@ const category_entity_1 = require("./category.entity");
 const order_item_entity_1 = require("./order-item.entity");
 const image_entity_1 = require("./image.entity");
 const base_entity_1 = require("./base.entity");
+const qr_code_entity_1 = require("./qr-code.entity");
 let Part = class Part extends base_entity_1.BaseEntity {
 };
 exports.Part = Part;
@@ -65,6 +66,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => image_entity_1.Image, (image) => image.part),
     __metadata("design:type", Array)
 ], Part.prototype, "images", void 0);
+__decorate([
+    (0, typeorm_1.OneToOne)(() => qr_code_entity_1.QrCode, (qrCode) => qrCode.part, { cascade: true }),
+    __metadata("design:type", qr_code_entity_1.QrCode)
+], Part.prototype, "qrCode", void 0);
 exports.Part = Part = __decorate([
     (0, typeorm_1.Entity)('parts')
 ], Part);

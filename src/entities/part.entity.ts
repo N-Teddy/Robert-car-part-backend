@@ -1,9 +1,10 @@
-import { Entity, Column, ManyToOne, OneToMany, Index } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany, Index, OneToOne } from 'typeorm';
 import { Vehicle } from './vehicle.entity';
 import { Category } from './category.entity';
 import { OrderItem } from './order-item.entity';
 import { Image } from './image.entity';
 import { BaseEntity } from './base.entity';
+import { QrCode } from './qr-code.entity';
 
 @Entity('parts')
 export class Part extends BaseEntity {
@@ -41,4 +42,8 @@ export class Part extends BaseEntity {
 
 	@OneToMany(() => Image, (image) => image.part)
 	images: Image[];
+
+	@OneToOne(() => QrCode, (qrCode) => qrCode.part, { cascade: true })
+	qrCode: QrCode;
+
 }
