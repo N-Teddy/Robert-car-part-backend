@@ -25,6 +25,10 @@ __decorate([
     __metadata("design:type", String)
 ], QrCode.prototype, "data", void 0);
 __decorate([
+    (0, typeorm_1.Column)('text'),
+    __metadata("design:type", String)
+], QrCode.prototype, "encodedData", void 0);
+__decorate([
     (0, typeorm_1.OneToOne)(() => part_entity_1.Part, (part) => part.qrCode, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", part_entity_1.Part)

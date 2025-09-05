@@ -10,6 +10,9 @@ export class QrCode extends BaseEntity {
     @Column({ nullable: true })
     data?: string; // optional: the encoded string (e.g., part ID, product link)
 
+    @Column('text')
+    encodedData: string;
+
     @OneToOne(() => Part, (part) => part.qrCode, { onDelete: 'CASCADE' })
     @JoinColumn()
     part: Part;
