@@ -46,6 +46,7 @@ import { QrCode } from './entities/qr-code.entity';
 			],
 		}),
 		AuditLogModule,
+		UploadModule,
 
 		// Dynamically configure TypeORM based on the environment
 		TypeOrmModule.forRootAsync({

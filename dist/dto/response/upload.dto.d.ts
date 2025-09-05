@@ -2,12 +2,10 @@ import { ImageEnum } from '../../common/enum/entity.enum';
 export declare class UploadedImageResponseDto {
     id: string;
     url: string;
-    publicId: string;
-    format: string;
-    size: number;
+    size?: number;
     entityType: ImageEnum;
     entityId: string;
-    uploadedBy?: {
+    createdBy?: {
         id: string;
         name: string;
     };

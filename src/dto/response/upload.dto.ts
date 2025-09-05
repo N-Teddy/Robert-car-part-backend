@@ -8,14 +8,8 @@ export class UploadedImageResponseDto {
     @ApiProperty({ description: 'Image URL' })
     url: string;
 
-    @ApiProperty({ description: 'Public ID for Cloudinary or file path for local' })
-    publicId: string;
-
-    @ApiProperty({ description: 'Image format/extension' })
-    format: string;
-
     @ApiProperty({ description: 'Image size in bytes' })
-    size: number;
+    size?: number;
 
     @ApiProperty({ description: 'Entity type this image belongs to', enum: ImageEnum })
     entityType: ImageEnum;
@@ -24,7 +18,7 @@ export class UploadedImageResponseDto {
     entityId: string;
 
     @ApiPropertyOptional({ description: 'User who uploaded the image' })
-    uploadedBy?: {
+    createdBy?: {
         id: string;
         name: string;
     };

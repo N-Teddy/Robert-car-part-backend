@@ -12,7 +12,6 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 var UploadService_1;
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UploadService = void 0;
 const common_1 = require("@nestjs/common");
@@ -95,7 +94,7 @@ let UploadService = UploadService_1 = class UploadService {
         }
         return relations;
     }
-    async uploadSingleImage(file, entityType, entityId, uploadedBy) {
+    async uploadSingleImage(file, entityType, entityId, createdBy) {
         try {
             if (!file) {
                 throw new common_1.BadRequestException('No file provided');
@@ -112,19 +111,19 @@ let UploadService = UploadService_1 = class UploadService {
             const storageService = this.getStorageService();
             const uploadResult = await storageService.uploadFile(file, entityType, entityId);
             const entityRelations = await this.getEntityRelation(entityType, entityId);
-            const image = this.imageRepository.create({
+            const imageData = {
                 url: uploadResult.url,
                 publicId: uploadResult.publicId,
                 format: uploadResult.format,
                 size: uploadResult.size,
                 type: entityType,
-                uploadedBy: { id: uploadedBy },
-                ...entityRelations,
-            });
+                createdBy: { id: createdBy },
+            };
+            const image = this.imageRepository.create(Object.assign({}, imageData, entityRelations));
             const savedImage = await this.imageRepository.save(image);
             const imageWithRelations = await this.imageRepository.findOne({
                 where: { id: savedImage.id },
-                relations: ['uploadedBy'],
+                relations: ['createdBy'],
             });
             return this.mapToResponseDto(imageWithRelations);
         }
@@ -161,7 +160,7 @@ let UploadService = UploadService_1 = class UploadService {
         try {
             const image = await this.imageRepository.findOne({
                 where: { id },
-                relations: ['uploadedBy', 'user', 'vehicle', 'part', 'category', 'qrCode'],
+                relations: ['createdBy', 'user', 'vehicle', 'part', 'category', 'qrCode'],
             });
             if (!image) {
                 throw new common_1.NotFoundException(`Image with ID ${id} not found`);
@@ -180,7 +179,7 @@ let UploadService = UploadService_1 = class UploadService {
                 throw new common_1.NotFoundException(`Image with ID ${id} not found`);
             }
             const storageService = this.getStorageService();
-            await storageService.deleteFile(image.publicId);
+            await storageService.deleteFile(image.id);
             await this.imageRepository.remove(image);
             this.logger.log(`Image ${id} deleted successfully`);
         }
@@ -195,10 +194,6 @@ let UploadService = UploadService_1 = class UploadService {
             url: image.url,
             entityType: image.type,
             entityId: this.getEntityIdFromImage(image),
-            uploadedBy: image.uploadedBy ? {
-                id: image.uploadedBy.id,
-                name: image.uploadedBy.name,
-            } : undefined,
             createdAt: image.createdAt,
             updatedAt: image.updatedAt,
         };
@@ -213,7 +208,7 @@ let UploadService = UploadService_1 = class UploadService {
         if (image.category)
             return image.category.id;
         if (image.qrCode)
-            return image.;
+            return image.qrCode.id;
         return '';
     }
 };
@@ -231,7 +226,9 @@ exports.UploadService = UploadService = UploadService_1 = __decorate([
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
-        typeorm_2.Repository, typeof (_a = typeof local_storage_service_1.LocalStorageService !== "undefined" && local_storage_service_1.LocalStorageService) === "function" ? _a : Object, cloudinary_service_1.CloudinaryService,
+        typeorm_2.Repository,
+        local_storage_service_1.LocalStorageService,
+        cloudinary_service_1.CloudinaryService,
         config_1.ConfigService])
 ], UploadService);
 //# sourceMappingURL=upload.service.js.map

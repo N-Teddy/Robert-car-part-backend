@@ -26,7 +26,7 @@ export declare class UploadService {
     private getStorageService;
     private validateEntity;
     private getEntityRelation;
-    uploadSingleImage(file: Express.Multer.File, entityType: ImageEnum, entityId: string, uploadedBy: string): Promise<UploadedImageResponseDto>;
+    uploadSingleImage(file: Express.Multer.File, entityType: ImageEnum, entityId: string, createdBy: string): Promise<UploadedImageResponseDto>;
     uploadMultipleImages(files: Express.Multer.File[], entityType: ImageEnum, entityId: string, uploadedBy: string): Promise<MultipleUploadResponseDto>;
     getImageById(id: string): Promise<UploadedImageResponseDto>;
     deleteImage(id: string): Promise<void>;

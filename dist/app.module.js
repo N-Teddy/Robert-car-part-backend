@@ -55,6 +55,7 @@ exports.AppModule = AppModule = __decorate([
                 ],
             }),
             auditlog_module_1.AuditLogModule,
+            upload_module_1.UploadModule,
             typeorm_1.TypeOrmModule.forRootAsync({
                 inject: [config_1.ConfigService],
                 useFactory: (configService) => {

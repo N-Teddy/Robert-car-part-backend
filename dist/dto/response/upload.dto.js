@@ -24,14 +24,6 @@ __decorate([
     __metadata("design:type", String)
 ], UploadedImageResponseDto.prototype, "url", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Public ID for Cloudinary or file path for local' }),
-    __metadata("design:type", String)
-], UploadedImageResponseDto.prototype, "publicId", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Image format/extension' }),
-    __metadata("design:type", String)
-], UploadedImageResponseDto.prototype, "format", void 0);
-__decorate([
     (0, swagger_1.ApiProperty)({ description: 'Image size in bytes' }),
     __metadata("design:type", Number)
 ], UploadedImageResponseDto.prototype, "size", void 0);
@@ -46,7 +38,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: 'User who uploaded the image' }),
     __metadata("design:type", Object)
-], UploadedImageResponseDto.prototype, "uploadedBy", void 0);
+], UploadedImageResponseDto.prototype, "createdBy", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Upload timestamp' }),
     __metadata("design:type", Date)

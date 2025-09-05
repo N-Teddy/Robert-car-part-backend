@@ -101,7 +101,7 @@ export class UploadService {
         file: Express.Multer.File,
         entityType: ImageEnum,
         entityId: string,
-        uploadedBy: string,
+        createdBy: string,
     ): Promise<UploadedImageResponseDto> {
         try {
             // Validate file
@@ -128,25 +128,30 @@ export class UploadService {
             const storageService = this.getStorageService();
             const uploadResult = await storageService.uploadFile(file, entityType, entityId);
 
-            // Save to database
+            // Get entity relations
             const entityRelations = await this.getEntityRelation(entityType, entityId);
 
-            const image = this.imageRepository.create({
+            // Create base image object
+            const imageData = {
                 url: uploadResult.url,
                 publicId: uploadResult.publicId,
                 format: uploadResult.format,
                 size: uploadResult.size,
                 type: entityType,
-                uploadedBy: { id: uploadedBy },
-                ...entityRelations,
-            });
+                createdBy: { id: createdBy },
+            };
+
+            // Use Object.assign to merge the relations
+            const image = this.imageRepository.create(
+                Object.assign({}, imageData, entityRelations)
+            );
 
             const savedImage = await this.imageRepository.save(image);
 
             // Load with relations for response
             const imageWithRelations = await this.imageRepository.findOne({
                 where: { id: savedImage.id },
-                relations: ['uploadedBy'],
+                relations: ['createdBy'],
             });
 
             return this.mapToResponseDto(imageWithRelations!);
@@ -196,7 +201,7 @@ export class UploadService {
         try {
             const image = await this.imageRepository.findOne({
                 where: { id },
-                relations: ['uploadedBy', 'user', 'vehicle', 'part', 'category', 'qrCode'],
+                relations: ['createdBy', 'user', 'vehicle', 'part', 'category', 'qrCode'],
             });
 
             if (!image) {
@@ -220,7 +225,7 @@ export class UploadService {
 
             // Delete from storage
             const storageService = this.getStorageService();
-            await storageService.deleteFile(image.publicId);
+            await storageService.deleteFile(image.id);
 
             // Delete from database
             await this.imageRepository.remove(image);
@@ -238,10 +243,10 @@ export class UploadService {
             url: image.url,
             entityType: image.type,
             entityId: this.getEntityIdFromImage(image),
-            uploadedBy: image.uploadedBy ? {
-                id: image.uploadedBy.id,
-                name: image.uploadedBy.name,
-            } : undefined,
+            // uploadedBy: image.createdBy ? {
+                // id: image.createdBy.id,
+                // name: image.createdBy.name,
+            // } : undefined,
             createdAt: image.createdAt,
             updatedAt: image.updatedAt,
         };
@@ -252,7 +257,7 @@ export class UploadService {
         if (image.vehicle) return image.vehicle.id;
         if (image.part) return image.part.id;
         if (image.category) return image.category.id;
-        if (image.qrCode) return image.;
+        if (image.qrCode) return image.qrCode.id;
         return '';
     }
 }
