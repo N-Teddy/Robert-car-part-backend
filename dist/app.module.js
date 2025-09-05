@@ -35,6 +35,8 @@ const email_config_1 = require("./config/email.config");
 const response_interceptor_1 = require("./common/interceptor/response.interceptor");
 const auditLog_interceptor_1 = require("./common/interceptor/auditLog.interceptor");
 const auditlog_module_1 = require("./modules/auditLog/auditlog.module");
+const upload_module_1 = require("./modules/upload/upload.module");
+const qr_code_entity_1 = require("./entities/qr-code.entity");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -83,6 +85,7 @@ exports.AppModule = AppModule = __decorate([
                                 notification_entity_1.Notification,
                                 image_entity_1.Image,
                                 audit_log_entity_1.AuditLog,
+                                qr_code_entity_1.QrCode,
                             ],
                         };
                     }
@@ -108,6 +111,7 @@ exports.AppModule = AppModule = __decorate([
                                 notification_entity_1.Notification,
                                 image_entity_1.Image,
                                 audit_log_entity_1.AuditLog,
+                                qr_code_entity_1.QrCode,
                             ],
                             synchronize: true,
                             ssl: false,
@@ -132,6 +136,7 @@ exports.AppModule = AppModule = __decorate([
                     ];
                 },
             }),
+            upload_module_1.UploadModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

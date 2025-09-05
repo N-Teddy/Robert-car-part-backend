@@ -13,13 +13,10 @@ exports.QrCode = void 0;
 const typeorm_1 = require("typeorm");
 const base_entity_1 = require("./base.entity");
 const part_entity_1 = require("./part.entity");
+const image_entity_1 = require("./image.entity");
 let QrCode = class QrCode extends base_entity_1.BaseEntity {
 };
 exports.QrCode = QrCode;
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], QrCode.prototype, "url", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
@@ -29,10 +26,19 @@ __decorate([
     __metadata("design:type", String)
 ], QrCode.prototype, "encodedData", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => part_entity_1.Part, (part) => part.qrCode, { onDelete: 'CASCADE' }),
-    (0, typeorm_1.JoinColumn)(),
+    (0, typeorm_1.OneToOne)(() => part_entity_1.Part, (part) => part.qrCode, {
+        onDelete: 'CASCADE',
+        nullable: false
+    }),
     __metadata("design:type", part_entity_1.Part)
 ], QrCode.prototype, "part", void 0);
+__decorate([
+    (0, typeorm_1.OneToOne)(() => image_entity_1.Image, (image) => image.qrCode, {
+        nullable: true,
+        onDelete: 'SET NULL',
+    }),
+    __metadata("design:type", image_entity_1.Image)
+], QrCode.prototype, "image", void 0);
 exports.QrCode = QrCode = __decorate([
     (0, typeorm_1.Entity)('qr_codes')
 ], QrCode);

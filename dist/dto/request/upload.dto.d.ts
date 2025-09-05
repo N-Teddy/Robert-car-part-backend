@@ -1,11 +1,14 @@
 import { ImageEnum } from '../../common/enum/entity.enum';
 export declare class UploadImageDto {
-    type: ImageEnum;
-    entityId?: string;
-    entityType?: string;
+    entityType: ImageEnum;
+    entityId: string;
+    metadata?: Record<string, any>;
 }
-export declare class BulkUploadDto {
-    type: ImageEnum;
-    entityId?: string;
-    entityType?: string;
+export declare class UploadMultipleImagesDto {
+    entityType: ImageEnum;
+    entityId: string;
+    metadata?: Record<string, any>;
+}
+export declare class DeleteImageDto {
+    imageId: string;
 }

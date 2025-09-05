@@ -19,59 +19,60 @@ let CloudinaryService = CloudinaryService_1 = class CloudinaryService {
         this.configService = configService;
         this.logger = new common_1.Logger(CloudinaryService_1.name);
         cloudinary_1.v2.config({
-            cloud_name: this.configService.get('cloudinary.cloudName'),
-            api_key: this.configService.get('cloudinary.apiKey'),
-            api_secret: this.configService.get('cloudinary.apiSecret'),
+            cloud_name: this.configService.get('CLOUDINARY_CLOUD_NAME'),
+            api_key: this.configService.get('CLOUDINARY_API_KEY'),
+            api_secret: this.configService.get('CLOUDINARY_API_SECRET'),
         });
     }
-    getFolderNameFromImageType(imageType) {
-        return imageType.toLowerCase().replace(/_/g, '-').replace(/\s+/g, '-');
-    }
-    async uploadImage(file, imageType) {
+    async uploadFile(file, entityType, entityId) {
         try {
-            const base64Image = file.buffer.toString('base64');
-            const dataURI = `data:${file.mimetype};base64,${base64Image}`;
-            const folderName = this.getFolderNameFromImageType(imageType);
-            const uploadFolder = `car-parts-shop/${folderName}`;
-            const result = await cloudinary_1.v2.uploader.upload(dataURI, {
-                folder: uploadFolder,
-                resource_type: 'image',
-                allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-                transformation: [
-                    { quality: 'auto:good' },
-                    { fetch_format: 'auto' },
-                ],
+            const fileName = `${entityType}-${entityId}-${Date.now()}`;
+            const folder = `${this.configService.get('CLOUDINARY_FOLDER')}/${entityType.toLowerCase()}`;
+            const result = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary_1.v2.uploader.upload_stream({
+                    folder,
+                    public_id: fileName,
+                    resource_type: 'auto',
+                    transformation: [
+                        { quality: 'auto:good' },
+                        { fetch_format: 'auto' },
+                    ],
+                }, (error, result) => {
+                    if (error) {
+                        reject(error);
+                    }
+                    else if (result) {
+                        resolve(result);
+                    }
+                });
+                uploadStream.end(file.buffer);
             });
-            this.logger.log(`Image uploaded to Cloudinary: ${result.public_id}`);
+            this.logger.log(`File uploaded to Cloudinary: ${result.secure_url}`);
             return {
                 url: result.secure_url,
                 publicId: result.public_id,
+                format: result.format,
+                size: result.bytes,
             };
         }
         catch (error) {
-            this.logger.error(`Failed to upload image to Cloudinary: ${error.message}`);
-            throw new Error(`Failed to upload image: ${error.message}`);
+            this.logger.error('Failed to upload file to Cloudinary', error);
+            throw error;
         }
     }
-    async deleteImage(publicId) {
+    async deleteFile(publicId) {
         try {
-            await cloudinary_1.v2.uploader.destroy(publicId);
-            this.logger.log(`Image deleted from Cloudinary: ${publicId}`);
+            const result = await cloudinary_1.v2.uploader.destroy(publicId);
+            if (result.result === 'ok') {
+                this.logger.log(`File deleted from Cloudinary: ${publicId}`);
+            }
+            else {
+                this.logger.warn(`Failed to delete file from Cloudinary: ${publicId}`);
+            }
         }
         catch (error) {
-            this.logger.error(`Failed to delete image from Cloudinary: ${error.message}`);
-            throw new Error(`Failed to delete image: ${error.message}`);
-        }
-    }
-    async updateImage(publicId, file, imageType) {
-        try {
-            await this.deleteImage(publicId);
-            const result = await this.uploadImage(file, imageType);
-            return result;
-        }
-        catch (error) {
-            this.logger.error(`Failed to update image in Cloudinary: ${error.message}`);
-            throw new Error(`Failed to update image: ${error.message}`);
+            this.logger.error('Failed to delete file from Cloudinary', error);
+            throw error;
         }
     }
 };

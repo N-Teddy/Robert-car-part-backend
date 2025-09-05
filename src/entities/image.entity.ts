@@ -5,6 +5,7 @@ import { Part } from './part.entity';
 import { BaseEntity } from './base.entity';
 import { ImageEnum } from 'src/common/enum/entity.enum';
 import { Category } from './category.entity';
+import { QrCode } from './qr-code.entity';
 
 @Entity('images')
 export class Image extends BaseEntity {
@@ -31,4 +32,10 @@ export class Image extends BaseEntity {
 		onDelete: 'SET NULL', // Set category to null if image is deleted
 	})
 	category?: Category;
+
+	@OneToOne(() => QrCode, (qrCode) => qrCode.image, {
+		nullable: true,
+		onDelete: 'SET NULL', // Set qrCode to null if image is deleted
+	})
+	qrCode?: QrCode;
 }

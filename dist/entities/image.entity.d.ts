@@ -4,6 +4,7 @@ import { Part } from './part.entity';
 import { BaseEntity } from './base.entity';
 import { ImageEnum } from 'src/common/enum/entity.enum';
 import { Category } from './category.entity';
+import { QrCode } from './qr-code.entity';
 export declare class Image extends BaseEntity {
     url: string;
     type: ImageEnum;
@@ -11,4 +12,5 @@ export declare class Image extends BaseEntity {
     vehicle?: Vehicle;
     part?: Part;
     category?: Category;
+    qrCode?: QrCode;
 }

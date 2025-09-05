@@ -17,6 +17,7 @@ const part_entity_1 = require("./part.entity");
 const base_entity_1 = require("./base.entity");
 const entity_enum_1 = require("../common/enum/entity.enum");
 const category_entity_1 = require("./category.entity");
+const qr_code_entity_1 = require("./qr-code.entity");
 let Image = class Image extends base_entity_1.BaseEntity {
 };
 exports.Image = Image;
@@ -50,6 +51,13 @@ __decorate([
     }),
     __metadata("design:type", category_entity_1.Category)
 ], Image.prototype, "category", void 0);
+__decorate([
+    (0, typeorm_1.OneToOne)(() => qr_code_entity_1.QrCode, (qrCode) => qrCode.image, {
+        nullable: true,
+        onDelete: 'SET NULL',
+    }),
+    __metadata("design:type", qr_code_entity_1.QrCode)
+], Image.prototype, "qrCode", void 0);
 exports.Image = Image = __decorate([
     (0, typeorm_1.Entity)('images')
 ], Image);

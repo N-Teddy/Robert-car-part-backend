@@ -28,6 +28,8 @@ import emailConfig from './config/email.config';
 import { ResponseInterceptor } from './common/interceptor/response.interceptor';
 import { AuditLogInterceptor } from './common/interceptor/auditLog.interceptor';
 import { AuditLogModule } from './modules/auditLog/auditlog.module';
+import { UploadModule } from './modules/upload/upload.module';
+import { QrCode } from './entities/qr-code.entity';
 
 @Module({
 	imports: [
@@ -82,6 +84,7 @@ import { AuditLogModule } from './modules/auditLog/auditlog.module';
 							Notification,
 							Image,
 							AuditLog,
+							QrCode,
 						],
 					};
 				} else {
@@ -107,6 +110,7 @@ import { AuditLogModule } from './modules/auditLog/auditlog.module';
 							Notification,
 							Image,
 							AuditLog,
+							QrCode,
 						],
 						synchronize: true, // Use synchronize in development
 						ssl: false, // Don't use SSL for local connections
@@ -133,6 +137,8 @@ import { AuditLogModule } from './modules/auditLog/auditlog.module';
 				];
 			},
 		}),
+
+		UploadModule,
 	],
 	controllers: [AppController],
 	providers: [

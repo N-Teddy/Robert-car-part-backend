@@ -8,60 +8,60 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UploadModule = void 0;
 const common_1 = require("@nestjs/common");
-const platform_express_1 = require("@nestjs/platform-express");
-const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
+const platform_express_1 = require("@nestjs/platform-express");
+const serve_static_1 = require("@nestjs/serve-static");
+const config_1 = require("@nestjs/config");
+const path_1 = require("path");
 const upload_controller_1 = require("./upload.controller");
 const upload_service_1 = require("./upload.service");
-const image_entity_1 = require("../../entities/image.entity");
-const cloudinary_service_1 = require("./cloudinary.service");
 const local_storage_service_1 = require("./local-storage.service");
-const static_file_middleware_1 = require("./static-file.middleware");
-const multer_1 = require("multer");
-const uuid_1 = require("uuid");
+const cloudinary_service_1 = require("./cloudinary.service");
+const image_entity_1 = require("../../entities/image.entity");
 const user_entity_1 = require("../../entities/user.entity");
 const vehicle_entity_1 = require("../../entities/vehicle.entity");
 const part_entity_1 = require("../../entities/part.entity");
-const fs_1 = require("fs");
-const path_1 = require("path");
+const category_entity_1 = require("../../entities/category.entity");
+const qr_code_entity_1 = require("../../entities/qr-code.entity");
 let UploadModule = class UploadModule {
-    configure(consumer) {
-        consumer
-            .apply(static_file_middleware_1.StaticFileMiddleware)
-            .forRoutes({ path: 'uploads/*', method: common_1.RequestMethod.GET });
-    }
 };
 exports.UploadModule = UploadModule;
 exports.UploadModule = UploadModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            typeorm_1.TypeOrmModule.forFeature([image_entity_1.Image, user_entity_1.User, vehicle_entity_1.Vehicle, part_entity_1.Part, category_entity_1.Category, qr_code_entity_1.QrCode]),
             platform_express_1.MulterModule.registerAsync({
+                imports: [config_1.ConfigModule],
+                useFactory: async (configService) => ({
+                    limits: {
+                        fileSize: configService.get('MAX_FILE_SIZE') || 10485760,
+                    },
+                }),
                 inject: [config_1.ConfigService],
-                useFactory: (configService) => {
-                    return {
-                        storage: (0, multer_1.diskStorage)({
-                            destination: (req, file, cb) => {
-                                const uploadPath = (0, path_1.join)(process.cwd(), 'uploads', 'temp');
-                                if (!(0, fs_1.existsSync)(uploadPath)) {
-                                    (0, fs_1.mkdirSync)(uploadPath, { recursive: true });
-                                }
-                                cb(null, uploadPath);
-                            },
-                            filename: (req, file, cb) => {
-                                const uniqueName = `${(0, uuid_1.v4)()}-${file.originalname}`;
-                                cb(null, uniqueName);
-                            },
-                        }),
-                        limits: {
-                            fileSize: 5 * 1024 * 1024,
-                        },
-                    };
-                },
             }),
-            typeorm_1.TypeOrmModule.forFeature([image_entity_1.Image, user_entity_1.User, vehicle_entity_1.Vehicle, part_entity_1.Part]),
+            serve_static_1.ServeStaticModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                useFactory: async (configService) => {
+                    const isProduction = configService.get('NODE_ENV') === 'production';
+                    if (!isProduction) {
+                        return [
+                            {
+                                rootPath: (0, path_1.join)(process.cwd(), 'uploads'),
+                                serveRoot: '/uploads',
+                                serveStaticOptions: {
+                                    index: false,
+                                    fallthrough: false,
+                                },
+                            },
+                        ];
+                    }
+                    return [];
+                },
+                inject: [config_1.ConfigService],
+            }),
         ],
         controllers: [upload_controller_1.UploadController],
-        providers: [upload_service_1.UploadService, cloudinary_service_1.CloudinaryService, local_storage_service_1.LocalStorageService],
+        providers: [upload_service_1.UploadService, local_storage_service_1.LocalStorageService, cloudinary_service_1.CloudinaryService],
         exports: [upload_service_1.UploadService],
     })
 ], UploadModule);

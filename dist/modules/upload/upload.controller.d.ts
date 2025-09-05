@@ -1,21 +1,11 @@
 import { UploadService } from './upload.service';
-import { ImageEnum } from '../../common/enum/entity.enum';
-import { UploadImageDto, BulkUploadDto } from '../../dto/request/upload.dto';
-import { UploadResponseDto, BulkUploadResponseDto, UploadStatsResponseDto, ImagesResponseDto } from '../../dto/response/upload.dto';
+import { UploadImageDto, UploadMultipleImagesDto } from '../../dto/request/upload.dto';
+import { UploadedImageResponseDto, MultipleUploadResponseDto } from '../../dto/response/upload.dto';
 export declare class UploadController {
     private readonly uploadService;
     constructor(uploadService: UploadService);
-    uploadImage(file: Express.Multer.File, uploadDto: UploadImageDto): Promise<UploadResponseDto>;
-    updateImage(id: string, file: Express.Multer.File): Promise<UploadResponseDto>;
-    deleteImage(id: string): Promise<{
-        message: string;
-    }>;
-    uploadMultipleImages(files: Express.Multer.File[], uploadDto: BulkUploadDto): Promise<BulkUploadResponseDto>;
-    replaceEntityImages(files: Express.Multer.File[], uploadDto: BulkUploadDto): Promise<BulkUploadResponseDto>;
-    deleteEntityImages(entityType: string, entityId: string): Promise<{
-        message: string;
-    }>;
-    getUploadStats(): Promise<UploadStatsResponseDto>;
-    getImagesByType(type: ImageEnum): Promise<ImagesResponseDto>;
-    getImagesByEntity(entityType: string, entityId: string): Promise<ImagesResponseDto>;
+    uploadSingle(file: Express.Multer.File, uploadDto: UploadImageDto, req: any): Promise<UploadedImageResponseDto>;
+    uploadMultiple(files: Express.Multer.File[], uploadDto: UploadMultipleImagesDto, req: any): Promise<MultipleUploadResponseDto>;
+    getImage(id: string): Promise<UploadedImageResponseDto>;
+    deleteImage(id: string): Promise<void>;
 }
