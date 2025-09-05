@@ -4,6 +4,7 @@ import { Vehicle } from './vehicle.entity';
 import { Part } from './part.entity';
 import { BaseEntity } from './base.entity';
 import { ImageEnum } from 'src/common/enum/entity.enum';
+import { Category } from './category.entity';
 
 @Entity('images')
 export class Image extends BaseEntity {
@@ -24,4 +25,10 @@ export class Image extends BaseEntity {
 
 	@ManyToOne(() => Part, (part) => part.images, { nullable: true })
 	part?: Part;
+
+	@OneToOne(() => Category, (category) => category.image, {
+		nullable: true,
+		onDelete: 'SET NULL', // Set category to null if image is deleted
+	})
+	category?: Category;
 }

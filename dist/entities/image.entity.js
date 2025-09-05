@@ -16,6 +16,7 @@ const vehicle_entity_1 = require("./vehicle.entity");
 const part_entity_1 = require("./part.entity");
 const base_entity_1 = require("./base.entity");
 const entity_enum_1 = require("../common/enum/entity.enum");
+const category_entity_1 = require("./category.entity");
 let Image = class Image extends base_entity_1.BaseEntity {
 };
 exports.Image = Image;
@@ -42,6 +43,13 @@ __decorate([
     (0, typeorm_1.ManyToOne)(() => part_entity_1.Part, (part) => part.images, { nullable: true }),
     __metadata("design:type", part_entity_1.Part)
 ], Image.prototype, "part", void 0);
+__decorate([
+    (0, typeorm_1.OneToOne)(() => category_entity_1.Category, (category) => category.image, {
+        nullable: true,
+        onDelete: 'SET NULL',
+    }),
+    __metadata("design:type", category_entity_1.Category)
+], Image.prototype, "category", void 0);
 exports.Image = Image = __decorate([
     (0, typeorm_1.Entity)('images')
 ], Image);

@@ -6,9 +6,8 @@ import {
 	Tree,
 	TreeChildren,
 	TreeParent,
-	ManyToOne,
-	JoinColumn,
 	Index,
+	OneToOne, // Add this import
 } from 'typeorm';
 import { Part } from './part.entity';
 import { BaseEntity } from './base.entity';
@@ -24,12 +23,6 @@ export class Category extends BaseEntity {
 	@Column({ nullable: true })
 	description?: string;
 
-	@Column({ unique: true }) // Slug should be globally unique
-	slug: string;
-
-	@Column({ default: 0 })
-	order: number;
-
 	@Column({ default: true })
 	isActive: boolean;
 
@@ -42,16 +35,13 @@ export class Category extends BaseEntity {
 	@Column({ nullable: true })
 	parentId: string;
 
-	@ManyToOne(() => Image, { nullable: true })
-	@JoinColumn()
-	image?: Image;
-
-	@Column({ nullable: true })
-	imageId?: string;
-
 	@OneToMany(() => Part, (part) => part.category)
 	parts: Part[];
 
-	// Virtual field for part count (not stored in DB)
-	partCount?: number;
+	// Add one-to-one relationship with Image
+	@OneToOne(() => Image, (image) => image.category, {
+		nullable: true,
+		onDelete: 'SET NULL', // Set image to null if category is deleted
+	})
+	image: Image;
 }
