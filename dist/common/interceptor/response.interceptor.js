@@ -11,20 +11,38 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResponseInterceptor = void 0;
 const common_1 = require("@nestjs/common");
-const core_1 = require("@nestjs/core");
 const rxjs_1 = require("rxjs");
-const response_message_decorator_1 = require("../decorator/response-message.decorator");
-const response_message_enum_1 = require("../enum/response-message.enum");
+const operators_1 = require("rxjs/operators");
+const core_1 = require("@nestjs/core");
 let ResponseInterceptor = class ResponseInterceptor {
     constructor(reflector) {
         this.reflector = reflector;
     }
     intercept(context, next) {
-        const responseMessage = this.reflector.get(response_message_decorator_1.RESPONSE_MESSAGE_KEY, context.getHandler()) || response_message_enum_1.ResponseMessageEnum.SUCCESS;
-        return next.handle().pipe((0, rxjs_1.map)((data) => ({
+        const responseMessage = this.reflector.get('response_message', context.getHandler()) || 'Operation completed successfully';
+        return next.handle().pipe((0, operators_1.map)((data) => ({
             message: responseMessage,
             data,
-        })));
+        })), (0, operators_1.catchError)((error) => {
+            const errorResponse = this.formatErrorResponse(error);
+            return (0, rxjs_1.throwError)(() => errorResponse);
+        }));
+    }
+    formatErrorResponse(error) {
+        if (error instanceof common_1.HttpException) {
+            const status = error.getStatus();
+            const response = error.getResponse();
+            return new common_1.HttpException({
+                message: typeof response === 'string' ? response : response.message || 'An error occurred',
+                data: null,
+                error: typeof response === 'object' ? response : null,
+            }, status);
+        }
+        return new common_1.HttpException({
+            message: 'Internal server error',
+            data: null,
+            error: error.message || 'Unknown error',
+        }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
     }
 };
 exports.ResponseInterceptor = ResponseInterceptor;

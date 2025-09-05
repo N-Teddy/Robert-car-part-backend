@@ -32,6 +32,9 @@ const app_config_1 = require("./config/app.config");
 const supabase_config_1 = require("./config/supabase.config");
 const jwt_config_1 = require("./config/jwt.config");
 const email_config_1 = require("./config/email.config");
+const response_interceptor_1 = require("./common/interceptor/response.interceptor");
+const auditLog_interceptor_1 = require("./common/interceptor/auditLog.interceptor");
+const auditlog_module_1 = require("./modules/auditLog/auditlog.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -49,8 +52,8 @@ exports.AppModule = AppModule = __decorate([
                     email_config_1.default,
                 ],
             }),
+            auditlog_module_1.AuditLogModule,
             typeorm_1.TypeOrmModule.forRootAsync({
-                imports: [config_1.ConfigModule],
                 inject: [config_1.ConfigService],
                 useFactory: (configService) => {
                     const isProduction = process.env.NODE_ENV === 'production';
@@ -137,6 +140,14 @@ exports.AppModule = AppModule = __decorate([
             {
                 provide: core_1.APP_GUARD,
                 useClass: throttler_1.ThrottlerGuard,
+            },
+            {
+                provide: core_1.APP_INTERCEPTOR,
+                useClass: response_interceptor_1.ResponseInterceptor,
+            },
+            {
+                provide: core_1.APP_INTERCEPTOR,
+                useClass: auditLog_interceptor_1.AuditLogInterceptor,
             },
         ],
     })

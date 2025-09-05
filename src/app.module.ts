@@ -25,6 +25,9 @@ import appConfig from './config/app.config';
 import supabaseConfig from './config/supabase.config';
 import jwtConfig from './config/jwt.config';
 import emailConfig from './config/email.config';
+import { ResponseInterceptor } from './common/interceptor/response.interceptor';
+import { AuditLogInterceptor } from './common/interceptor/auditLog.interceptor';
+import { AuditLogModule } from './modules/auditLog/auditlog.module';
 
 @Module({
 	imports: [
@@ -40,10 +43,10 @@ import emailConfig from './config/email.config';
 				emailConfig,
 			],
 		}),
+		AuditLogModule,
 
 		// Dynamically configure TypeORM based on the environment
 		TypeOrmModule.forRootAsync({
-			imports: [ConfigModule],
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService) => {
 				const isProduction = process.env.NODE_ENV === 'production';
@@ -139,7 +142,17 @@ import emailConfig from './config/email.config';
 			provide: APP_GUARD,
 			useClass: ThrottlerGuard,
 		},
-		
+		// Global Response Interceptor
+		{
+			provide: APP_INTERCEPTOR,
+			useClass: ResponseInterceptor,
+		},
+		// Global AuditLog Interceptor
+		{
+			provide: APP_INTERCEPTOR,
+			useClass: AuditLogInterceptor,
+		},
+
 	],
 })
 export class AppModule {}
