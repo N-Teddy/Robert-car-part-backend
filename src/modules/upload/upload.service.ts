@@ -73,29 +73,26 @@ export class UploadService {
         }
     }
 
-    private async getEntityRelation(entityType: ImageEnum, entityId: string): Promise<any> {
-        const relations: any = {};
-
+    private async getEntityRelation(
+        entityType: ImageEnum,
+        entityId: string
+    ): Promise<Partial<Image>> {
         switch (entityType) {
             case ImageEnum.USER_PROFILE:
-                relations.user = { id: entityId };
-                break;
+                return { user: { id: entityId } as User };
             case ImageEnum.VEHICLE:
-                relations.vehicle = { id: entityId };
-                break;
+                return { vehicle: { id: entityId } as Vehicle };
             case ImageEnum.PART:
-                relations.part = { id: entityId };
-                break;
+                return { part: { id: entityId } as Part };
             case ImageEnum.CATEGORY:
-                relations.category = { id: entityId };
-                break;
+                return { category: { id: entityId } as Category };
             case ImageEnum.QR_CODE:
-                relations.qrCode = { id: entityId };
-                break;
+                return { qrCode: { id: entityId } as QrCode };
+            default:
+                return {};
         }
-
-        return relations;
     }
+
 
     async uploadSingleImage(
         file: Express.Multer.File,
@@ -141,12 +138,16 @@ export class UploadService {
                 createdBy: { id: createdBy },
             };
 
-            // Use Object.assign to merge the relations
-            const image = this.imageRepository.create(
-                Object.assign({}, imageData, entityRelations)
-            );
+            this.logger.debug('imageData', imageData);
+            this.logger.debug('entityRelations', entityRelations);
 
-            const savedImage = await this.imageRepository.save(image);
+            // Use Object.assign to merge the relations
+            const image = this.imageRepository.create({
+                ...imageData,
+                ...entityRelations,
+            });
+
+            const savedImage: Image = await this.imageRepository.save(image);
 
             // Load with relations for response
             const imageWithRelations = await this.imageRepository.findOne({

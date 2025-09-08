@@ -74,25 +74,20 @@ let UploadService = UploadService_1 = class UploadService {
         }
     }
     async getEntityRelation(entityType, entityId) {
-        const relations = {};
         switch (entityType) {
             case entity_enum_1.ImageEnum.USER_PROFILE:
-                relations.user = { id: entityId };
-                break;
+                return { user: { id: entityId } };
             case entity_enum_1.ImageEnum.VEHICLE:
-                relations.vehicle = { id: entityId };
-                break;
+                return { vehicle: { id: entityId } };
             case entity_enum_1.ImageEnum.PART:
-                relations.part = { id: entityId };
-                break;
+                return { part: { id: entityId } };
             case entity_enum_1.ImageEnum.CATEGORY:
-                relations.category = { id: entityId };
-                break;
+                return { category: { id: entityId } };
             case entity_enum_1.ImageEnum.QR_CODE:
-                relations.qrCode = { id: entityId };
-                break;
+                return { qrCode: { id: entityId } };
+            default:
+                return {};
         }
-        return relations;
     }
     async uploadSingleImage(file, entityType, entityId, createdBy) {
         try {
@@ -119,7 +114,12 @@ let UploadService = UploadService_1 = class UploadService {
                 type: entityType,
                 createdBy: { id: createdBy },
             };
-            const image = this.imageRepository.create(Object.assign({}, imageData, entityRelations));
+            this.logger.debug('imageData', imageData);
+            this.logger.debug('entityRelations', entityRelations);
+            const image = this.imageRepository.create({
+                ...imageData,
+                ...entityRelations,
+            });
             const savedImage = await this.imageRepository.save(image);
             const imageWithRelations = await this.imageRepository.findOne({
                 where: { id: savedImage.id },
