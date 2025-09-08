@@ -6,19 +6,6 @@ export enum ImageEnum {
 	CATEGORY = 'CATEGORY',
 }
 
-export enum EntityType {
-	
-}
-
-export enum NotificationEnum {
-	ORDER_CREATED = 'ORDER CREATED',
-	ORDER_UPDATED = 'ORDER UPDATED',
-	LOW_STOCK = 'LOW STOCK',
-	PROFIT_ALERT = 'PROFIT ALERT',
-	PART_REQUEST = 'PART REQUEST',
-	SYSTEM_ALERT = 'SYSTEM ALERT',
-}
-
 export enum OrderStatusEnum {
 	PENDING = 'PENDING',
 	PROCESSING = 'PROCESSING',
@@ -50,6 +37,7 @@ export enum UserRoleEnum {
 	MANAGER = 'MANAGER',
 	DEV = 'DEV',
 	SALES = 'SALES',
+	STAFF = 'STAFF',
 	CUSTOMER = 'CUSTOMER',
 	UNKNOWN = 'UNKNOWN',
 }
@@ -62,8 +50,4 @@ export enum AuditActionEnum {
 	LOGOUT = 'LOGOUT',
 }
 
-export enum NotificationAudienceEnum {
-	ALL = 'ALL',
-	ALL_EXCEPT_UNKNOWN = 'ALL_EXCEPT_UNKNOWN',
-	ADMINS = 'ADMINS',
-}
+

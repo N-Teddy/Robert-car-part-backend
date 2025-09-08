@@ -1,6 +1,6 @@
 import { BaseEntity } from './base.entity';
 import { User } from './user.entity';
-import { NotificationEnum } from 'src/common/enum/entity.enum';
+import { NotificationEnum } from 'src/common/enum/notification.enum';
 export declare class Notification extends BaseEntity {
     type: NotificationEnum;
     title: string;

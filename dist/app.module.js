@@ -37,6 +37,7 @@ const auditLog_interceptor_1 = require("./common/interceptor/auditLog.intercepto
 const auditlog_module_1 = require("./modules/auditLog/auditlog.module");
 const upload_module_1 = require("./modules/upload/upload.module");
 const qr_code_entity_1 = require("./entities/qr-code.entity");
+const notification_module_1 = require("./modules/notification/notification.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -56,6 +57,7 @@ exports.AppModule = AppModule = __decorate([
             }),
             auditlog_module_1.AuditLogModule,
             upload_module_1.UploadModule,
+            notification_module_1.NotificationModule,
             typeorm_1.TypeOrmModule.forRootAsync({
                 inject: [config_1.ConfigService],
                 useFactory: (configService) => {

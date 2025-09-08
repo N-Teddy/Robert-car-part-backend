@@ -134,7 +134,7 @@ let UploadService = UploadService_1 = class UploadService {
             const image = this.imageRepository.create(imageData);
             const savedImage = await this.imageRepository.save(image);
             const imageWithRelations = await this.imageRepository.findOne({
-                where: { id: savedImage.id },
+                where: { id: savedImage[0].id },
                 relations: ['user', 'vehicle', 'part', 'category', 'qrCode'],
             });
             if (!imageWithRelations) {

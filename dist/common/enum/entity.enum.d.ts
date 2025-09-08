@@ -5,16 +5,6 @@ export declare enum ImageEnum {
     QR_CODE = "QR_CODE",
     CATEGORY = "CATEGORY"
 }
-export declare enum EntityType {
-}
-export declare enum NotificationEnum {
-    ORDER_CREATED = "ORDER CREATED",
-    ORDER_UPDATED = "ORDER UPDATED",
-    LOW_STOCK = "LOW STOCK",
-    PROFIT_ALERT = "PROFIT ALERT",
-    PART_REQUEST = "PART REQUEST",
-    SYSTEM_ALERT = "SYSTEM ALERT"
-}
 export declare enum OrderStatusEnum {
     PENDING = "PENDING",
     PROCESSING = "PROCESSING",
@@ -42,6 +32,7 @@ export declare enum UserRoleEnum {
     MANAGER = "MANAGER",
     DEV = "DEV",
     SALES = "SALES",
+    STAFF = "STAFF",
     CUSTOMER = "CUSTOMER",
     UNKNOWN = "UNKNOWN"
 }
@@ -51,9 +42,4 @@ export declare enum AuditActionEnum {
     DELETE = "DELETE",
     LOGIN = "LOGIN",
     LOGOUT = "LOGOUT"
-}
-export declare enum NotificationAudienceEnum {
-    ALL = "ALL",
-    ALL_EXCEPT_UNKNOWN = "ALL_EXCEPT_UNKNOWN",
-    ADMINS = "ADMINS"
 }

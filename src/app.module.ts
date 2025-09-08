@@ -30,6 +30,7 @@ import { AuditLogInterceptor } from './common/interceptor/auditLog.interceptor';
 import { AuditLogModule } from './modules/auditLog/auditlog.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { QrCode } from './entities/qr-code.entity';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
 	imports: [
@@ -47,6 +48,7 @@ import { QrCode } from './entities/qr-code.entity';
 		}),
 		AuditLogModule,
 		UploadModule,
+		NotificationModule,
 
 		// Dynamically configure TypeORM based on the environment
 		TypeOrmModule.forRootAsync({

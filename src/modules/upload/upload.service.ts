@@ -158,7 +158,7 @@ export class UploadService {
 
             // Load with relations for response
             const imageWithRelations = await this.imageRepository.findOne({
-                where: { id: savedImage.id },
+                where: { id: savedImage[0].id },
                 relations: ['user', 'vehicle', 'part', 'category', 'qrCode'],
             });
 

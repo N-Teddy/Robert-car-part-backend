@@ -13,12 +13,12 @@ exports.Notification = void 0;
 const typeorm_1 = require("typeorm");
 const base_entity_1 = require("./base.entity");
 const user_entity_1 = require("./user.entity");
-const entity_enum_1 = require("../common/enum/entity.enum");
+const notification_enum_1 = require("../common/enum/notification.enum");
 let Notification = class Notification extends base_entity_1.BaseEntity {
 };
 exports.Notification = Notification;
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: entity_enum_1.NotificationEnum }),
+    (0, typeorm_1.Column)({ type: 'enum', enum: notification_enum_1.NotificationEnum }),
     __metadata("design:type", String)
 ], Notification.prototype, "type", void 0);
 __decorate([
