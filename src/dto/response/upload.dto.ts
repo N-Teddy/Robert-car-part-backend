@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { ImageEnum } from '../../common/enum/entity.enum';
 
 export class UploadedImageResponseDto {
@@ -8,8 +8,11 @@ export class UploadedImageResponseDto {
     @ApiProperty({ description: 'Image URL' })
     url: string;
 
+    @ApiProperty({ description: 'Image format (jpg, png, etc.)', required: false })
+    format?: string;
+
     @ApiProperty({ description: 'Image size in bytes' })
-    size?: number;
+    size: number;
 
     @ApiProperty({ description: 'Entity type this image belongs to', enum: ImageEnum })
     entityType: ImageEnum;
@@ -17,13 +20,17 @@ export class UploadedImageResponseDto {
     @ApiProperty({ description: 'Entity ID this image belongs to' })
     entityId: string;
 
-    @ApiPropertyOptional({ description: 'User who uploaded the image' })
-    createdBy?: {
+    @ApiProperty({
+        description: 'User who uploaded the image',
+        required: false,
+        example: { id: 'user-id', name: 'John Doe' }
+    })
+    uploadedBy?: {
         id: string;
         name: string;
     };
 
-    @ApiProperty({ description: 'Upload timestamp' })
+    @ApiProperty({ description: 'Creation timestamp' })
     createdAt: Date;
 
     @ApiProperty({ description: 'Last update timestamp' })

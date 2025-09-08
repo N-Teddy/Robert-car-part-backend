@@ -24,6 +24,10 @@ __decorate([
     __metadata("design:type", String)
 ], UploadedImageResponseDto.prototype, "url", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Image format (jpg, png, etc.)', required: false }),
+    __metadata("design:type", String)
+], UploadedImageResponseDto.prototype, "format", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({ description: 'Image size in bytes' }),
     __metadata("design:type", Number)
 ], UploadedImageResponseDto.prototype, "size", void 0);
@@ -36,11 +40,15 @@ __decorate([
     __metadata("design:type", String)
 ], UploadedImageResponseDto.prototype, "entityId", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'User who uploaded the image' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'User who uploaded the image',
+        required: false,
+        example: { id: 'user-id', name: 'John Doe' }
+    }),
     __metadata("design:type", Object)
-], UploadedImageResponseDto.prototype, "createdBy", void 0);
+], UploadedImageResponseDto.prototype, "uploadedBy", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Upload timestamp' }),
+    (0, swagger_1.ApiProperty)({ description: 'Creation timestamp' }),
     __metadata("design:type", Date)
 ], UploadedImageResponseDto.prototype, "createdAt", void 0);
 __decorate([

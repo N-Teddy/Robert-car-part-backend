@@ -60,7 +60,7 @@ export class UploadService {
                     exists = !!part;
                     break;
                 case ImageEnum.CATEGORY:
-                    // Check if category exists and doesn't already have an image
+                    // Check if category exists and handle one-to-one relationship
                     const category = await this.categoryRepository.findOne({
                         where: { id: entityId },
                         relations: ['image']
@@ -169,7 +169,7 @@ export class UploadService {
             // Get the user who uploaded for response
             const uploader = await this.userRepository.findOne({
                 where: { id: userId },
-                select: ['id', 'name', 'email']
+                select: ['id', 'email', 'firstName', 'lastName'] as any
             });
 
             return this.mapToResponseDto(imageWithRelations, uploader);
@@ -198,9 +198,6 @@ export class UploadService {
             if (!files || files.length === 0) {
                 throw new BadRequestException('No files provided');
             }
-
-            // Validate entity exists once
-            await this.validateEntity(entityType, entityId);
 
             const uploadedImages: UploadedImageResponseDto[] = [];
             const failedUploads: string[] = [];
@@ -259,7 +256,7 @@ export class UploadService {
             if (image.createdBy) {
                 uploader = await this.userRepository.findOne({
                     where: { id: image.createdBy },
-                    select: ['id', 'name', 'email']
+                    select: ['id', 'email', 'firstName', 'lastName'] as any
                 });
             }
 
@@ -334,7 +331,7 @@ export class UploadService {
                 if (image.createdBy) {
                     uploader = await this.userRepository.findOne({
                         where: { id: image.createdBy },
-                        select: ['id', 'name', 'email']
+                        select: ['id', 'email', 'firstName', 'lastName'] as any
                     });
                 }
                 responseDtos.push(this.mapToResponseDto(image, uploader));
@@ -348,21 +345,29 @@ export class UploadService {
     }
 
     private mapToResponseDto(image: Image, uploader?: User | null): UploadedImageResponseDto {
-        return {
+        const dto: UploadedImageResponseDto = {
             id: image.id,
             url: image.url,
-            publicId: image.publicId,
             format: image.format,
             size: image.size,
             entityType: image.type,
             entityId: this.getEntityIdFromImage(image),
-            uploadedBy: uploader ? {
-                id: uploader.id,
-                name: uploader.name,
-            } : undefined,
             createdAt: image.createdAt,
             updatedAt: image.updatedAt,
         };
+
+        if (uploader) {
+            const firstName = (uploader as any).firstName || '';
+            const lastName = (uploader as any).lastName || '';
+            const fullName = `${firstName} ${lastName}`.trim();
+
+            dto.uploadedBy = {
+                id: uploader.id,
+                name: fullName || uploader.email,
+            };
+        }
+
+        return dto;
     }
 
     private getEntityIdFromImage(image: Image): string {

@@ -142,7 +142,7 @@ let UploadService = UploadService_1 = class UploadService {
             }
             const uploader = await this.userRepository.findOne({
                 where: { id: userId },
-                select: ['id', 'name', 'email']
+                select: ['id', 'email', 'firstName', 'lastName']
             });
             return this.mapToResponseDto(imageWithRelations, uploader);
         }
@@ -162,7 +162,6 @@ let UploadService = UploadService_1 = class UploadService {
             if (!files || files.length === 0) {
                 throw new common_1.BadRequestException('No files provided');
             }
-            await this.validateEntity(entityType, entityId);
             const uploadedImages = [];
             const failedUploads = [];
             let totalSize = 0;
@@ -211,7 +210,7 @@ let UploadService = UploadService_1 = class UploadService {
             if (image.createdBy) {
                 uploader = await this.userRepository.findOne({
                     where: { id: image.createdBy },
-                    select: ['id', 'name', 'email']
+                    select: ['id', 'email', 'firstName', 'lastName']
                 });
             }
             return this.mapToResponseDto(image, uploader);
@@ -274,7 +273,7 @@ let UploadService = UploadService_1 = class UploadService {
                 if (image.createdBy) {
                     uploader = await this.userRepository.findOne({
                         where: { id: image.createdBy },
-                        select: ['id', 'name', 'email']
+                        select: ['id', 'email', 'firstName', 'lastName']
                     });
                 }
                 responseDtos.push(this.mapToResponseDto(image, uploader));
@@ -287,21 +286,26 @@ let UploadService = UploadService_1 = class UploadService {
         }
     }
     mapToResponseDto(image, uploader) {
-        return {
+        const dto = {
             id: image.id,
             url: image.url,
-            publicId: image.publicId,
             format: image.format,
             size: image.size,
             entityType: image.type,
             entityId: this.getEntityIdFromImage(image),
-            uploadedBy: uploader ? {
-                id: uploader.id,
-                name: uploader.name,
-            } : undefined,
             createdAt: image.createdAt,
             updatedAt: image.updatedAt,
         };
+        if (uploader) {
+            const firstName = uploader.firstName || '';
+            const lastName = uploader.lastName || '';
+            const fullName = `${firstName} ${lastName}`.trim();
+            dto.uploadedBy = {
+                id: uploader.id,
+                name: fullName || uploader.email,
+            };
+        }
+        return dto;
     }
     getEntityIdFromImage(image) {
         if (image.user)
