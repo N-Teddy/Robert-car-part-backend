@@ -25,11 +25,11 @@ export declare class UploadService {
     constructor(imageRepository: Repository<Image>, userRepository: Repository<User>, vehicleRepository: Repository<Vehicle>, partRepository: Repository<Part>, categoryRepository: Repository<Category>, qrCodeRepository: Repository<QrCode>, localStorageService: LocalStorageService, cloudinaryService: CloudinaryService, configService: ConfigService);
     private getStorageService;
     private validateEntity;
-    private getEntityRelation;
-    uploadSingleImage(file: Express.Multer.File, entityType: ImageEnum, entityId: string, createdBy: string): Promise<UploadedImageResponseDto>;
-    uploadMultipleImages(files: Express.Multer.File[], entityType: ImageEnum, entityId: string, uploadedBy: string): Promise<MultipleUploadResponseDto>;
+    uploadSingleImage(file: Express.Multer.File, entityType: ImageEnum, entityId: string, userId: string): Promise<UploadedImageResponseDto>;
+    uploadMultipleImages(files: Express.Multer.File[], entityType: ImageEnum, entityId: string, userId: string): Promise<MultipleUploadResponseDto>;
     getImageById(id: string): Promise<UploadedImageResponseDto>;
     deleteImage(id: string): Promise<void>;
+    getImagesByEntity(entityType: ImageEnum, entityId: string): Promise<UploadedImageResponseDto[]>;
     private mapToResponseDto;
     private getEntityIdFromImage;
 }

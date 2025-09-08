@@ -49,19 +49,33 @@ let UploadService = UploadService_1 = class UploadService {
         try {
             switch (entityType) {
                 case entity_enum_1.ImageEnum.USER_PROFILE:
-                    exists = await this.userRepository.exist({ where: { id: entityId } });
+                    const user = await this.userRepository.findOne({ where: { id: entityId } });
+                    exists = !!user;
                     break;
                 case entity_enum_1.ImageEnum.VEHICLE:
-                    exists = await this.vehicleRepository.exist({ where: { id: entityId } });
+                    const vehicle = await this.vehicleRepository.findOne({ where: { id: entityId } });
+                    exists = !!vehicle;
                     break;
                 case entity_enum_1.ImageEnum.PART:
-                    exists = await this.partRepository.exist({ where: { id: entityId } });
+                    const part = await this.partRepository.findOne({ where: { id: entityId } });
+                    exists = !!part;
                     break;
                 case entity_enum_1.ImageEnum.CATEGORY:
-                    exists = await this.categoryRepository.exist({ where: { id: entityId } });
+                    const category = await this.categoryRepository.findOne({
+                        where: { id: entityId },
+                        relations: ['image']
+                    });
+                    if (!category) {
+                        throw new common_1.NotFoundException(`Category with ID ${entityId} not found`);
+                    }
+                    if (category.image) {
+                        await this.deleteImage(category.image.id);
+                    }
+                    exists = true;
                     break;
                 case entity_enum_1.ImageEnum.QR_CODE:
-                    exists = await this.qrCodeRepository.exist({ where: { id: entityId } });
+                    const qrCode = await this.qrCodeRepository.findOne({ where: { id: entityId } });
+                    exists = !!qrCode;
                     break;
             }
             if (!exists) {
@@ -69,27 +83,14 @@ let UploadService = UploadService_1 = class UploadService {
             }
         }
         catch (error) {
+            if (error instanceof common_1.NotFoundException) {
+                throw error;
+            }
             this.logger.error(`Failed to validate entity: ${entityType} - ${entityId}`, error);
-            throw error;
+            throw new common_1.BadRequestException('Failed to validate entity');
         }
     }
-    async getEntityRelation(entityType, entityId) {
-        switch (entityType) {
-            case entity_enum_1.ImageEnum.USER_PROFILE:
-                return { user: { id: entityId } };
-            case entity_enum_1.ImageEnum.VEHICLE:
-                return { vehicle: { id: entityId } };
-            case entity_enum_1.ImageEnum.PART:
-                return { part: { id: entityId } };
-            case entity_enum_1.ImageEnum.CATEGORY:
-                return { category: { id: entityId } };
-            case entity_enum_1.ImageEnum.QR_CODE:
-                return { qrCode: { id: entityId } };
-            default:
-                return {};
-        }
-    }
-    async uploadSingleImage(file, entityType, entityId, createdBy) {
+    async uploadSingleImage(file, entityType, entityId, userId) {
         try {
             if (!file) {
                 throw new common_1.BadRequestException('No file provided');
@@ -105,71 +106,122 @@ let UploadService = UploadService_1 = class UploadService {
             await this.validateEntity(entityType, entityId);
             const storageService = this.getStorageService();
             const uploadResult = await storageService.uploadFile(file, entityType, entityId);
-            const entityRelations = await this.getEntityRelation(entityType, entityId);
             const imageData = {
                 url: uploadResult.url,
                 publicId: uploadResult.publicId,
                 format: uploadResult.format,
                 size: uploadResult.size,
                 type: entityType,
-                createdBy: { id: createdBy },
+                createdBy: userId,
             };
-            this.logger.debug('imageData', imageData);
-            this.logger.debug('entityRelations', entityRelations);
-            const image = this.imageRepository.create({
-                ...imageData,
-                ...entityRelations,
-            });
+            switch (entityType) {
+                case entity_enum_1.ImageEnum.USER_PROFILE:
+                    imageData.user = { id: entityId };
+                    break;
+                case entity_enum_1.ImageEnum.VEHICLE:
+                    imageData.vehicle = { id: entityId };
+                    break;
+                case entity_enum_1.ImageEnum.PART:
+                    imageData.part = { id: entityId };
+                    break;
+                case entity_enum_1.ImageEnum.CATEGORY:
+                    imageData.category = { id: entityId };
+                    break;
+                case entity_enum_1.ImageEnum.QR_CODE:
+                    imageData.qrCode = { id: entityId };
+                    break;
+            }
+            const image = this.imageRepository.create(imageData);
             const savedImage = await this.imageRepository.save(image);
             const imageWithRelations = await this.imageRepository.findOne({
                 where: { id: savedImage.id },
-                relations: ['createdBy'],
+                relations: ['user', 'vehicle', 'part', 'category', 'qrCode'],
             });
-            return this.mapToResponseDto(imageWithRelations);
+            if (!imageWithRelations) {
+                throw new Error('Failed to load saved image');
+            }
+            const uploader = await this.userRepository.findOne({
+                where: { id: userId },
+                select: ['id', 'name', 'email']
+            });
+            return this.mapToResponseDto(imageWithRelations, uploader);
         }
         catch (error) {
             this.logger.error('Failed to upload single image', error);
-            throw error;
+            if (error instanceof common_1.BadRequestException || error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            throw new common_1.BadRequestException('Failed to upload image');
         }
     }
-    async uploadMultipleImages(files, entityType, entityId, uploadedBy) {
+    async uploadMultipleImages(files, entityType, entityId, userId) {
+        if (entityType === entity_enum_1.ImageEnum.CATEGORY && files.length > 1) {
+            throw new common_1.BadRequestException('Categories can only have one image');
+        }
         try {
             if (!files || files.length === 0) {
                 throw new common_1.BadRequestException('No files provided');
             }
             await this.validateEntity(entityType, entityId);
             const uploadedImages = [];
+            const failedUploads = [];
             let totalSize = 0;
             for (const file of files) {
-                const uploadedImage = await this.uploadSingleImage(file, entityType, entityId, uploadedBy);
-                uploadedImages.push(uploadedImage);
-                totalSize += uploadedImage.size;
+                try {
+                    const uploadedImage = await this.uploadSingleImage(file, entityType, entityId, userId);
+                    uploadedImages.push(uploadedImage);
+                    totalSize += uploadedImage.size;
+                }
+                catch (error) {
+                    this.logger.error(`Failed to upload file: ${file.originalname}`, error);
+                    failedUploads.push(file.originalname);
+                }
             }
-            return {
+            if (uploadedImages.length === 0) {
+                throw new common_1.BadRequestException('All file uploads failed');
+            }
+            const response = {
                 images: uploadedImages,
                 count: uploadedImages.length,
                 totalSize,
             };
+            if (failedUploads.length > 0) {
+                this.logger.warn(`Failed to upload ${failedUploads.length} files: ${failedUploads.join(', ')}`);
+            }
+            return response;
         }
         catch (error) {
             this.logger.error('Failed to upload multiple images', error);
-            throw error;
+            if (error instanceof common_1.BadRequestException || error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            throw new common_1.BadRequestException('Failed to upload images');
         }
     }
     async getImageById(id) {
         try {
             const image = await this.imageRepository.findOne({
                 where: { id },
-                relations: ['createdBy', 'user', 'vehicle', 'part', 'category', 'qrCode'],
+                relations: ['user', 'vehicle', 'part', 'category', 'qrCode'],
             });
             if (!image) {
                 throw new common_1.NotFoundException(`Image with ID ${id} not found`);
             }
-            return this.mapToResponseDto(image);
+            let uploader = null;
+            if (image.createdBy) {
+                uploader = await this.userRepository.findOne({
+                    where: { id: image.createdBy },
+                    select: ['id', 'name', 'email']
+                });
+            }
+            return this.mapToResponseDto(image, uploader);
         }
         catch (error) {
             this.logger.error(`Failed to get image by ID: ${id}`, error);
-            throw error;
+            if (error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            throw new common_1.BadRequestException('Failed to retrieve image');
         }
     }
     async deleteImage(id) {
@@ -179,21 +231,74 @@ let UploadService = UploadService_1 = class UploadService {
                 throw new common_1.NotFoundException(`Image with ID ${id} not found`);
             }
             const storageService = this.getStorageService();
-            await storageService.deleteFile(image.id);
+            await storageService.deleteFile(image.publicId);
             await this.imageRepository.remove(image);
             this.logger.log(`Image ${id} deleted successfully`);
         }
         catch (error) {
             this.logger.error(`Failed to delete image: ${id}`, error);
-            throw error;
+            if (error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            throw new common_1.BadRequestException('Failed to delete image');
         }
     }
-    mapToResponseDto(image) {
+    async getImagesByEntity(entityType, entityId) {
+        try {
+            const whereClause = { type: entityType };
+            switch (entityType) {
+                case entity_enum_1.ImageEnum.USER_PROFILE:
+                    whereClause.user = { id: entityId };
+                    break;
+                case entity_enum_1.ImageEnum.VEHICLE:
+                    whereClause.vehicle = { id: entityId };
+                    break;
+                case entity_enum_1.ImageEnum.PART:
+                    whereClause.part = { id: entityId };
+                    break;
+                case entity_enum_1.ImageEnum.CATEGORY:
+                    whereClause.category = { id: entityId };
+                    break;
+                case entity_enum_1.ImageEnum.QR_CODE:
+                    whereClause.qrCode = { id: entityId };
+                    break;
+            }
+            const images = await this.imageRepository.find({
+                where: whereClause,
+                relations: ['user', 'vehicle', 'part', 'category', 'qrCode'],
+                order: { createdAt: 'DESC' },
+            });
+            const responseDtos = [];
+            for (const image of images) {
+                let uploader = null;
+                if (image.createdBy) {
+                    uploader = await this.userRepository.findOne({
+                        where: { id: image.createdBy },
+                        select: ['id', 'name', 'email']
+                    });
+                }
+                responseDtos.push(this.mapToResponseDto(image, uploader));
+            }
+            return responseDtos;
+        }
+        catch (error) {
+            this.logger.error(`Failed to get images for entity: ${entityType} - ${entityId}`, error);
+            throw new common_1.BadRequestException('Failed to retrieve images');
+        }
+    }
+    mapToResponseDto(image, uploader) {
         return {
             id: image.id,
             url: image.url,
+            publicId: image.publicId,
+            format: image.format,
+            size: image.size,
             entityType: image.type,
             entityId: this.getEntityIdFromImage(image),
+            uploadedBy: uploader ? {
+                id: uploader.id,
+                name: uploader.name,
+            } : undefined,
             createdAt: image.createdAt,
             updatedAt: image.updatedAt,
         };
