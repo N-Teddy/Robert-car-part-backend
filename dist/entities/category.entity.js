@@ -27,10 +27,6 @@ __decorate([
     __metadata("design:type", String)
 ], Category.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ default: true }),
-    __metadata("design:type", Boolean)
-], Category.prototype, "isActive", void 0);
-__decorate([
     (0, typeorm_1.TreeChildren)(),
     __metadata("design:type", Array)
 ], Category.prototype, "children", void 0);

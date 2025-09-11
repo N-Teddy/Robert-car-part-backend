@@ -16,7 +16,6 @@ import {
 	BatchSendNotificationDto,
 	MarkAsReadDto,
 	NotificationFilterDto,
-	PaginatedNotificationResponseDto,
 } from '../../dto/request/notification.dto';
 import {
 	NotificationResponseDto,
@@ -248,7 +247,7 @@ export class NotificationService {
 	// Get notifications with filters
 	async getNotifications(
 		filter: NotificationFilterDto
-	): Promise<PaginatedNotificationResponseDto> {
+	): Promise<any> {
 		const { page = 1, limit = 20, ...restFilter } = filter;
 		const skip = (page - 1) * limit;
 
@@ -295,16 +294,15 @@ export class NotificationService {
 		const hasNext = page < totalPages;
 		const hasPrev = page > 1;
 
+		// Return in the format expected by the interceptor
 		return {
 			items: notifications.map((n) => this.mapToResponseDto(n)),
-			pagination: {
-				page,
-				limit,
-				total,
-				totalPages,
-				hasNext,
-				hasPrev,
-			},
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext,
+			hasPrev,
 		};
 	}
 

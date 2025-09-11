@@ -9,11 +9,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotificationFilterDto = exports.MarkAsReadDto = exports.BatchSendNotificationDto = exports.SendNotificationDto = exports.CreateNotificationDto = void 0;
+exports.NotificationListResponseDto = exports.NotificationFilterDto = exports.MarkAsReadDto = exports.BatchSendNotificationDto = exports.SendNotificationDto = exports.CreateNotificationDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const swagger_1 = require("@nestjs/swagger");
 const notification_enum_1 = require("../../common/enum/notification.enum");
+const notification_dto_1 = require("../response/notification.dto");
 class CreateNotificationDto {
 }
 exports.CreateNotificationDto = CreateNotificationDto;
@@ -188,4 +189,35 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], NotificationFilterDto.prototype, "limit", void 0);
+class NotificationListResponseDto {
+}
+exports.NotificationListResponseDto = NotificationListResponseDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [notification_dto_1.NotificationResponseDto] }),
+    __metadata("design:type", Array)
+], NotificationListResponseDto.prototype, "items", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Total number of notifications' }),
+    __metadata("design:type", Number)
+], NotificationListResponseDto.prototype, "total", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Current page number' }),
+    __metadata("design:type", Number)
+], NotificationListResponseDto.prototype, "page", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Number of items per page' }),
+    __metadata("design:type", Number)
+], NotificationListResponseDto.prototype, "limit", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Total number of pages' }),
+    __metadata("design:type", Number)
+], NotificationListResponseDto.prototype, "totalPages", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Whether there is a next page' }),
+    __metadata("design:type", Boolean)
+], NotificationListResponseDto.prototype, "hasNext", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Whether there is a previous page' }),
+    __metadata("design:type", Boolean)
+], NotificationListResponseDto.prototype, "hasPrev", void 0);
 //# sourceMappingURL=notification.dto.js.map

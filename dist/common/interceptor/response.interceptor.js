@@ -20,13 +20,36 @@ let ResponseInterceptor = class ResponseInterceptor {
     }
     intercept(context, next) {
         const responseMessage = this.reflector.get('response_message', context.getHandler()) || 'Operation completed successfully';
-        return next.handle().pipe((0, operators_1.map)((data) => ({
-            message: responseMessage,
-            data,
-        })), (0, operators_1.catchError)((error) => {
+        return next.handle().pipe((0, operators_1.map)((data) => {
+            if (this.isPaginatedResponse(data)) {
+                return {
+                    message: responseMessage,
+                    data: {
+                        items: data.users || data.items || data.data || [],
+                        meta: {
+                            total: data.total,
+                            page: data.page,
+                            limit: data.limit,
+                            totalPages: data.totalPages || Math.ceil(data.total / data.limit),
+                            hasNext: data.hasNext || data.page < (data.totalPages || Math.ceil(data.total / data.limit)),
+                            hasPrev: data.hasPrev || data.page > 1,
+                        }
+                    }
+                };
+            }
+            return {
+                message: responseMessage,
+                data,
+            };
+        }), (0, operators_1.catchError)((error) => {
             const errorResponse = this.formatErrorResponse(error);
             return (0, rxjs_1.throwError)(() => errorResponse);
         }));
+    }
+    isPaginatedResponse(data) {
+        return data &&
+            (data.hasOwnProperty('total') || data.hasOwnProperty('page') || data.hasOwnProperty('limit')) &&
+            (data.hasOwnProperty('users') || data.hasOwnProperty('items') || data.hasOwnProperty('data'));
     }
     formatErrorResponse(error) {
         if (error instanceof common_1.HttpException) {

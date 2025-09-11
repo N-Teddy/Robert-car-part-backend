@@ -1,5 +1,5 @@
 import { NotificationService } from './notification.service';
-import { SendNotificationDto, BatchSendNotificationDto, MarkAsReadDto, NotificationFilterDto, PaginatedNotificationResponseDto } from '../../dto/request/notification.dto';
+import { SendNotificationDto, BatchSendNotificationDto, MarkAsReadDto, NotificationFilterDto, NotificationListResponseDto } from '../../dto/request/notification.dto';
 import { NotificationResponseDto, SendNotificationResultDto, BatchSendResultDto } from '../../dto/response/notification.dto';
 export declare class NotificationController {
     private readonly notificationService;
@@ -7,7 +7,7 @@ export declare class NotificationController {
     sendNotification(dto: SendNotificationDto): Promise<SendNotificationResultDto>;
     batchSendNotifications(dto: BatchSendNotificationDto): Promise<BatchSendResultDto>;
     markAsRead(dto: MarkAsReadDto, req: any): Promise<void>;
-    getNotifications(filter: NotificationFilterDto, req: any): Promise<PaginatedNotificationResponseDto>;
+    getNotifications(filter: NotificationFilterDto, req: any): Promise<NotificationListResponseDto>;
     getUnreadCount(req: any): Promise<{
         count: number;
     }>;

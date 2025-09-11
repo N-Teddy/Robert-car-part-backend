@@ -23,9 +23,6 @@ export class Category extends BaseEntity {
 	@Column({ nullable: true })
 	description?: string;
 
-	@Column({ default: true })
-	isActive: boolean;
-
 	@TreeChildren()
 	children: Category[];
 

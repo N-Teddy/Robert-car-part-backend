@@ -20,7 +20,6 @@ const roles_guard_1 = require("../auth/guards/roles.guard");
 const notification_service_1 = require("./notification.service");
 const notification_dto_1 = require("../../dto/request/notification.dto");
 const notification_dto_2 = require("../../dto/response/notification.dto");
-const entity_enum_1 = require("../../common/enum/entity.enum");
 let NotificationController = class NotificationController {
     constructor(notificationService) {
         this.notificationService = notificationService;
@@ -35,10 +34,6 @@ let NotificationController = class NotificationController {
         return this.notificationService.markAsRead(dto, req.user.id);
     }
     async getNotifications(filter, req) {
-        if (req.user.role !== entity_enum_1.UserRoleEnum.ADMIN &&
-            req.user.role !== entity_enum_1.UserRoleEnum.MANAGER) {
-            filter.userId = req.user.id;
-        }
         return this.notificationService.getNotifications(filter);
     }
     async getUnreadCount(req) {

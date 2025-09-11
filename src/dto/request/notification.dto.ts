@@ -162,14 +162,28 @@ export class NotificationFilterDto {
 	limit?: number = 10;
 }
 
-export interface PaginatedNotificationResponseDto {
+// Simplified response interface for interceptor compatibility
+export class NotificationListResponseDto {
+	@ApiProperty({ type: [NotificationResponseDto] })
 	items: NotificationResponseDto[];
-	pagination: {
-		page: number;
-		limit: number;
-		total: number;
-		totalPages: number;
-		hasNext: boolean;
-		hasPrev: boolean;
-	};
+
+	@ApiProperty({ description: 'Total number of notifications' })
+	total: number;
+
+	@ApiProperty({ description: 'Current page number' })
+	page: number;
+
+	@ApiProperty({ description: 'Number of items per page' })
+	limit: number;
+
+	@ApiProperty({ description: 'Total number of pages' })
+	totalPages: number;
+
+	@ApiProperty({ description: 'Whether there is a next page' })
+	hasNext: boolean;
+
+	@ApiProperty({ description: 'Whether there is a previous page' })
+	hasPrev: boolean;
 }
+
+

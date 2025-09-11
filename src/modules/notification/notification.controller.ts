@@ -28,7 +28,7 @@ import {
 	BatchSendNotificationDto,
 	MarkAsReadDto,
 	NotificationFilterDto,
-	PaginatedNotificationResponseDto,
+	NotificationListResponseDto,
 } from '../../dto/request/notification.dto';
 import {
 	NotificationResponseDto,
@@ -81,14 +81,7 @@ export class NotificationController {
 	async getNotifications(
 		@Query() filter: NotificationFilterDto,
 		@Request() req
-	): Promise<PaginatedNotificationResponseDto> {
-		// Users can only see their own notifications unless admin
-		if (
-			req.user.role !== UserRoleEnum.ADMIN &&
-			req.user.role !== UserRoleEnum.MANAGER
-		) {
-			filter.userId = req.user.id;
-		}
+	): Promise<NotificationListResponseDto> {
 		return this.notificationService.getNotifications(filter);
 	}
 

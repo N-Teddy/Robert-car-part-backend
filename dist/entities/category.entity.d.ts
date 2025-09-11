@@ -4,7 +4,6 @@ import { Image } from './image.entity';
 export declare class Category extends BaseEntity {
     name: string;
     description?: string;
-    isActive: boolean;
     children: Category[];
     parent: Category;
     parentId: string;

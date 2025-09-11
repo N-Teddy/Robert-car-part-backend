@@ -210,14 +210,12 @@ let NotificationService = NotificationService_1 = class NotificationService {
         const hasPrev = page > 1;
         return {
             items: notifications.map((n) => this.mapToResponseDto(n)),
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages,
-                hasNext,
-                hasPrev,
-            },
+            total,
+            page,
+            limit,
+            totalPages,
+            hasNext,
+            hasPrev,
         };
     }
     async getUnreadCount(userId) {

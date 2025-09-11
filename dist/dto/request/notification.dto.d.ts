@@ -31,14 +31,12 @@ export declare class NotificationFilterDto {
     page?: number;
     limit?: number;
 }
-export interface PaginatedNotificationResponseDto {
+export declare class NotificationListResponseDto {
     items: NotificationResponseDto[];
-    pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        totalPages: number;
-        hasNext: boolean;
-        hasPrev: boolean;
-    };
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
 }
