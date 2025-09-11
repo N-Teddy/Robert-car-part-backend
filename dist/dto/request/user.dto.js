@@ -8,7 +8,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserFilterDto = exports.UpdateUserDto = exports.AssignRoleDto = exports.UpdateProfileDto = void 0;
 const class_validator_1 = require("class-validator");
@@ -43,10 +42,10 @@ __decorate([
     __metadata("design:type", String)
 ], AssignRoleDto.prototype, "userId", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: entity_enum_1.RoleEnum, example: entity_enum_1.RoleEnum.STAFF }),
-    (0, class_validator_1.IsEnum)(entity_enum_1.RoleEnum),
+    (0, swagger_1.ApiProperty)({ enum: entity_enum_1.UserRoleEnum, example: entity_enum_1.UserRoleEnum.STAFF }),
+    (0, class_validator_1.IsEnum)(entity_enum_1.UserRoleEnum),
     (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", typeof (_a = typeof entity_enum_1.RoleEnum !== "undefined" && entity_enum_1.RoleEnum) === "function" ? _a : Object)
+    __metadata("design:type", String)
 ], AssignRoleDto.prototype, "role", void 0);
 class UpdateUserDto {
 }
@@ -70,10 +69,10 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "phoneNumber", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ enum: entity_enum_1.RoleEnum }),
+    (0, swagger_1.ApiPropertyOptional)({ enum: entity_enum_1.UserRoleEnum }),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsEnum)(entity_enum_1.RoleEnum),
-    __metadata("design:type", typeof (_b = typeof entity_enum_1.RoleEnum !== "undefined" && entity_enum_1.RoleEnum) === "function" ? _b : Object)
+    (0, class_validator_1.IsEnum)(entity_enum_1.UserRoleEnum),
+    __metadata("design:type", String)
 ], UpdateUserDto.prototype, "role", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
@@ -84,10 +83,10 @@ class UserFilterDto {
 }
 exports.UserFilterDto = UserFilterDto;
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ enum: entity_enum_1.RoleEnum }),
+    (0, swagger_1.ApiPropertyOptional)({ enum: entity_enum_1.UserRoleEnum }),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsEnum)(entity_enum_1.RoleEnum),
-    __metadata("design:type", typeof (_c = typeof entity_enum_1.RoleEnum !== "undefined" && entity_enum_1.RoleEnum) === "function" ? _c : Object)
+    (0, class_validator_1.IsEnum)(entity_enum_1.UserRoleEnum),
+    __metadata("design:type", String)
 ], UserFilterDto.prototype, "role", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),

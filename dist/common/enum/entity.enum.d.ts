@@ -41,5 +41,7 @@ export declare enum AuditActionEnum {
     UPDATE = "UPDATE",
     DELETE = "DELETE",
     LOGIN = "LOGIN",
-    LOGOUT = "LOGOUT"
+    LOGOUT = "LOGOUT",
+    REGISTER = "REGISTER",
+    OTHER = "OTHER"
 }

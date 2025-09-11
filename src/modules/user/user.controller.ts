@@ -15,8 +15,8 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
 import { UserService } from './user.service';
+
 import {
   UpdateProfileDto,
   AssignRoleDto,
@@ -28,7 +28,8 @@ import {
   UserProfileResponseDto,
   UsersListResponseDto,
 } from '../../dto/response/user.dto';
-import { RoleEnum } from '../../common/enum/entity.enum';
+import { UserRoleEnum } from '../../common/enum/entity.enum';
+import { Roles } from 'src/common/decorator/roles.decorator';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -63,7 +64,7 @@ export class UserController {
   }
 
   @Post('assign-role')
-  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.DEV)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Assign role to user' })
   @ApiResponse({ status: 200, type: UserResponseDto })
@@ -79,7 +80,7 @@ export class UserController {
   }
 
   @Get()
-  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER)
   @ApiOperation({ summary: 'Get all users with filters' })
   @ApiResponse({ status: 200, type: UsersListResponseDto })
   async getAllUsers(@Query() filter: UserFilterDto): Promise<UsersListResponseDto> {
@@ -91,7 +92,7 @@ export class UserController {
   }
 
   @Get('without-role')
-  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.DEV)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV)
   @ApiOperation({ summary: 'Get users without assigned role' })
   @ApiResponse({ status: 200, type: [UserResponseDto] })
   async getUsersWithoutRole(): Promise<UserResponseDto[]> {
@@ -103,7 +104,7 @@ export class UserController {
   }
 
   @Get(':id')
-  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER)
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({ status: 200, type: UserResponseDto })
   async getUserById(@Param('id') id: string): Promise<UserResponseDto> {
@@ -115,7 +116,7 @@ export class UserController {
   }
 
   @Put(':id')
-  @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER)
   @ApiOperation({ summary: 'Update user by ID' })
   @ApiResponse({ status: 200, type: UserResponseDto })
   async updateUser(
@@ -131,7 +132,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @Roles(RoleEnum.ADMIN)
+  @Roles(UserRoleEnum.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete user by ID' })
   @ApiResponse({ status: 204 })

@@ -1,21 +1,21 @@
-import { RoleEnum } from '../../common/enum/entity.enum';
+import { UserRoleEnum } from '../../common/enum/entity.enum';
 export declare class UpdateProfileDto {
     fullName?: string;
     phoneNumber?: string;
 }
 export declare class AssignRoleDto {
     userId: string;
-    role: RoleEnum;
+    role: UserRoleEnum;
 }
 export declare class UpdateUserDto {
     fullName?: string;
     email?: string;
     phoneNumber?: string;
-    role?: RoleEnum;
+    role?: UserRoleEnum;
     isActive?: boolean;
 }
 export declare class UserFilterDto {
-    role?: RoleEnum;
+    role?: UserRoleEnum;
     isActive?: boolean;
     search?: string;
     sortBy?: string;

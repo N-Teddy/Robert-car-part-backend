@@ -1,3 +1,3 @@
-import { RoleEnum } from '../../../common/enum/entity.enum';
+import { UserRoleEnum } from '../enum/entity.enum';
 export declare const ROLES_KEY = "roles";
-export declare const Roles: (...roles: RoleEnum[]) => import("@nestjs/common").CustomDecorator<string>;
+export declare const Roles: (...roles: UserRoleEnum[]) => import("@nestjs/common").CustomDecorator<string>;

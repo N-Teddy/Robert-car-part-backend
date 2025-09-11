@@ -48,6 +48,8 @@ export enum AuditActionEnum {
 	DELETE = 'DELETE',
 	LOGIN = 'LOGIN',
 	LOGOUT = 'LOGOUT',
+	REGISTER = 'REGISTER',
+	OTHER = 'OTHER',
 }
 
 

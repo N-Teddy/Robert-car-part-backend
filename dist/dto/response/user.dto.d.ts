@@ -1,9 +1,9 @@
-import { RoleEnum } from '../../common/enum/entity.enum';
+import { UserRoleEnum } from '../../common/enum/entity.enum';
 export declare class UserResponseDto {
     id: string;
     email: string;
     fullName: string;
-    role: RoleEnum;
+    role: UserRoleEnum;
     isActive: boolean;
     phoneNumber?: string;
     createdAt: Date;
@@ -13,7 +13,7 @@ export declare class UserProfileResponseDto {
     id: string;
     email: string;
     fullName: string;
-    role: RoleEnum;
+    role: UserRoleEnum;
     phoneNumber?: string;
     isActive: boolean;
     createdAt: Date;

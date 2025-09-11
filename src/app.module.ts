@@ -31,6 +31,10 @@ import { AuditLogModule } from './modules/auditLog/auditlog.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { QrCode } from './entities/qr-code.entity';
 import { NotificationModule } from './modules/notification/notification.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
+import { SeedModule } from './seed/seed.module';
+import authConfig from './config/auth.config';
 
 @Module({
 	imports: [
@@ -44,11 +48,15 @@ import { NotificationModule } from './modules/notification/notification.module';
 				supabaseConfig,
 				jwtConfig,
 				emailConfig,
+				authConfig
 			],
 		}),
 		AuditLogModule,
 		UploadModule,
 		NotificationModule,
+		AuthModule,
+		UserModule,
+		SeedModule,
 
 		// Dynamically configure TypeORM based on the environment
 		TypeOrmModule.forRootAsync({

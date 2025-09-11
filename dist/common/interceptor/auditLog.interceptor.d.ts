@@ -10,4 +10,5 @@ export declare class AuditLogInterceptor implements NestInterceptor {
     private extractEntityFromUrl;
     private determineAction;
     private filterSensitiveHeaders;
+    private filterSensitiveData;
 }

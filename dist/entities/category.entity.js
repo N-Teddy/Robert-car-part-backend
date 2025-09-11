@@ -43,13 +43,13 @@ __decorate([
     __metadata("design:type", String)
 ], Category.prototype, "parentId", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => part_entity_1.Part, (part) => part.category),
+    (0, typeorm_1.OneToMany)(() => part_entity_1.Part, (part) => part.category, { onDelete: 'CASCADE' }),
     __metadata("design:type", Array)
 ], Category.prototype, "parts", void 0);
 __decorate([
     (0, typeorm_1.OneToOne)(() => image_entity_1.Image, (image) => image.category, {
         nullable: true,
-        onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
     }),
     __metadata("design:type", image_entity_1.Image)
 ], Category.prototype, "image", void 0);

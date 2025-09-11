@@ -22,13 +22,26 @@ let AuditLogInterceptor = AuditLogInterceptor_1 = class AuditLogInterceptor {
     }
     intercept(context, next) {
         const request = context.switchToHttp().getRequest();
-        const { method, url, body, headers, user, ip } = request;
+        const { method, url, body, headers, ip } = request;
         if (method === 'GET' || url.includes('/audit-logs')) {
             return next.handle();
         }
-        if (!user || !user.id) {
+        const skipRoutes = [
+            '/auth/register',
+            '/auth/login',
+            '/auth/forgot-password',
+            '/auth/reset-password'
+        ];
+        if (skipRoutes.some(route => url.includes(route))) {
+            this.logger.debug(`Skipping audit log for unauthenticated route: ${url}`);
             return next.handle();
         }
+        const user = request.user;
+        if (!user || !user.id) {
+            this.logger.debug('Skipping audit log: No authenticated user');
+            return next.handle();
+        }
+        this.logger.debug(`Creating audit log for user ${user.id}, method: ${method}, url: ${url}`);
         return next.handle().pipe((0, operators_1.tap)({
             next: () => {
                 this.createAuditLog(request, user, method, url, body, headers, ip);
@@ -43,17 +56,19 @@ let AuditLogInterceptor = AuditLogInterceptor_1 = class AuditLogInterceptor {
             const entity = this.extractEntityFromUrl(url);
             const action = this.determineAction(method, url);
             const filteredHeaders = this.filterSensitiveHeaders(headers);
+            const filteredBody = this.filterSensitiveData(body);
             await this.auditLogService.createAuditLog({
                 userId: user.id,
                 action,
                 entity,
                 route: url,
                 method,
-                requestBody: body,
+                requestBody: filteredBody,
                 requestHeaders: filteredHeaders,
                 ipAddress: ip,
                 userAgent: headers['user-agent'],
             });
+            this.logger.debug(`Audit log created: ${action} on ${entity} by user ${user.id}`);
         }
         catch (error) {
             this.logger.error(`Failed to create audit log: ${error.message}`, error.stack);
@@ -73,22 +88,35 @@ let AuditLogInterceptor = AuditLogInterceptor_1 = class AuditLogInterceptor {
         else if (url.includes('/delete') || method === 'DELETE') {
             return entity_enum_1.AuditActionEnum.DELETE;
         }
-        return entity_enum_1.AuditActionEnum.CREATE;
+        else if (url.includes('/login')) {
+            return entity_enum_1.AuditActionEnum.LOGIN;
+        }
+        else if (url.includes('/register')) {
+            return entity_enum_1.AuditActionEnum.REGISTER;
+        }
+        return entity_enum_1.AuditActionEnum.OTHER;
     }
     filterSensitiveHeaders(headers) {
-        const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key'];
+        const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key', 'x-access-token'];
         const filtered = { ...headers };
         sensitiveHeaders.forEach(header => {
             if (filtered[header]) {
                 filtered[header] = '[REDACTED]';
             }
         });
-        return {
-            'user-agent': filtered['user-agent'],
-            'content-type': filtered['content-type'],
-            'accept': filtered['accept'],
-            'authorization': filtered['authorization'],
-        };
+        return filtered;
+    }
+    filterSensitiveData(data) {
+        if (!data)
+            return data;
+        const sensitiveFields = ['password', 'token', 'accessToken', 'refreshToken', 'creditCard', 'cvv'];
+        const filtered = { ...data };
+        sensitiveFields.forEach(field => {
+            if (filtered[field]) {
+                filtered[field] = '[REDACTED]';
+            }
+        });
+        return filtered;
     }
 };
 exports.AuditLogInterceptor = AuditLogInterceptor;

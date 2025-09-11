@@ -43,7 +43,8 @@ let AuthService = AuthService_1 = class AuthService {
             if (existingUser) {
                 throw new common_1.BadRequestException('User with this email already exists');
             }
-            const hashedPassword = await bcrypt.hash(dto.password, this.configService.get('SALT_ROUNDS') || 10);
+            const hashedPassword = await bcrypt.hash(dto.password, this.configService.get('auth.saltRounds'));
+            console.log("ok1");
             const user = this.userRepository.create({
                 email: dto.email,
                 password: hashedPassword,
@@ -51,7 +52,6 @@ let AuthService = AuthService_1 = class AuthService {
                 phoneNumber: dto.phoneNumber,
                 role: entity_enum_1.UserRoleEnum.UNKNOWN,
                 isActive: true,
-                emailVerified: false,
             });
             const savedUser = await this.userRepository.save(user);
             await this.notificationService.sendNotification({
@@ -60,6 +60,8 @@ let AuthService = AuthService_1 = class AuthService {
                 message: `Welcome ${savedUser.fullName}! Your account has been created successfully. Please wait for an administrator to assign you a role.`,
                 audience: notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER,
                 userIds: [savedUser.id],
+                channel: notification_enum_1.NotificationChannelEnum.EMAIL,
+                emailTemplate: 'welcome-pending-role',
                 metadata: {
                     userId: savedUser.id,
                     userEmail: savedUser.email,
@@ -71,10 +73,14 @@ let AuthService = AuthService_1 = class AuthService {
                 title: 'New User Registration',
                 message: `A new user ${savedUser.fullName} (${savedUser.email}) has registered and needs role assignment.`,
                 audience: notification_enum_1.NotificationAudienceEnum.ADMIN,
+                channel: notification_enum_1.NotificationChannelEnum.BOTH,
+                emailTemplate: 'notify-admin-new-user',
                 metadata: {
                     newUserId: savedUser.id,
                     newUserEmail: savedUser.email,
                     newUserName: savedUser.fullName,
+                    createdAt: savedUser.createdAt,
+                    phone: savedUser.phoneNumber,
                 },
             });
             const tokens = await this.generateTokens(savedUser);
@@ -190,9 +196,11 @@ let AuthService = AuthService_1 = class AuthService {
                 message: 'You have requested to reset your password. Click the link below to reset it.',
                 audience: notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER,
                 userIds: [user.id],
+                channel: notification_enum_1.NotificationChannelEnum.EMAIL,
+                emailTemplate: 'password-reset',
                 metadata: {
-                    resetToken,
-                    resetUrl: `${this.configService.get('FRONTEND_URL')}/reset-password?token=${resetToken}`,
+                    name: user.fullName,
+                    resetLink: `${this.configService.get('FRONTEND_URL')}/reset-password?token=${resetToken}`,
                 },
             });
             return {
@@ -207,29 +215,41 @@ let AuthService = AuthService_1 = class AuthService {
     }
     async resetPassword(dto) {
         try {
-            const hashedToken = await bcrypt.hash(dto.token, 10);
-            const passwordResetToken = await this.passwordResetTokenRepository.findOne({
-                where: { token: hashedToken },
+            const tokens = await this.passwordResetTokenRepository.find({
                 relations: ['user'],
+                where: {
+                    expiresAt: (0, typeorm_2.MoreThan)(new Date()),
+                    isUsed: false,
+                },
             });
+            if (!tokens.length) {
+                throw new common_1.BadRequestException('Invalid or expired reset token');
+            }
+            let passwordResetToken = null;
+            for (const tokenRecord of tokens) {
+                const isValid = await bcrypt.compare(dto.token, tokenRecord.token);
+                if (isValid) {
+                    passwordResetToken = tokenRecord;
+                    break;
+                }
+            }
             if (!passwordResetToken) {
                 throw new common_1.BadRequestException('Invalid or expired reset token');
             }
-            if (passwordResetToken.expiresAt < new Date()) {
-                await this.passwordResetTokenRepository.remove(passwordResetToken);
-                throw new common_1.BadRequestException('Reset token has expired');
-            }
-            const hashedPassword = await bcrypt.hash(dto.newPassword, this.configService.get('SALT_ROUNDS') || 10);
+            const hashedPassword = await bcrypt.hash(dto.newPassword, this.configService.get('auth.saltRounds'));
             await this.userRepository.update(passwordResetToken.user.id, {
                 password: hashedPassword,
             });
-            await this.passwordResetTokenRepository.remove(passwordResetToken);
+            passwordResetToken.isUsed = true;
+            await this.passwordResetTokenRepository.save(passwordResetToken);
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.PASSWORD_CHANGED,
                 title: 'Password Changed Successfully',
                 message: 'Your password has been changed successfully.',
                 audience: notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER,
                 userIds: [passwordResetToken.user.id],
+                channel: notification_enum_1.NotificationChannelEnum.EMAIL,
+                emailTemplate: 'password-changed-confirm',
             });
             return {
                 message: 'Password reset successfully',
@@ -254,7 +274,7 @@ let AuthService = AuthService_1 = class AuthService {
             if (!isPasswordValid) {
                 throw new common_1.BadRequestException('Current password is incorrect');
             }
-            const hashedPassword = await bcrypt.hash(dto.newPassword, this.configService.get('SALT_ROUNDS') || 10);
+            const hashedPassword = await bcrypt.hash(dto.newPassword, this.configService.get('auth.saltRounds'));
             await this.userRepository.update(userId, { password: hashedPassword });
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.PASSWORD_CHANGED,
@@ -262,6 +282,7 @@ let AuthService = AuthService_1 = class AuthService {
                 message: 'Your password has been changed successfully.',
                 audience: notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER,
                 userIds: [userId],
+                channel: notification_enum_1.NotificationChannelEnum.WEBSOCKET,
             });
             return {
                 message: 'Password changed successfully',

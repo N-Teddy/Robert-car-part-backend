@@ -21,7 +21,7 @@ export class Notification extends BaseEntity {
 	@Column('jsonb', { nullable: true })
 	metadata: Record<string, any>;
 
-	@ManyToOne(() => User, (user) => user.notifications, { nullable: true })
+	@ManyToOne(() => User, (user) => user.notifications, { nullable: true, onDelete: 'CASCADE' })
 	user?: User | null;
 
 	@Column({ default: false, name: 'email_sent' })

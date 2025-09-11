@@ -17,11 +17,11 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
-const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 const user_service_1 = require("./user.service");
 const user_dto_1 = require("../../dto/request/user.dto");
 const user_dto_2 = require("../../dto/response/user.dto");
 const entity_enum_1 = require("../../common/enum/entity.enum");
+const roles_decorator_1 = require("../../common/decorator/roles.decorator");
 let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
@@ -113,7 +113,7 @@ __decorate([
 ], UserController.prototype, "updateProfile", null);
 __decorate([
     (0, common_1.Post)('assign-role'),
-    (0, roles_decorator_1.Roles)(entity_enum_1.RoleEnum.ADMIN, entity_enum_1.RoleEnum.MANAGER, entity_enum_1.RoleEnum.DEV),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Assign role to user' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: user_dto_2.UserResponseDto }),
@@ -125,7 +125,7 @@ __decorate([
 ], UserController.prototype, "assignRole", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, roles_decorator_1.Roles)(entity_enum_1.RoleEnum.ADMIN, entity_enum_1.RoleEnum.MANAGER),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER),
     (0, swagger_1.ApiOperation)({ summary: 'Get all users with filters' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: user_dto_2.UsersListResponseDto }),
     __param(0, (0, common_1.Query)()),
@@ -135,7 +135,7 @@ __decorate([
 ], UserController.prototype, "getAllUsers", null);
 __decorate([
     (0, common_1.Get)('without-role'),
-    (0, roles_decorator_1.Roles)(entity_enum_1.RoleEnum.ADMIN, entity_enum_1.RoleEnum.MANAGER, entity_enum_1.RoleEnum.DEV),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV),
     (0, swagger_1.ApiOperation)({ summary: 'Get users without assigned role' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: [user_dto_2.UserResponseDto] }),
     __metadata("design:type", Function),
@@ -144,7 +144,7 @@ __decorate([
 ], UserController.prototype, "getUsersWithoutRole", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, roles_decorator_1.Roles)(entity_enum_1.RoleEnum.ADMIN, entity_enum_1.RoleEnum.MANAGER),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER),
     (0, swagger_1.ApiOperation)({ summary: 'Get user by ID' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: user_dto_2.UserResponseDto }),
     __param(0, (0, common_1.Param)('id')),
@@ -154,7 +154,7 @@ __decorate([
 ], UserController.prototype, "getUserById", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    (0, roles_decorator_1.Roles)(entity_enum_1.RoleEnum.ADMIN, entity_enum_1.RoleEnum.MANAGER),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER),
     (0, swagger_1.ApiOperation)({ summary: 'Update user by ID' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: user_dto_2.UserResponseDto }),
     __param(0, (0, common_1.Request)()),
@@ -166,7 +166,7 @@ __decorate([
 ], UserController.prototype, "updateUser", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, roles_decorator_1.Roles)(entity_enum_1.RoleEnum.ADMIN),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN),
     (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
     (0, swagger_1.ApiOperation)({ summary: 'Delete user by ID' }),
     (0, swagger_1.ApiResponse)({ status: 204 }),

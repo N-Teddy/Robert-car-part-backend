@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from '../../entities/user.entity';
 import { UserRoleEnum } from '../../common/enum/entity.enum';
 import { NotificationService } from '../notification/notification.service';
-import { NotificationEnum, NotificationAudienceEnum } from '../../common/enum/notification.enum';
+import { NotificationEnum, NotificationAudienceEnum, NotificationChannel, NotificationChannelEnum } from '../../common/enum/notification.enum';
 import {
   UpdateProfileDto,
   AssignRoleDto,
@@ -25,7 +25,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly notificationService: NotificationService,
-  ) {}
+  ) { }
 
   async getProfile(userId: string): Promise<UserProfileResponseDto> {
     try {
@@ -110,6 +110,8 @@ export class UserService {
         title: 'Role Assigned',
         message: `Your role has been updated from ${previousRole} to ${dto.role}`,
         audience: NotificationAudienceEnum.SPECIFIC_USER,
+        channel: NotificationChannelEnum.EMAIL,
+        emailTemplate: 'role-assigned',
         userIds: [user.id],
         metadata: {
           previousRole,

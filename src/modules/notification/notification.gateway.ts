@@ -11,6 +11,9 @@ import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { instrument } from "@socket.io/admin-ui";
+import { IoAdapter } from '@nestjs/platform-socket.io';
 
 @WebSocketGateway({
   cors: {
@@ -23,6 +26,10 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
   @WebSocketServer()
   server: Server;
 
+  afterInit() {
+    this.logger.log('WebSocket server initialized');
+  }
+
   private readonly logger = new Logger(NotificationGateway.name);
   private userSocketMap = new Map<string, string[]>(); // userId -> socketIds[]
 
@@ -31,7 +38,7 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
   async handleConnection(client: Socket) {
     try {
       const token = client.handshake.auth?.token || client.handshake.headers?.authorization?.split(' ')[1];
-      
+
       if (!token) {
         client.disconnect();
         return;
@@ -48,7 +55,7 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
 
       // Join user-specific room
       client.join(`user-${userId}`);
-      
+
       // Join role-based rooms
       if (payload.role) {
         client.join(`role-${payload.role}`);
@@ -58,9 +65,10 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
       client.data.role = payload.role;
 
       this.logger.log(`Client connected: ${client.id}, User: ${userId}`);
-      
+
       // Send connection success
       client.emit('connected', { userId, socketId: client.id });
+
     } catch (error) {
       this.logger.error(`Connection failed: ${error.message}`);
       client.disconnect();
@@ -69,14 +77,14 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
 
   handleDisconnect(client: Socket) {
     const userId = client.data.userId;
-    
+
     if (userId) {
       const sockets = this.userSocketMap.get(userId) || [];
       const index = sockets.indexOf(client.id);
       if (index > -1) {
         sockets.splice(index, 1);
       }
-      
+
       if (sockets.length === 0) {
         this.userSocketMap.delete(userId);
       } else {
@@ -93,10 +101,10 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
     @MessageBody() notificationId: string,
   ) {
     const userId = client.data.userId;
-    
+
     // Emit to all user's sockets
     this.server.to(`user-${userId}`).emit('notificationRead', { notificationId });
-    
+
     return { success: true, notificationId };
   }
 

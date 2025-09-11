@@ -13,7 +13,7 @@ exports.RolesGuard = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
 const entity_enum_1 = require("../../../common/enum/entity.enum");
-const roles_decorator_1 = require("../decorators/roles.decorator");
+const roles_decorator_1 = require("../../../common/decorator/roles.decorator");
 let RolesGuard = class RolesGuard {
     constructor(reflector) {
         this.reflector = reflector;
@@ -30,7 +30,7 @@ let RolesGuard = class RolesGuard {
         if (!user) {
             throw new common_1.ForbiddenException('User not found in request');
         }
-        if (user.role === entity_enum_1.RoleEnum.UNKNOWN) {
+        if (user.role === entity_enum_1.UserRoleEnum.UNKNOWN) {
             throw new common_1.ForbiddenException('Your account is pending role assignment. Please contact an administrator.');
         }
         const hasRole = requiredRoles.some((role) => user.role === role);

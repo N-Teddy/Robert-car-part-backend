@@ -8,7 +8,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersListResponseDto = exports.UserProfileResponseDto = exports.UserResponseDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
@@ -29,8 +28,8 @@ __decorate([
     __metadata("design:type", String)
 ], UserResponseDto.prototype, "fullName", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: entity_enum_1.RoleEnum }),
-    __metadata("design:type", typeof (_a = typeof entity_enum_1.RoleEnum !== "undefined" && entity_enum_1.RoleEnum) === "function" ? _a : Object)
+    (0, swagger_1.ApiProperty)({ enum: entity_enum_1.UserRoleEnum }),
+    __metadata("design:type", String)
 ], UserResponseDto.prototype, "role", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
@@ -64,8 +63,8 @@ __decorate([
     __metadata("design:type", String)
 ], UserProfileResponseDto.prototype, "fullName", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: entity_enum_1.RoleEnum }),
-    __metadata("design:type", typeof (_b = typeof entity_enum_1.RoleEnum !== "undefined" && entity_enum_1.RoleEnum) === "function" ? _b : Object)
+    (0, swagger_1.ApiProperty)({ enum: entity_enum_1.UserRoleEnum }),
+    __metadata("design:type", String)
 ], UserProfileResponseDto.prototype, "role", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ required: false }),

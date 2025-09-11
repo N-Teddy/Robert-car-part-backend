@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsEnum, IsUUID, Matches, IsNotEmpty, IsEmail } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { RoleEnum } from '../../common/enum/entity.enum';
+import { UserRoleEnum } from '../../common/enum/entity.enum';
 
 export class UpdateProfileDto {
   @ApiPropertyOptional({ example: 'John Doe Updated' })
@@ -24,10 +24,10 @@ export class AssignRoleDto {
   @IsNotEmpty()
   userId: string;
 
-  @ApiProperty({ enum: RoleEnum, example: RoleEnum.STAFF })
-  @IsEnum(RoleEnum)
+  @ApiProperty({ enum: UserRoleEnum, example: UserRoleEnum.STAFF })
+  @IsEnum(UserRoleEnum)
   @IsNotEmpty()
-  role: RoleEnum;
+  role: UserRoleEnum;
 }
 
 export class UpdateUserDto {
@@ -46,10 +46,10 @@ export class UpdateUserDto {
   @IsString()
   phoneNumber?: string;
 
-  @ApiPropertyOptional({ enum: RoleEnum })
+  @ApiPropertyOptional({ enum: UserRoleEnum })
   @IsOptional()
-  @IsEnum(RoleEnum)
-  role?: RoleEnum;
+  @IsEnum(UserRoleEnum)
+  role?: UserRoleEnum;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -57,10 +57,10 @@ export class UpdateUserDto {
 }
 
 export class UserFilterDto {
-  @ApiPropertyOptional({ enum: RoleEnum })
+  @ApiPropertyOptional({ enum: UserRoleEnum })
   @IsOptional()
-  @IsEnum(RoleEnum)
-  role?: RoleEnum;
+  @IsEnum(UserRoleEnum)
+  role?: UserRoleEnum;
 
   @ApiPropertyOptional()
   @IsOptional()

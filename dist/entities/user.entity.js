@@ -62,7 +62,7 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "resetTokens", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => notification_entity_1.Notification, (notification) => notification.user),
+    (0, typeorm_1.OneToMany)(() => notification_entity_1.Notification, (notification) => notification.user, { cascade: true }),
     __metadata("design:type", Array)
 ], User.prototype, "notifications", void 0);
 __decorate([

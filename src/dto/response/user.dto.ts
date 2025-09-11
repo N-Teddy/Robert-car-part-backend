@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { RoleEnum } from '../../common/enum/entity.enum';
+import { UserRoleEnum } from '../../common/enum/entity.enum';
 
 export class UserResponseDto {
   @ApiProperty()
@@ -11,8 +11,8 @@ export class UserResponseDto {
   @ApiProperty()
   fullName: string;
 
-  @ApiProperty({ enum: RoleEnum })
-  role: RoleEnum;
+  @ApiProperty({ enum: UserRoleEnum })
+  role: UserRoleEnum;
 
   @ApiProperty()
   isActive: boolean;
@@ -37,8 +37,8 @@ export class UserProfileResponseDto {
   @ApiProperty()
   fullName: string;
 
-  @ApiProperty({ enum: RoleEnum })
-  role: RoleEnum;
+  @ApiProperty({ enum: UserRoleEnum })
+  role: UserRoleEnum;
 
   @ApiProperty({ required: false })
   phoneNumber?: string;

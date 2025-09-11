@@ -14,7 +14,7 @@ export class OrderItem extends BaseEntity {
 	@Column('decimal', { precision: 10, scale: 2, default: 0 })
 	discount: number;
 
-	@ManyToOne(() => Order, (order) => order.items)
+	@ManyToOne(() => Order, (order) => order.items, { onDelete: 'CASCADE' })
 	order: Order;
 
 	@ManyToOne(() => Part, (part) => part.orderItems)

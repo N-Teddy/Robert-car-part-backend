@@ -19,6 +19,9 @@ const socket_io_1 = require("socket.io");
 const jwt_1 = require("@nestjs/jwt");
 const common_1 = require("@nestjs/common");
 let NotificationGateway = NotificationGateway_1 = class NotificationGateway {
+    afterInit() {
+        this.logger.log('WebSocket server initialized');
+    }
     constructor(jwtService) {
         this.jwtService = jwtService;
         this.logger = new common_1.Logger(NotificationGateway_1.name);

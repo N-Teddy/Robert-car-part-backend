@@ -29,10 +29,12 @@ import { UploadService } from './upload.service';
 import { UploadImageDto, UploadMultipleImagesDto } from '../../dto/request/upload.dto';
 import { UploadedImageResponseDto, MultipleUploadResponseDto } from '../../dto/response/upload.dto';
 import { Express } from 'express';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @ApiTags('Upload')
 @ApiBearerAuth()
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('upload')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) { }

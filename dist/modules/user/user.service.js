@@ -94,6 +94,8 @@ let UserService = UserService_1 = class UserService {
                 title: 'Role Assigned',
                 message: `Your role has been updated from ${previousRole} to ${dto.role}`,
                 audience: notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER,
+                channel: notification_enum_1.NotificationChannelEnum.EMAIL,
+                emailTemplate: 'role-assigned',
                 userIds: [user.id],
                 metadata: {
                     previousRole,

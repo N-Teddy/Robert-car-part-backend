@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../auth/guards/roles.guard");
 const notification_service_1 = require("./notification.service");
 const notification_dto_1 = require("../../dto/request/notification.dto");
 const notification_dto_2 = require("../../dto/response/notification.dto");
@@ -122,6 +124,8 @@ __decorate([
 ], NotificationController.prototype, "cleanupOldNotifications", null);
 exports.NotificationController = NotificationController = __decorate([
     (0, swagger_1.ApiTags)('Notifications'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Controller)('notifications'),
     __metadata("design:paramtypes", [notification_service_1.NotificationService])
 ], NotificationController);

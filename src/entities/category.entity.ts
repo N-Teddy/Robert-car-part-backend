@@ -35,13 +35,13 @@ export class Category extends BaseEntity {
 	@Column({ nullable: true })
 	parentId: string;
 
-	@OneToMany(() => Part, (part) => part.category)
+	@OneToMany(() => Part, (part) => part.category, { onDelete: 'CASCADE' })
 	parts: Part[];
 
 	// Add one-to-one relationship with Image
 	@OneToOne(() => Image, (image) => image.category, {
 		nullable: true,
-		onDelete: 'SET NULL', // Set image to null if category is deleted
+		onDelete: 'CASCADE',
 	})
 	image: Image;
 }

@@ -40,7 +40,7 @@ export class User extends BaseEntity {
 	@OneToMany(() => PasswordResetToken, (token) => token.user)
 	resetTokens: PasswordResetToken[];
 
-	@OneToMany(() => Notification, (notification) => notification.user)
+	@OneToMany(() => Notification, (notification) => notification.user, { cascade: true })
 	notifications: Notification[];
 
 	@OneToMany(() => AuditLog, (auditLog) => auditLog.user)

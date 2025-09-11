@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 export declare class NotificationGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly jwtService;
     server: Server;
+    afterInit(): void;
     private readonly logger;
     private userSocketMap;
     constructor(jwtService: JwtService);

@@ -1,5 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { RoleEnum } from '../../common/enum/entity.enum';
+import { UserRoleEnum } from '../../common/enum/entity.enum';
+
+export class UserAuthInfo {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  email: string;
+
+  @ApiProperty()
+  fullName: string;
+
+  @ApiProperty({ enum: UserRoleEnum })
+  role: UserRoleEnum;
+
+  @ApiProperty()
+  isActive: boolean;
+
+  @ApiProperty({ required: false })
+  phoneNumber?: string;
+}
 
 export class AuthResponseDto {
   @ApiProperty()
@@ -16,26 +36,6 @@ export class AuthResponseDto {
 
   @ApiProperty()
   user: UserAuthInfo;
-}
-
-export class UserAuthInfo {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
-  email: string;
-
-  @ApiProperty()
-  fullName: string;
-
-  @ApiProperty({ enum: RoleEnum })
-  role: RoleEnum;
-
-  @ApiProperty()
-  isActive: boolean;
-
-  @ApiProperty({ required: false })
-  phoneNumber?: string;
 }
 
 export class MessageResponseDto {

@@ -38,6 +38,10 @@ const auditlog_module_1 = require("./modules/auditLog/auditlog.module");
 const upload_module_1 = require("./modules/upload/upload.module");
 const qr_code_entity_1 = require("./entities/qr-code.entity");
 const notification_module_1 = require("./modules/notification/notification.module");
+const auth_module_1 = require("./modules/auth/auth.module");
+const user_module_1 = require("./modules/user/user.module");
+const seed_module_1 = require("./seed/seed.module");
+const auth_config_1 = require("./config/auth.config");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -53,11 +57,15 @@ exports.AppModule = AppModule = __decorate([
                     supabase_config_1.default,
                     jwt_config_1.default,
                     email_config_1.default,
+                    auth_config_1.default
                 ],
             }),
             auditlog_module_1.AuditLogModule,
             upload_module_1.UploadModule,
             notification_module_1.NotificationModule,
+            auth_module_1.AuthModule,
+            user_module_1.UserModule,
+            seed_module_1.SeedModule,
             typeorm_1.TypeOrmModule.forRootAsync({
                 inject: [config_1.ConfigService],
                 useFactory: (configService) => {

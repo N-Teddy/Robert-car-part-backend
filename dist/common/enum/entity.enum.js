@@ -52,5 +52,7 @@ var AuditActionEnum;
     AuditActionEnum["DELETE"] = "DELETE";
     AuditActionEnum["LOGIN"] = "LOGIN";
     AuditActionEnum["LOGOUT"] = "LOGOUT";
+    AuditActionEnum["REGISTER"] = "REGISTER";
+    AuditActionEnum["OTHER"] = "OTHER";
 })(AuditActionEnum || (exports.AuditActionEnum = AuditActionEnum = {}));
 //# sourceMappingURL=entity.enum.js.map

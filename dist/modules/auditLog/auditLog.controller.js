@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const auditLog_service_1 = require("./auditLog.service");
 const audit_dto_1 = require("../../dto/response/audit.dto");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../auth/guards/roles.guard");
 let AuditLogController = class AuditLogController {
     constructor(auditLogService) {
         this.auditLogService = auditLogService;
@@ -77,6 +79,7 @@ __decorate([
 exports.AuditLogController = AuditLogController = __decorate([
     (0, swagger_1.ApiTags)('Audit Logs'),
     (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Controller)('audit-logs'),
     __metadata("design:paramtypes", [auditLog_service_1.AuditLogService])
 ], AuditLogController);
