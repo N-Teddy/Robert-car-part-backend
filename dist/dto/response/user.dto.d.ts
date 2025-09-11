@@ -1,4 +1,5 @@
 import { UserRoleEnum } from '../../common/enum/entity.enum';
+import { UploadedImageResponseDto } from './upload.dto';
 export declare class UserResponseDto {
     id: string;
     email: string;
@@ -18,10 +19,14 @@ export declare class UserProfileResponseDto {
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
+    profileImage?: UploadedImageResponseDto;
 }
 export declare class UsersListResponseDto {
-    users: UserResponseDto[];
+    items: UserResponseDto[];
     total: number;
     page: number;
     limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
 }

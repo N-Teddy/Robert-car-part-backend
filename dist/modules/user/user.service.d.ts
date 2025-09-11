@@ -14,8 +14,9 @@ export declare class UserService {
     getAllUsers(filter: UserFilterDto): Promise<UsersListResponseDto>;
     getUserById(id: string): Promise<UserResponseDto>;
     updateUser(adminId: string, userId: string, dto: UpdateUserDto): Promise<UserResponseDto>;
-    deleteUser(adminId: string, userId: string): Promise<void>;
+    deleteUser(adminId: string, userId: string): Promise<any>;
     getUsersWithoutRole(): Promise<UserResponseDto[]>;
     private mapToResponseDto;
+    private mapToProfileImageResponseDto;
     private mapToProfileResponseDto;
 }

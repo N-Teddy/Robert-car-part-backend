@@ -90,11 +90,17 @@ class AuditLogFilterDto {
 }
 exports.AuditLogFilterDto = AuditLogFilterDto;
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Page number for pagination', default: 1 }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Page number for pagination',
+        default: 1,
+    }),
     __metadata("design:type", Number)
 ], AuditLogFilterDto.prototype, "page", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Number of records per page', default: 10 }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Number of records per page',
+        default: 10,
+    }),
     __metadata("design:type", Number)
 ], AuditLogFilterDto.prototype, "limit", void 0);
 __decorate([
@@ -102,7 +108,10 @@ __decorate([
     __metadata("design:type", String)
 ], AuditLogFilterDto.prototype, "userId", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Filter by action', enum: entity_enum_1.AuditActionEnum }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Filter by action',
+        enum: entity_enum_1.AuditActionEnum,
+    }),
     __metadata("design:type", String)
 ], AuditLogFilterDto.prototype, "action", void 0);
 __decorate([
@@ -114,11 +123,15 @@ __decorate([
     __metadata("design:type", String)
 ], AuditLogFilterDto.prototype, "route", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Start date for date range filter (ISO string)' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Start date for date range filter (ISO string)',
+    }),
     __metadata("design:type", String)
 ], AuditLogFilterDto.prototype, "startDate", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'End date for date range filter (ISO string)' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'End date for date range filter (ISO string)',
+    }),
     __metadata("design:type", String)
 ], AuditLogFilterDto.prototype, "endDate", void 0);
 //# sourceMappingURL=audit.dto.js.map

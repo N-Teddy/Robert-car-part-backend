@@ -28,7 +28,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.OneToOne)(() => part_entity_1.Part, (part) => part.qrCode, {
         onDelete: 'CASCADE',
-        nullable: false
+        nullable: false,
     }),
     __metadata("design:type", part_entity_1.Part)
 ], QrCode.prototype, "part", void 0);

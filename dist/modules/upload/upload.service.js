@@ -39,31 +39,40 @@ let UploadService = UploadService_1 = class UploadService {
         this.cloudinaryService = cloudinaryService;
         this.configService = configService;
         this.logger = new common_1.Logger(UploadService_1.name);
-        this.isProduction = this.configService.get('NODE_ENV') === 'production';
+        this.isProduction =
+            this.configService.get('NODE_ENV') === 'production';
     }
     getStorageService() {
-        return this.isProduction ? this.cloudinaryService : this.localStorageService;
+        return this.isProduction
+            ? this.cloudinaryService
+            : this.localStorageService;
     }
     async validateEntity(entityType, entityId) {
         let exists = false;
         try {
             switch (entityType) {
                 case entity_enum_1.ImageEnum.USER_PROFILE:
-                    const user = await this.userRepository.findOne({ where: { id: entityId } });
+                    const user = await this.userRepository.findOne({
+                        where: { id: entityId },
+                    });
                     exists = !!user;
                     break;
                 case entity_enum_1.ImageEnum.VEHICLE:
-                    const vehicle = await this.vehicleRepository.findOne({ where: { id: entityId } });
+                    const vehicle = await this.vehicleRepository.findOne({
+                        where: { id: entityId },
+                    });
                     exists = !!vehicle;
                     break;
                 case entity_enum_1.ImageEnum.PART:
-                    const part = await this.partRepository.findOne({ where: { id: entityId } });
+                    const part = await this.partRepository.findOne({
+                        where: { id: entityId },
+                    });
                     exists = !!part;
                     break;
                 case entity_enum_1.ImageEnum.CATEGORY:
                     const category = await this.categoryRepository.findOne({
                         where: { id: entityId },
-                        relations: ['image']
+                        relations: ['image'],
                     });
                     if (!category) {
                         throw new common_1.NotFoundException(`Category with ID ${entityId} not found`);
@@ -74,7 +83,9 @@ let UploadService = UploadService_1 = class UploadService {
                     exists = true;
                     break;
                 case entity_enum_1.ImageEnum.QR_CODE:
-                    const qrCode = await this.qrCodeRepository.findOne({ where: { id: entityId } });
+                    const qrCode = await this.qrCodeRepository.findOne({
+                        where: { id: entityId },
+                    });
                     exists = !!qrCode;
                     break;
             }
@@ -99,7 +110,12 @@ let UploadService = UploadService_1 = class UploadService {
             if (file.size > maxSize) {
                 throw new common_1.BadRequestException(`File size exceeds maximum allowed size of ${maxSize} bytes`);
             }
-            const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            const allowedMimeTypes = [
+                'image/jpeg',
+                'image/png',
+                'image/gif',
+                'image/webp',
+            ];
             if (!allowedMimeTypes.includes(file.mimetype)) {
                 throw new common_1.BadRequestException('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed');
             }
@@ -134,7 +150,7 @@ let UploadService = UploadService_1 = class UploadService {
             const image = this.imageRepository.create(imageData);
             const savedImage = await this.imageRepository.save(image);
             const imageWithRelations = await this.imageRepository.findOne({
-                where: { id: savedImage[0].id },
+                where: { id: savedImage.id },
                 relations: ['user', 'vehicle', 'part', 'category', 'qrCode'],
             });
             if (!imageWithRelations) {
@@ -142,13 +158,14 @@ let UploadService = UploadService_1 = class UploadService {
             }
             const uploader = await this.userRepository.findOne({
                 where: { id: userId },
-                select: ['id', 'email', 'firstName', 'lastName']
+                select: ['id', 'email', 'firstName', 'lastName'],
             });
             return this.mapToResponseDto(imageWithRelations, uploader);
         }
         catch (error) {
             this.logger.error('Failed to upload single image', error);
-            if (error instanceof common_1.BadRequestException || error instanceof common_1.NotFoundException) {
+            if (error instanceof common_1.BadRequestException ||
+                error instanceof common_1.NotFoundException) {
                 throw error;
             }
             throw new common_1.BadRequestException('Failed to upload image');
@@ -191,7 +208,8 @@ let UploadService = UploadService_1 = class UploadService {
         }
         catch (error) {
             this.logger.error('Failed to upload multiple images', error);
-            if (error instanceof common_1.BadRequestException || error instanceof common_1.NotFoundException) {
+            if (error instanceof common_1.BadRequestException ||
+                error instanceof common_1.NotFoundException) {
                 throw error;
             }
             throw new common_1.BadRequestException('Failed to upload images');
@@ -210,7 +228,7 @@ let UploadService = UploadService_1 = class UploadService {
             if (image.createdBy) {
                 uploader = await this.userRepository.findOne({
                     where: { id: image.createdBy },
-                    select: ['id', 'email', 'firstName', 'lastName']
+                    select: ['id', 'email', 'firstName', 'lastName'],
                 });
             }
             return this.mapToResponseDto(image, uploader);
@@ -273,7 +291,7 @@ let UploadService = UploadService_1 = class UploadService {
                 if (image.createdBy) {
                     uploader = await this.userRepository.findOne({
                         where: { id: image.createdBy },
-                        select: ['id', 'email', 'firstName', 'lastName']
+                        select: ['id', 'email', 'firstName', 'lastName'],
                     });
                 }
                 responseDtos.push(this.mapToResponseDto(image, uploader));

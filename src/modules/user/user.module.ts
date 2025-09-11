@@ -8,13 +8,13 @@ import { NotificationModule } from '../notification/notification.module';
 import { AuditLogModule } from '../auditLog/auditlog.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-    NotificationModule,
-    AuditLogModule,
-  ],
-  controllers: [UserController],
-  providers: [UserService],
-  exports: [UserService],
+	imports: [
+		TypeOrmModule.forFeature([User]),
+		NotificationModule,
+		AuditLogModule,
+	],
+	controllers: [UserController],
+	providers: [UserService],
+	exports: [UserService],
 })
 export class UserModule {}

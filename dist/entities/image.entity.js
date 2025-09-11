@@ -45,23 +45,39 @@ __decorate([
     __metadata("design:type", String)
 ], Image.prototype, "type", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.profileImage, { nullable: true, onDelete: 'CASCADE' }),
+    (0, typeorm_1.OneToOne)(() => user_entity_1.User, (user) => user.profileImage, {
+        nullable: true,
+        onDelete: 'CASCADE',
+    }),
     __metadata("design:type", user_entity_1.User)
 ], Image.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => vehicle_entity_1.Vehicle, (vehicle) => vehicle.images, { nullable: true, onDelete: 'CASCADE' }),
+    (0, typeorm_1.ManyToOne)(() => vehicle_entity_1.Vehicle, (vehicle) => vehicle.images, {
+        nullable: true,
+        onDelete: 'CASCADE',
+    }),
     __metadata("design:type", vehicle_entity_1.Vehicle)
 ], Image.prototype, "vehicle", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => part_entity_1.Part, (part) => part.images, { nullable: true, onDelete: 'CASCADE' }),
+    (0, typeorm_1.ManyToOne)(() => part_entity_1.Part, (part) => part.images, {
+        nullable: true,
+        onDelete: 'CASCADE',
+    }),
     __metadata("design:type", part_entity_1.Part)
 ], Image.prototype, "part", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => category_entity_1.Category, (category) => category.image, { nullable: true, onDelete: 'CASCADE' }),
+    (0, typeorm_1.OneToOne)(() => category_entity_1.Category, (category) => category.image, {
+        nullable: true,
+        onDelete: 'CASCADE',
+    }),
+    (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", category_entity_1.Category)
 ], Image.prototype, "category", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => qr_code_entity_1.QrCode, (qrCode) => qrCode.image, { nullable: true, onDelete: 'CASCADE' }),
+    (0, typeorm_1.OneToOne)(() => qr_code_entity_1.QrCode, (qrCode) => qrCode.image, {
+        nullable: true,
+        onDelete: 'CASCADE',
+    }),
     __metadata("design:type", qr_code_entity_1.QrCode)
 ], Image.prototype, "qrCode", void 0);
 exports.Image = Image = __decorate([

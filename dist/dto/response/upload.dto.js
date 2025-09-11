@@ -24,7 +24,10 @@ __decorate([
     __metadata("design:type", String)
 ], UploadedImageResponseDto.prototype, "url", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Image format (jpg, png, etc.)', required: false }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Image format (jpg, png, etc.)',
+        required: false,
+    }),
     __metadata("design:type", String)
 ], UploadedImageResponseDto.prototype, "format", void 0);
 __decorate([
@@ -32,7 +35,10 @@ __decorate([
     __metadata("design:type", Number)
 ], UploadedImageResponseDto.prototype, "size", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Entity type this image belongs to', enum: entity_enum_1.ImageEnum }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Entity type this image belongs to',
+        enum: entity_enum_1.ImageEnum,
+    }),
     __metadata("design:type", String)
 ], UploadedImageResponseDto.prototype, "entityType", void 0);
 __decorate([
@@ -43,7 +49,7 @@ __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'User who uploaded the image',
         required: false,
-        example: { id: 'user-id', name: 'John Doe' }
+        example: { id: 'user-id', name: 'John Doe' },
     }),
     __metadata("design:type", Object)
 ], UploadedImageResponseDto.prototype, "uploadedBy", void 0);
@@ -61,7 +67,7 @@ exports.MultipleUploadResponseDto = MultipleUploadResponseDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Array of uploaded images',
-        type: [UploadedImageResponseDto]
+        type: [UploadedImageResponseDto],
     }),
     __metadata("design:type", Array)
 ], MultipleUploadResponseDto.prototype, "images", void 0);

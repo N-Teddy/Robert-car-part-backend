@@ -1,4 +1,11 @@
-import { Column, Entity, OneToMany, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
+import {
+	Column,
+	Entity,
+	OneToMany,
+	ManyToOne,
+	OneToOne,
+	JoinColumn,
+} from 'typeorm';
 import { PasswordResetToken } from './password-reset-token.entity';
 import { Notification } from './notification.entity';
 import { Image } from './image.entity';
@@ -33,16 +40,19 @@ export class User extends BaseEntity {
 		nullable: true,
 		eager: false,
 		cascade: false,
-		onDelete: 'SET NULL'
+		onDelete: 'SET NULL',
 	})
+	@JoinColumn()
 	profileImage?: Image;
 
-	@OneToMany(() => PasswordResetToken, (token) => token.user)
+	@OneToMany(() => PasswordResetToken, (token) => token.user, { onDelete: 'CASCADE' })
 	resetTokens: PasswordResetToken[];
 
-	@OneToMany(() => Notification, (notification) => notification.user, { cascade: true })
+	@OneToMany(() => Notification, (notification) => notification.user, {
+		onDelete: 'CASCADE',
+	})
 	notifications: Notification[];
 
-	@OneToMany(() => AuditLog, (auditLog) => auditLog.user)
+	@OneToMany(() => AuditLog, (auditLog) => auditLog.user, { onDelete: 'CASCADE' })
 	auditLogs: AuditLog[];
 }

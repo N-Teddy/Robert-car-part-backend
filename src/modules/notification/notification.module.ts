@@ -14,33 +14,29 @@ import { Category } from '../../entities/category.entity';
 import { QrCode } from '../../entities/qr-code.entity';
 
 @Module({
-  imports: [
-    ConfigModule,
-    TypeOrmModule.forFeature([
-      Notification,
-      User,
-      Vehicle,
-      Part,
-      Category,
-      QrCode,
-    ]),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('jwt.secret'),
-        signOptions: {
-          expiresIn: configService.get<string>('jwt.expiresIn'),
-        },
-      }),
-      inject: [ConfigService],
-    }),
-  ],
-  controllers: [NotificationController],
-  providers: [
-    NotificationService,
-    NotificationGateway,
-    EmailService,
-  ],
-  exports: [NotificationService, NotificationGateway],
+	imports: [
+		ConfigModule,
+		TypeOrmModule.forFeature([
+			Notification,
+			User,
+			Vehicle,
+			Part,
+			Category,
+			QrCode,
+		]),
+		JwtModule.registerAsync({
+			imports: [ConfigModule],
+			useFactory: async (configService: ConfigService) => ({
+				secret: configService.get<string>('jwt.secret'),
+				signOptions: {
+					expiresIn: configService.get<string>('jwt.expiresIn'),
+				},
+			}),
+			inject: [ConfigService],
+		}),
+	],
+	controllers: [NotificationController],
+	providers: [NotificationService, NotificationGateway, EmailService],
+	exports: [NotificationService, NotificationGateway],
 })
 export class NotificationModule {}

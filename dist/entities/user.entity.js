@@ -53,20 +53,23 @@ __decorate([
         nullable: true,
         eager: false,
         cascade: false,
-        onDelete: 'SET NULL'
+        onDelete: 'SET NULL',
     }),
+    (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", image_entity_1.Image)
 ], User.prototype, "profileImage", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => password_reset_token_entity_1.PasswordResetToken, (token) => token.user),
+    (0, typeorm_1.OneToMany)(() => password_reset_token_entity_1.PasswordResetToken, (token) => token.user, { onDelete: 'CASCADE' }),
     __metadata("design:type", Array)
 ], User.prototype, "resetTokens", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => notification_entity_1.Notification, (notification) => notification.user, { cascade: true }),
+    (0, typeorm_1.OneToMany)(() => notification_entity_1.Notification, (notification) => notification.user, {
+        onDelete: 'CASCADE',
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "notifications", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => audit_log_entity_1.AuditLog, (auditLog) => auditLog.user),
+    (0, typeorm_1.OneToMany)(() => audit_log_entity_1.AuditLog, (auditLog) => auditLog.user, { onDelete: 'CASCADE' }),
     __metadata("design:type", Array)
 ], User.prototype, "auditLogs", void 0);
 exports.User = User = __decorate([

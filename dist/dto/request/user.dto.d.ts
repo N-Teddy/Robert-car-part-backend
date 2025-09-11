@@ -20,4 +20,6 @@ export declare class UserFilterDto {
     search?: string;
     sortBy?: string;
     sortOrder?: 'ASC' | 'DESC';
+    page?: number;
+    limit?: number;
 }

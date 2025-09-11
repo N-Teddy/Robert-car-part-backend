@@ -38,7 +38,10 @@ __decorate([
     __metadata("design:type", Object)
 ], Notification.prototype, "metadata", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.notifications, { nullable: true, onDelete: 'CASCADE' }),
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.notifications, {
+        nullable: true,
+        onDelete: 'CASCADE',
+    }),
     __metadata("design:type", user_entity_1.User)
 ], Notification.prototype, "user", void 0);
 __decorate([

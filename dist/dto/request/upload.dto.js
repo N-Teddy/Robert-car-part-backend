@@ -19,21 +19,21 @@ exports.UploadImageDto = UploadImageDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Type of entity the image belongs to',
-        enum: entity_enum_1.ImageEnum
+        enum: entity_enum_1.ImageEnum,
     }),
     (0, class_validator_1.IsEnum)(entity_enum_1.ImageEnum),
     __metadata("design:type", String)
 ], UploadImageDto.prototype, "entityType", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        description: 'ID of the entity this image belongs to'
+        description: 'ID of the entity this image belongs to',
     }),
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], UploadImageDto.prototype, "entityId", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({
-        description: 'Additional metadata for the image'
+        description: 'Additional metadata for the image',
     }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Object)
@@ -44,21 +44,21 @@ exports.UploadMultipleImagesDto = UploadMultipleImagesDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Type of entity the images belong to',
-        enum: entity_enum_1.ImageEnum
+        enum: entity_enum_1.ImageEnum,
     }),
     (0, class_validator_1.IsEnum)(entity_enum_1.ImageEnum),
     __metadata("design:type", String)
 ], UploadMultipleImagesDto.prototype, "entityType", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        description: 'ID of the entity these images belong to'
+        description: 'ID of the entity these images belong to',
     }),
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], UploadMultipleImagesDto.prototype, "entityId", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({
-        description: 'Additional metadata for the images'
+        description: 'Additional metadata for the images',
     }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Object)
@@ -68,7 +68,7 @@ class DeleteImageDto {
 exports.DeleteImageDto = DeleteImageDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
-        description: 'ID of the image to delete'
+        description: 'ID of the image to delete',
     }),
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)

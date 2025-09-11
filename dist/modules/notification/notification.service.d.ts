@@ -3,7 +3,7 @@ import { Notification } from '../../entities/notification.entity';
 import { User } from '../../entities/user.entity';
 import { EmailService } from './email.service';
 import { NotificationGateway } from './notification.gateway';
-import { CreateNotificationDto, SendNotificationDto, BatchSendNotificationDto, MarkAsReadDto, NotificationFilterDto } from '../../dto/request/notification.dto';
+import { CreateNotificationDto, SendNotificationDto, BatchSendNotificationDto, MarkAsReadDto, NotificationFilterDto, PaginatedNotificationResponseDto } from '../../dto/request/notification.dto';
 import { NotificationResponseDto, SendNotificationResultDto, BatchSendResultDto } from '../../dto/response/notification.dto';
 export declare class NotificationService {
     private readonly notificationRepository;
@@ -16,7 +16,7 @@ export declare class NotificationService {
     sendNotification(dto: SendNotificationDto): Promise<SendNotificationResultDto>;
     batchSendNotifications(dto: BatchSendNotificationDto): Promise<BatchSendResultDto>;
     markAsRead(dto: MarkAsReadDto, userId: string): Promise<void>;
-    getNotifications(filter: NotificationFilterDto): Promise<NotificationResponseDto[]>;
+    getNotifications(filter: NotificationFilterDto): Promise<PaginatedNotificationResponseDto>;
     getUnreadCount(userId: string): Promise<number>;
     deleteOldNotifications(daysToKeep?: number): Promise<number>;
     getNotificationById(id: string, userId: string): Promise<NotificationResponseDto>;

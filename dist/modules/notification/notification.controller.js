@@ -35,7 +35,8 @@ let NotificationController = class NotificationController {
         return this.notificationService.markAsRead(dto, req.user.id);
     }
     async getNotifications(filter, req) {
-        if (req.user.role !== entity_enum_1.UserRoleEnum.ADMIN && req.user.role !== entity_enum_1.UserRoleEnum.MANAGER) {
+        if (req.user.role !== entity_enum_1.UserRoleEnum.ADMIN &&
+            req.user.role !== entity_enum_1.UserRoleEnum.MANAGER) {
             filter.userId = req.user.id;
         }
         return this.notificationService.getNotifications(filter);
@@ -116,7 +117,10 @@ __decorate([
     (0, common_1.Delete)('cleanup'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Delete old read notifications' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Returns number of deleted notifications' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Returns number of deleted notifications',
+    }),
     __param(0, (0, common_1.Query)('daysToKeep')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),

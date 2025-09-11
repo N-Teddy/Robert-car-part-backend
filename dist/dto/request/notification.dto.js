@@ -78,7 +78,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         enum: notification_enum_1.NotificationAudienceEnum,
-        description: 'Target audience for the notification'
+        description: 'Target audience for the notification',
     }),
     (0, class_validator_1.IsEnum)(notification_enum_1.NotificationAudienceEnum),
     __metadata("design:type", String)
@@ -86,7 +86,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({
         type: [String],
-        description: 'Specific user IDs (used when audience is SPECIFIC_USER)'
+        description: 'Specific user IDs (used when audience is SPECIFIC_USER)',
     }),
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsUUID)('4', { each: true }),
@@ -96,7 +96,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({
         enum: notification_enum_1.NotificationChannelEnum,
-        default: notification_enum_1.NotificationChannelEnum.BOTH
+        default: notification_enum_1.NotificationChannelEnum.BOTH,
     }),
     (0, class_validator_1.IsEnum)(notification_enum_1.NotificationChannelEnum),
     (0, class_validator_1.IsOptional)(),
@@ -104,7 +104,7 @@ __decorate([
 ], SendNotificationDto.prototype, "channel", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({
-        description: 'Custom email template name (optional)'
+        description: 'Custom email template name (optional)',
     }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
@@ -125,13 +125,17 @@ exports.MarkAsReadDto = MarkAsReadDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
         type: [String],
-        description: 'Notification IDs to mark as read'
+        description: 'Notification IDs to mark as read',
     }),
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsUUID)('4', { each: true }),
     __metadata("design:type", Array)
 ], MarkAsReadDto.prototype, "notificationIds", void 0);
 class NotificationFilterDto {
+    constructor() {
+        this.page = 1;
+        this.limit = 10;
+    }
 }
 exports.NotificationFilterDto = NotificationFilterDto;
 __decorate([
@@ -158,4 +162,30 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], NotificationFilterDto.prototype, "search", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Page number (starting from 1)',
+        minimum: 1,
+        default: 1,
+    }),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(1),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], NotificationFilterDto.prototype, "page", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Number of items per page',
+        minimum: 1,
+        maximum: 100,
+        default: 20,
+    }),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(1),
+    (0, class_validator_1.Max)(1000),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], NotificationFilterDto.prototype, "limit", void 0);
 //# sourceMappingURL=notification.dto.js.map

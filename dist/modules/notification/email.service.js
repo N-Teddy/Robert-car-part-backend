@@ -28,7 +28,8 @@ let EmailService = EmailService_1 = class EmailService {
             delay: 1000,
             backoff: 2,
         };
-        this.isDevelopment = this.configService.get('NODE_ENV') !== 'production';
+        this.isDevelopment =
+            this.configService.get('NODE_ENV') !== 'production';
         this.initializeTransporter();
         this.loadTemplates();
         this.registerHelpers();
@@ -128,10 +129,14 @@ let EmailService = EmailService_1 = class EmailService {
                         throw new Error(`Template ${options.template} not found and no default template available`);
                     }
                 }
-                const html = template ? template(options.context) : this.generateDefaultHtml(options.context);
+                const html = template
+                    ? template(options.context)
+                    : this.generateDefaultHtml(options.context);
                 const mailOptions = {
                     from: `${this.configService.get('DEFAULT_FROM_NAME')} <${this.configService.get('DEFAULT_FROM_EMAIL')}>`,
-                    to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
+                    to: Array.isArray(options.to)
+                        ? options.to.join(', ')
+                        : options.to,
                     subject: options.subject,
                     html,
                 };
@@ -200,7 +205,7 @@ let EmailService = EmailService_1 = class EmailService {
     `;
     }
     sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
     getTemplateForNotificationType(type) {
         const templateMap = {
@@ -225,6 +230,9 @@ let EmailService = EmailService_1 = class EmailService {
             [notification_enum_1.NotificationEnum.REPORT_READY]: 'report-ready',
             [notification_enum_1.NotificationEnum.SYSTEM_MAINTENANCE]: 'system-maintenance',
             [notification_enum_1.NotificationEnum.SYSTEM_UPDATE]: 'system-update',
+            [notification_enum_1.NotificationEnum.PROFILE_UPDATED]: '',
+            [notification_enum_1.NotificationEnum.USER_UPDATED]: '',
+            [notification_enum_1.NotificationEnum.USER_DELETED]: '',
         };
         return templateMap[type] || 'default';
     }

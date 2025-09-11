@@ -25,7 +25,9 @@ let LocalStorageService = LocalStorageService_1 = class LocalStorageService {
         this.configService = configService;
         this.logger = new common_1.Logger(LocalStorageService_1.name);
         this.uploadPath = path.join(process.cwd(), 'uploads');
-        this.baseUrl = this.configService.get('APP_URL') || 'http://localhost:3000';
+        this.baseUrl =
+            this.configService.get('APP_URL') ||
+                'http://localhost:3000';
         this.ensureUploadDirectories();
     }
     async ensureUploadDirectories() {

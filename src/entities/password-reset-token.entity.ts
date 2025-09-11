@@ -13,6 +13,6 @@ export class PasswordResetToken extends BaseEntity {
 	@Column({ default: false })
 	isUsed: boolean;
 
-	@ManyToOne(() => User, (user) => user.resetTokens)
+	@ManyToOne(() => User, (user) => user.resetTokens, { onDelete: 'CASCADE' })
 	user: User;
 }

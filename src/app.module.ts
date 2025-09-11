@@ -48,7 +48,7 @@ import authConfig from './config/auth.config';
 				supabaseConfig,
 				jwtConfig,
 				emailConfig,
-				authConfig
+				authConfig,
 			],
 		}),
 		AuditLogModule,
@@ -169,7 +169,6 @@ import authConfig from './config/auth.config';
 			provide: APP_INTERCEPTOR,
 			useClass: AuditLogInterceptor,
 		},
-
 	],
 })
 export class AppModule {}

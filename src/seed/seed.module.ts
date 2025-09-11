@@ -4,7 +4,7 @@ import { User } from 'src/entities/user.entity';
 import { SeedService } from './seed.service';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([User])],
-    providers: [SeedService],
+	imports: [TypeOrmModule.forFeature([User])],
+	providers: [SeedService],
 })
-export class SeedModule { }
+export class SeedModule {}

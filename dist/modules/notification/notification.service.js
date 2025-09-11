@@ -69,8 +69,9 @@ let NotificationService = NotificationService_1 = class NotificationService {
             notifications.push(notification);
         }
         const savedNotifications = await this.notificationRepository.save(notifications);
-        result.notificationIds = savedNotifications.map(n => n.id);
-        if (dto.channel === notification_enum_1.NotificationChannelEnum.WEBSOCKET || dto.channel === notification_enum_1.NotificationChannelEnum.BOTH) {
+        result.notificationIds = savedNotifications.map((n) => n.id);
+        if (dto.channel === notification_enum_1.NotificationChannelEnum.WEBSOCKET ||
+            dto.channel === notification_enum_1.NotificationChannelEnum.BOTH) {
             for (const notification of savedNotifications) {
                 try {
                     const notificationData = this.mapToResponseDto(notification);
@@ -83,10 +84,12 @@ let NotificationService = NotificationService_1 = class NotificationService {
                 }
             }
         }
-        if (dto.channel === notification_enum_1.NotificationChannelEnum.EMAIL || dto.channel === notification_enum_1.NotificationChannelEnum.BOTH) {
-            const template = dto.emailTemplate || this.emailService.getTemplateForNotificationType(dto.type);
+        if (dto.channel === notification_enum_1.NotificationChannelEnum.EMAIL ||
+            dto.channel === notification_enum_1.NotificationChannelEnum.BOTH) {
+            const template = dto.emailTemplate ||
+                this.emailService.getTemplateForNotificationType(dto.type);
             for (const notification of savedNotifications) {
-                const user = recipients.find(r => r.id === notification.user.id);
+                const user = recipients.find((r) => r.id === notification.user.id);
                 if (!user?.email)
                     continue;
                 const emailContext = {
@@ -106,7 +109,9 @@ let NotificationService = NotificationService_1 = class NotificationService {
                 });
                 if (emailSent) {
                     result.emailsSent++;
-                    await this.notificationRepository.update(notification.id, { emailSent: true });
+                    await this.notificationRepository.update(notification.id, {
+                        emailSent: true,
+                    });
                 }
                 else {
                     result.emailsFailed++;
@@ -114,7 +119,9 @@ let NotificationService = NotificationService_1 = class NotificationService {
                 }
             }
         }
-        result.success = result.emailsFailed === 0 && (!result.errors || result.errors.length === 0);
+        result.success =
+            result.emailsFailed === 0 &&
+                (!result.errors || result.errors.length === 0);
         return result;
     }
     async batchSendNotifications(dto) {
@@ -163,7 +170,7 @@ let NotificationService = NotificationService_1 = class NotificationService {
         if (notifications.length === 0) {
             throw new common_1.BadRequestException('No notifications found to mark as read');
         }
-        await this.notificationRepository.update({ id: (0, typeorm_2.In)(notifications.map(n => n.id)) }, { isRead: true });
+        await this.notificationRepository.update({ id: (0, typeorm_2.In)(notifications.map((n) => n.id)) }, { isRead: true });
         for (const notification of notifications) {
             this.notificationGateway.sendToUser(userId, {
                 event: 'notificationRead',
@@ -172,23 +179,46 @@ let NotificationService = NotificationService_1 = class NotificationService {
         }
     }
     async getNotifications(filter) {
-        const query = this.notificationRepository.createQueryBuilder('notification')
+        const { page = 1, limit = 20, ...restFilter } = filter;
+        const skip = (page - 1) * limit;
+        const query = this.notificationRepository
+            .createQueryBuilder('notification')
             .leftJoinAndSelect('notification.user', 'user');
-        if (filter.type) {
-            query.andWhere('notification.type = :type', { type: filter.type });
+        if (restFilter.type) {
+            query.andWhere('notification.type = :type', {
+                type: restFilter.type,
+            });
         }
-        if (filter.isRead !== undefined) {
-            query.andWhere('notification.isRead = :isRead', { isRead: filter.isRead });
+        if (restFilter.isRead !== undefined) {
+            query.andWhere('notification.isRead = :isRead', {
+                isRead: restFilter.isRead,
+            });
         }
-        if (filter.userId) {
-            query.andWhere('notification.user.id = :userId', { userId: filter.userId });
+        if (restFilter.userId) {
+            query.andWhere('notification.user.id = :userId', {
+                userId: restFilter.userId,
+            });
         }
-        if (filter.search) {
-            query.andWhere('(notification.title ILIKE :search OR notification.message ILIKE :search)', { search: `%${filter.search}%` });
+        if (restFilter.search) {
+            query.andWhere('(notification.title ILIKE :search OR notification.message ILIKE :search)', { search: `%${restFilter.search}%` });
         }
-        query.orderBy('notification.createdAt', 'DESC');
+        const total = await query.getCount();
+        query.orderBy('notification.createdAt', 'DESC').skip(skip).take(limit);
         const notifications = await query.getMany();
-        return notifications.map(n => this.mapToResponseDto(n));
+        const totalPages = Math.ceil(total / limit);
+        const hasNext = page < totalPages;
+        const hasPrev = page > 1;
+        return {
+            items: notifications.map((n) => this.mapToResponseDto(n)),
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages,
+                hasNext,
+                hasPrev,
+            },
+        };
     }
     async getUnreadCount(userId) {
         return this.notificationRepository.count({
@@ -219,8 +249,12 @@ let NotificationService = NotificationService_1 = class NotificationService {
             throw new common_1.NotFoundException(`Notification with ID ${id} not found`);
         }
         if (notification.user && notification.user.id !== userId) {
-            const user = await this.userRepository.findOne({ where: { id: userId } });
-            if (!user || (user.role !== entity_enum_1.UserRoleEnum.ADMIN && user.role !== entity_enum_1.UserRoleEnum.MANAGER)) {
+            const user = await this.userRepository.findOne({
+                where: { id: userId },
+            });
+            if (!user ||
+                (user.role !== entity_enum_1.UserRoleEnum.ADMIN &&
+                    user.role !== entity_enum_1.UserRoleEnum.MANAGER)) {
                 throw new common_1.BadRequestException('You do not have permission to view this notification');
             }
         }
@@ -230,11 +264,17 @@ let NotificationService = NotificationService_1 = class NotificationService {
         let query = this.userRepository.createQueryBuilder('user');
         switch (audience) {
             case notification_enum_1.NotificationAudienceEnum.ALL:
-                query = query.where('user.isActive = :isActive', { isActive: true });
+                query = query.where('user.isActive = :isActive', {
+                    isActive: true,
+                });
                 break;
             case notification_enum_1.NotificationAudienceEnum.ADMIN:
                 query = query.where('user.role IN (:...roles)', {
-                    roles: [entity_enum_1.UserRoleEnum.DEV, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.ADMIN],
+                    roles: [
+                        entity_enum_1.UserRoleEnum.DEV,
+                        entity_enum_1.UserRoleEnum.MANAGER,
+                        entity_enum_1.UserRoleEnum.ADMIN,
+                    ],
                 });
                 break;
             case notification_enum_1.NotificationAudienceEnum.MANAGER:
@@ -244,7 +284,11 @@ let NotificationService = NotificationService_1 = class NotificationService {
                 break;
             case notification_enum_1.NotificationAudienceEnum.STAFF:
                 query = query.where('user.role IN (:...roles)', {
-                    roles: [entity_enum_1.UserRoleEnum.STAFF, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.ADMIN],
+                    roles: [
+                        entity_enum_1.UserRoleEnum.STAFF,
+                        entity_enum_1.UserRoleEnum.MANAGER,
+                        entity_enum_1.UserRoleEnum.ADMIN,
+                    ],
                 });
                 break;
             case notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER:

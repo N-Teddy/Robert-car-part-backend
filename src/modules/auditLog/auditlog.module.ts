@@ -5,9 +5,9 @@ import { AuditLogService } from './auditLog.service';
 import { AuditLog } from '../../entities/audit-log.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([AuditLog])],
-    controllers: [AuditLogController],
-    providers: [AuditLogService],
-    exports: [AuditLogService],
+	imports: [TypeOrmModule.forFeature([AuditLog])],
+	controllers: [AuditLogController],
+	providers: [AuditLogService],
+	exports: [AuditLogService],
 })
-export class AuditLogModule { }
+export class AuditLogModule {}

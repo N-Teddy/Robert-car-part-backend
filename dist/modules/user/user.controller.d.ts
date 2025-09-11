@@ -11,5 +11,5 @@ export declare class UserController {
     getUsersWithoutRole(): Promise<UserResponseDto[]>;
     getUserById(id: string): Promise<UserResponseDto>;
     updateUser(req: any, id: string, dto: UpdateUserDto): Promise<UserResponseDto>;
-    deleteUser(req: any, id: string): Promise<void>;
+    deleteUser(req: any, id: string): Promise<any>;
 }

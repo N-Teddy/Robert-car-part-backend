@@ -20,10 +20,7 @@ let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
         this.reflector = reflector;
     }
     canActivate(context) {
-        const isPublic = this.reflector.getAllAndOverride(public_decorator_1.IS_PUBLIC_KEY, [
-            context.getHandler(),
-            context.getClass(),
-        ]);
+        const isPublic = this.reflector.getAllAndOverride(public_decorator_1.IS_PUBLIC_KEY, [context.getHandler(), context.getClass()]);
         if (isPublic) {
             return true;
         }
@@ -31,7 +28,8 @@ let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
     }
     handleRequest(err, user, info) {
         if (err || !user) {
-            throw err || new common_1.UnauthorizedException('Invalid token or user not found');
+            throw (err ||
+                new common_1.UnauthorizedException('Invalid token or user not found'));
         }
         return user;
     }

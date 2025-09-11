@@ -44,7 +44,7 @@ let AuthService = AuthService_1 = class AuthService {
                 throw new common_1.BadRequestException('User with this email already exists');
             }
             const hashedPassword = await bcrypt.hash(dto.password, this.configService.get('auth.saltRounds'));
-            console.log("ok1");
+            console.log('ok1');
             const user = this.userRepository.create({
                 email: dto.email,
                 password: hashedPassword,
@@ -183,7 +183,9 @@ let AuthService = AuthService_1 = class AuthService {
             }
             const resetToken = (0, uuid_1.v4)();
             const hashedToken = await bcrypt.hash(resetToken, 10);
-            await this.passwordResetTokenRepository.delete({ user: { id: user.id } });
+            await this.passwordResetTokenRepository.delete({
+                user: { id: user.id },
+            });
             const passwordResetToken = this.passwordResetTokenRepository.create({
                 token: hashedToken,
                 user: { id: user.id },
@@ -266,7 +268,9 @@ let AuthService = AuthService_1 = class AuthService {
     }
     async changePassword(userId, dto) {
         try {
-            const user = await this.userRepository.findOne({ where: { id: userId } });
+            const user = await this.userRepository.findOne({
+                where: { id: userId },
+            });
             if (!user) {
                 throw new common_1.NotFoundException('User not found');
             }
@@ -275,7 +279,9 @@ let AuthService = AuthService_1 = class AuthService {
                 throw new common_1.BadRequestException('Current password is incorrect');
             }
             const hashedPassword = await bcrypt.hash(dto.newPassword, this.configService.get('auth.saltRounds'));
-            await this.userRepository.update(userId, { password: hashedPassword });
+            await this.userRepository.update(userId, {
+                password: hashedPassword,
+            });
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.PASSWORD_CHANGED,
                 title: 'Password Changed',
@@ -291,7 +297,8 @@ let AuthService = AuthService_1 = class AuthService {
         }
         catch (error) {
             this.logger.error('Change password failed', error);
-            if (error instanceof common_1.BadRequestException || error instanceof common_1.NotFoundException) {
+            if (error instanceof common_1.BadRequestException ||
+                error instanceof common_1.NotFoundException) {
                 throw error;
             }
             throw new common_1.BadRequestException('Failed to change password');
@@ -299,8 +306,10 @@ let AuthService = AuthService_1 = class AuthService {
     }
     async validateUser(email, password) {
         try {
-            const user = await this.userRepository.findOne({ where: { email } });
-            if (user && await bcrypt.compare(password, user.password)) {
+            const user = await this.userRepository.findOne({
+                where: { email },
+            });
+            if (user && (await bcrypt.compare(password, user.password))) {
                 return user;
             }
             return null;

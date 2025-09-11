@@ -33,7 +33,9 @@ let ResponseInterceptor = class ResponseInterceptor {
             const status = error.getStatus();
             const response = error.getResponse();
             return new common_1.HttpException({
-                message: typeof response === 'string' ? response : response.message || 'An error occurred',
+                message: typeof response === 'string'
+                    ? response
+                    : response.message || 'An error occurred',
                 data: null,
                 error: typeof response === 'object' ? response : null,
             }, status);

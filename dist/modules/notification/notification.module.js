@@ -48,11 +48,7 @@ exports.NotificationModule = NotificationModule = __decorate([
             }),
         ],
         controllers: [notification_controller_1.NotificationController],
-        providers: [
-            notification_service_1.NotificationService,
-            notification_gateway_1.NotificationGateway,
-            email_service_1.EmailService,
-        ],
+        providers: [notification_service_1.NotificationService, notification_gateway_1.NotificationGateway, email_service_1.EmailService],
         exports: [notification_service_1.NotificationService, notification_gateway_1.NotificationGateway],
     })
 ], NotificationModule);

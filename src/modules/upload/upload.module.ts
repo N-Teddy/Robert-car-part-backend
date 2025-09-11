@@ -16,41 +16,50 @@ import { Category } from '../../entities/category.entity';
 import { QrCode } from '../../entities/qr-code.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Image, User, Vehicle, Part, Category, QrCode]),
-    MulterModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        limits: {
-          fileSize: configService.get<number>('MAX_FILE_SIZE') || 10485760, // 10MB default
-        },
-      }),
-      inject: [ConfigService],
-    }),
-    // Serve static files for local development
-    ServeStaticModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => {
-        const isProduction = configService.get<string>('NODE_ENV') === 'production';
-        if (!isProduction) {
-          return [
-            {
-              rootPath: join(process.cwd(), 'uploads'),
-              serveRoot: '/uploads',
-              serveStaticOptions: {
-                index: false,
-                fallthrough: false,
-              },
-            },
-          ];
-        }
-        return [];
-      },
-      inject: [ConfigService],
-    }),
-  ],
-  controllers: [UploadController],
-  providers: [UploadService, LocalStorageService, CloudinaryService],
-  exports: [UploadService],
+	imports: [
+		TypeOrmModule.forFeature([
+			Image,
+			User,
+			Vehicle,
+			Part,
+			Category,
+			QrCode,
+		]),
+		MulterModule.registerAsync({
+			imports: [ConfigModule],
+			useFactory: async (configService: ConfigService) => ({
+				limits: {
+					fileSize:
+						configService.get<number>('MAX_FILE_SIZE') || 10485760, // 10MB default
+				},
+			}),
+			inject: [ConfigService],
+		}),
+		// Serve static files for local development
+		ServeStaticModule.forRootAsync({
+			imports: [ConfigModule],
+			useFactory: async (configService: ConfigService) => {
+				const isProduction =
+					configService.get<string>('NODE_ENV') === 'production';
+				if (!isProduction) {
+					return [
+						{
+							rootPath: join(process.cwd(), 'uploads'),
+							serveRoot: '/uploads',
+							serveStaticOptions: {
+								index: false,
+								fallthrough: false,
+							},
+						},
+					];
+				}
+				return [];
+			},
+			inject: [ConfigService],
+		}),
+	],
+	controllers: [UploadController],
+	providers: [UploadService, LocalStorageService, CloudinaryService],
+	exports: [UploadService],
 })
-export class UploadModule { }
+export class UploadModule {}

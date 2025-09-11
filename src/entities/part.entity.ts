@@ -45,5 +45,4 @@ export class Part extends BaseEntity {
 
 	@OneToOne(() => QrCode, (qrCode) => qrCode.part, { cascade: true })
 	qrCode: QrCode;
-
 }

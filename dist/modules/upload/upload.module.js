@@ -29,7 +29,14 @@ exports.UploadModule = UploadModule;
 exports.UploadModule = UploadModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([image_entity_1.Image, user_entity_1.User, vehicle_entity_1.Vehicle, part_entity_1.Part, category_entity_1.Category, qr_code_entity_1.QrCode]),
+            typeorm_1.TypeOrmModule.forFeature([
+                image_entity_1.Image,
+                user_entity_1.User,
+                vehicle_entity_1.Vehicle,
+                part_entity_1.Part,
+                category_entity_1.Category,
+                qr_code_entity_1.QrCode,
+            ]),
             platform_express_1.MulterModule.registerAsync({
                 imports: [config_1.ConfigModule],
                 useFactory: async (configService) => ({

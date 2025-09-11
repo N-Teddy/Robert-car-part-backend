@@ -27,20 +27,35 @@ export class Image extends BaseEntity {
 	})
 	type: ImageEnum;
 
-
-	@ManyToOne(() => User, (user) => user.profileImage, { nullable: true, onDelete: 'CASCADE' })
+	@OneToOne(() => User, (user) => user.profileImage, {
+		nullable: true,
+		onDelete: 'CASCADE',
+	})
 	user: User;
 
-	@ManyToOne(() => Vehicle, (vehicle) => vehicle.images, { nullable: true, onDelete: 'CASCADE' })
+	@ManyToOne(() => Vehicle, (vehicle) => vehicle.images, {
+		nullable: true,
+		onDelete: 'CASCADE',
+	})
 	vehicle: Vehicle;
 
-	@ManyToOne(() => Part, (part) => part.images, { nullable: true, onDelete: 'CASCADE' })
+	@ManyToOne(() => Part, (part) => part.images, {
+		nullable: true,
+		onDelete: 'CASCADE',
+	})
 	part: Part;
 
 	// One-to-One relationship with Category
-	@OneToOne(() => Category, (category) => category.image, { nullable: true, onDelete: 'CASCADE' })
+	@OneToOne(() => Category, (category) => category.image, {
+		nullable: true,
+		onDelete: 'CASCADE',
+	})
+	@JoinColumn()
 	category: Category;
 
-	@OneToOne(() => QrCode, (qrCode) => qrCode.image, { nullable: true, onDelete: 'CASCADE' })
+	@OneToOne(() => QrCode, (qrCode) => qrCode.image, {
+		nullable: true,
+		onDelete: 'CASCADE',
+	})
 	qrCode: QrCode;
 }

@@ -29,7 +29,8 @@ let NotificationGateway = NotificationGateway_1 = class NotificationGateway {
     }
     async handleConnection(client) {
         try {
-            const token = client.handshake.auth?.token || client.handshake.headers?.authorization?.split(' ')[1];
+            const token = client.handshake.auth?.token ||
+                client.handshake.headers?.authorization?.split(' ')[1];
             if (!token) {
                 client.disconnect();
                 return;
@@ -73,14 +74,16 @@ let NotificationGateway = NotificationGateway_1 = class NotificationGateway {
     }
     async handleMarkAsRead(client, notificationId) {
         const userId = client.data.userId;
-        this.server.to(`user-${userId}`).emit('notificationRead', { notificationId });
+        this.server
+            .to(`user-${userId}`)
+            .emit('notificationRead', { notificationId });
         return { success: true, notificationId };
     }
     sendToUser(userId, notification) {
         this.server.to(`user-${userId}`).emit('notification', notification);
     }
     sendToUsers(userIds, notification) {
-        userIds.forEach(userId => {
+        userIds.forEach((userId) => {
             this.sendToUser(userId, notification);
         });
     }
@@ -94,7 +97,8 @@ let NotificationGateway = NotificationGateway_1 = class NotificationGateway {
         return this.userSocketMap.size;
     }
     isUserConnected(userId) {
-        return this.userSocketMap.has(userId) && this.userSocketMap.get(userId).length > 0;
+        return (this.userSocketMap.has(userId) &&
+            this.userSocketMap.get(userId).length > 0);
     }
 };
 exports.NotificationGateway = NotificationGateway;
@@ -113,7 +117,9 @@ __decorate([
 exports.NotificationGateway = NotificationGateway = NotificationGateway_1 = __decorate([
     (0, websockets_1.WebSocketGateway)({
         cors: {
-            origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
+            origin: process.env.CORS_ORIGIN?.split(',') || [
+                'http://localhost:3000',
+            ],
             credentials: true,
         },
         namespace: '/notifications',

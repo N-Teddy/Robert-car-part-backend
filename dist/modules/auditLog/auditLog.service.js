@@ -37,7 +37,7 @@ let AuditLogService = AuditLogService_1 = class AuditLogService {
     }
     async findAllAuditLogs(filterDto) {
         try {
-            const { page = 1, limit = 10, userId, action, entity, route, startDate, endDate } = filterDto;
+            const { page = 1, limit = 10, userId, action, entity, route, startDate, endDate, } = filterDto;
             const skip = (page - 1) * limit;
             const whereConditions = {};
             if (userId) {
@@ -70,7 +70,7 @@ let AuditLogService = AuditLogService_1 = class AuditLogService {
             const [auditLogs, total] = await this.auditLogRepository.findAndCount(findOptions);
             const totalPages = Math.ceil(total / limit);
             return {
-                data: auditLogs.map(log => this.mapToResponseDto(log)),
+                data: auditLogs.map((log) => this.mapToResponseDto(log)),
                 total,
                 page,
                 limit,
@@ -84,7 +84,9 @@ let AuditLogService = AuditLogService_1 = class AuditLogService {
     }
     async findAuditLogById(id) {
         try {
-            const auditLog = await this.auditLogRepository.findOne({ where: { id } });
+            const auditLog = await this.auditLogRepository.findOne({
+                where: { id },
+            });
             if (!auditLog) {
                 throw new common_1.NotFoundException(`Audit log with ID ${id} not found`);
             }

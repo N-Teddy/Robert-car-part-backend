@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersListResponseDto = exports.UserProfileResponseDto = exports.UserResponseDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const entity_enum_1 = require("../../common/enum/entity.enum");
+const upload_dto_1 = require("./upload.dto");
 class UserResponseDto {
 }
 exports.UserResponseDto = UserResponseDto;
@@ -82,23 +83,63 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", Date)
 ], UserProfileResponseDto.prototype, "updatedAt", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    __metadata("design:type", upload_dto_1.UploadedImageResponseDto)
+], UserProfileResponseDto.prototype, "profileImage", void 0);
 class UsersListResponseDto {
 }
 exports.UsersListResponseDto = UsersListResponseDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ type: [UserResponseDto] }),
+    (0, swagger_1.ApiProperty)({
+        type: [UserResponseDto],
+        description: 'Array of users',
+    }),
     __metadata("design:type", Array)
-], UsersListResponseDto.prototype, "users", void 0);
+], UsersListResponseDto.prototype, "items", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({
+        description: 'Total number of users across all pages',
+        example: 150,
+    }),
     __metadata("design:type", Number)
 ], UsersListResponseDto.prototype, "total", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({
+        description: 'Current page number',
+        example: 1,
+        minimum: 1,
+    }),
     __metadata("design:type", Number)
 ], UsersListResponseDto.prototype, "page", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({
+        description: 'Number of items per page',
+        example: 10,
+        minimum: 1,
+        maximum: 1000,
+    }),
     __metadata("design:type", Number)
 ], UsersListResponseDto.prototype, "limit", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Total number of pages',
+        example: 15,
+    }),
+    __metadata("design:type", Number)
+], UsersListResponseDto.prototype, "totalPages", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Whether there is a next page',
+        example: true,
+    }),
+    __metadata("design:type", Boolean)
+], UsersListResponseDto.prototype, "hasNext", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Whether there is a previous page',
+        example: false,
+    }),
+    __metadata("design:type", Boolean)
+], UsersListResponseDto.prototype, "hasPrev", void 0);
 //# sourceMappingURL=user.dto.js.map

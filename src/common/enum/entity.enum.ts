@@ -51,5 +51,3 @@ export enum AuditActionEnum {
 	REGISTER = 'REGISTER',
 	OTHER = 'OTHER',
 }
-
-

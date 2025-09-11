@@ -13,24 +13,24 @@ import { AuditLogModule } from '../auditLog/auditlog.module';
 import { PasswordResetToken } from 'src/entities/password-reset-token.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, PasswordResetToken]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('jwt.secret'),
-        signOptions: {
-          expiresIn: configService.get<string>('jwt.expiresIn'),
-        },
-      }),
-      inject: [ConfigService],
-    }),
-    NotificationModule,
-    AuditLogModule,
-  ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService, JwtStrategy, PassportModule],
+	imports: [
+		TypeOrmModule.forFeature([User, PasswordResetToken]),
+		PassportModule.register({ defaultStrategy: 'jwt' }),
+		JwtModule.registerAsync({
+			imports: [ConfigModule],
+			useFactory: async (configService: ConfigService) => ({
+				secret: configService.get<string>('jwt.secret'),
+				signOptions: {
+					expiresIn: configService.get<string>('jwt.expiresIn'),
+				},
+			}),
+			inject: [ConfigService],
+		}),
+		NotificationModule,
+		AuditLogModule,
+	],
+	controllers: [AuthController],
+	providers: [AuthService, JwtStrategy],
+	exports: [AuthService, JwtStrategy, PassportModule],
 })
 export class AuthModule {}

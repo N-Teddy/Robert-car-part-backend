@@ -31,6 +31,7 @@ let UserService = UserService_1 = class UserService {
         try {
             const user = await this.userRepository.findOne({
                 where: { id: userId },
+                relations: ['profileImage'],
             });
             if (!user) {
                 throw new common_1.NotFoundException('User not found');
@@ -58,6 +59,14 @@ let UserService = UserService_1 = class UserService {
             if (dto.phoneNumber !== undefined)
                 user.phoneNumber = dto.phoneNumber;
             const updatedUser = await this.userRepository.save(user);
+            await this.notificationService.sendNotification({
+                type: notification_enum_1.NotificationEnum.PROFILE_UPDATED,
+                title: 'Password Changed',
+                message: 'Your profile has been updated successfully.',
+                audience: notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER,
+                userIds: [userId],
+                channel: notification_enum_1.NotificationChannelEnum.WEBSOCKET,
+            });
             return this.mapToProfileResponseDto(updatedUser);
         }
         catch (error) {
@@ -76,7 +85,11 @@ let UserService = UserService_1 = class UserService {
             if (!admin) {
                 throw new common_1.NotFoundException('Admin user not found');
             }
-            const allowedRoles = [entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV];
+            const allowedRoles = [
+                entity_enum_1.UserRoleEnum.ADMIN,
+                entity_enum_1.UserRoleEnum.MANAGER,
+                entity_enum_1.UserRoleEnum.DEV,
+            ];
             if (!allowedRoles.includes(admin.role)) {
                 throw new common_1.ForbiddenException('You do not have permission to assign roles');
             }
@@ -108,6 +121,7 @@ let UserService = UserService_1 = class UserService {
                 title: 'Role Assignment',
                 message: `${admin.fullName} assigned role ${dto.role} to ${user.fullName}`,
                 audience: notification_enum_1.NotificationAudienceEnum.ADMIN,
+                channel: notification_enum_1.NotificationChannelEnum.WEBSOCKET,
                 metadata: {
                     userId: user.id,
                     userEmail: user.email,
@@ -120,7 +134,8 @@ let UserService = UserService_1 = class UserService {
         }
         catch (error) {
             this.logger.error('Failed to assign role', error);
-            if (error instanceof common_1.NotFoundException || error instanceof common_1.ForbiddenException) {
+            if (error instanceof common_1.NotFoundException ||
+                error instanceof common_1.ForbiddenException) {
                 throw error;
             }
             throw new common_1.BadRequestException('Failed to assign role');
@@ -128,29 +143,37 @@ let UserService = UserService_1 = class UserService {
     }
     async getAllUsers(filter) {
         try {
+            const { page = 1, limit = 10, ...restFilter } = filter;
+            const skip = (page - 1) * limit;
             const query = this.userRepository.createQueryBuilder('user');
-            if (filter.role) {
-                query.andWhere('user.role = :role', { role: filter.role });
+            if (restFilter.role) {
+                query.andWhere('user.role = :role', { role: restFilter.role });
             }
-            if (filter.isActive !== undefined) {
-                query.andWhere('user.isActive = :isActive', { isActive: filter.isActive });
+            if (restFilter.isActive !== undefined) {
+                query.andWhere('user.isActive = :isActive', {
+                    isActive: restFilter.isActive,
+                });
             }
-            if (filter.search) {
-                query.andWhere('(user.email ILIKE :search OR user.fullName ILIKE :search)', { search: `%${filter.search}%` });
+            if (restFilter.search) {
+                query.andWhere('(user.email ILIKE :search OR user.fullName ILIKE :search)', { search: `%${restFilter.search}%` });
             }
-            const sortBy = filter.sortBy || 'createdAt';
-            const sortOrder = filter.sortOrder || 'DESC';
-            query.orderBy(`user.${sortBy}`, sortOrder);
             const total = await query.getCount();
-            const page = 1;
-            const limit = 10;
-            query.skip((page - 1) * limit).take(limit);
+            const sortBy = restFilter.sortBy || 'createdAt';
+            const sortOrder = restFilter.sortOrder || 'DESC';
+            query.orderBy(`user.${sortBy}`, sortOrder);
+            query.skip(skip).take(limit);
             const users = await query.getMany();
+            const totalPages = Math.ceil(total / limit);
+            const hasNext = page < totalPages;
+            const hasPrev = page > 1;
             return {
-                users: users.map(user => this.mapToResponseDto(user)),
+                items: users.map((user) => this.mapToResponseDto(user)),
                 total,
                 page,
                 limit,
+                totalPages,
+                hasNext,
+                hasPrev,
             };
         }
         catch (error) {
@@ -181,7 +204,9 @@ let UserService = UserService_1 = class UserService {
             const admin = await this.userRepository.findOne({
                 where: { id: adminId },
             });
-            if (!admin || (admin.role !== entity_enum_1.UserRoleEnum.ADMIN && admin.role !== entity_enum_1.UserRoleEnum.MANAGER)) {
+            if (!admin ||
+                (admin.role !== entity_enum_1.UserRoleEnum.ADMIN &&
+                    admin.role !== entity_enum_1.UserRoleEnum.MANAGER)) {
                 throw new common_1.ForbiddenException('Insufficient permissions');
             }
             const user = await this.userRepository.findOne({
@@ -201,11 +226,20 @@ let UserService = UserService_1 = class UserService {
             if (dto.isActive !== undefined)
                 user.isActive = dto.isActive;
             const updatedUser = await this.userRepository.save(user);
+            await this.notificationService.sendNotification({
+                type: notification_enum_1.NotificationEnum.USER_UPDATED,
+                title: 'User Updated',
+                message: 'user has been updated successfully.',
+                audience: notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER,
+                userIds: [userId],
+                channel: notification_enum_1.NotificationChannelEnum.WEBSOCKET,
+            });
             return this.mapToResponseDto(updatedUser);
         }
         catch (error) {
             this.logger.error('Failed to update user', error);
-            if (error instanceof common_1.NotFoundException || error instanceof common_1.ForbiddenException) {
+            if (error instanceof common_1.NotFoundException ||
+                error instanceof common_1.ForbiddenException) {
                 throw error;
             }
             throw new common_1.BadRequestException('Failed to update user');
@@ -226,10 +260,23 @@ let UserService = UserService_1 = class UserService {
                 throw new common_1.NotFoundException('User not found');
             }
             await this.userRepository.remove(user);
+            await this.notificationService.sendNotification({
+                type: notification_enum_1.NotificationEnum.USER_DELETED,
+                title: 'User Deleted',
+                message: 'user has been deleted successfully.',
+                audience: notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER,
+                userIds: [adminId],
+                channel: notification_enum_1.NotificationChannelEnum.WEBSOCKET,
+            });
+            return {
+                message: 'user deleted successfully',
+                success: true,
+            };
         }
         catch (error) {
             this.logger.error('Failed to delete user', error);
-            if (error instanceof common_1.NotFoundException || error instanceof common_1.ForbiddenException) {
+            if (error instanceof common_1.NotFoundException ||
+                error instanceof common_1.ForbiddenException) {
                 throw error;
             }
             throw new common_1.BadRequestException('Failed to delete user');
@@ -241,7 +288,7 @@ let UserService = UserService_1 = class UserService {
                 where: { role: entity_enum_1.UserRoleEnum.UNKNOWN },
                 order: { createdAt: 'DESC' },
             });
-            return users.map(user => this.mapToResponseDto(user));
+            return users.map((user) => this.mapToResponseDto(user));
         }
         catch (error) {
             this.logger.error('Failed to get users without role', error);
@@ -260,7 +307,23 @@ let UserService = UserService_1 = class UserService {
             updatedAt: user.updatedAt,
         };
     }
+    mapToProfileImageResponseDto(image) {
+        const dto = {
+            id: image.id,
+            url: image.url,
+            format: image.format,
+            size: image.size,
+            entityType: image.type,
+            createdAt: image.createdAt,
+            updatedAt: image.updatedAt,
+        };
+        return dto;
+    }
     mapToProfileResponseDto(user) {
+        let profileImageDto = null;
+        if (user.profileImage) {
+            profileImageDto = this.mapToProfileImageResponseDto(user.profileImage);
+        }
         return {
             id: user.id,
             email: user.email,
@@ -270,6 +333,7 @@ let UserService = UserService_1 = class UserService {
             isActive: user.isActive,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
+            profileImage: profileImageDto,
         };
     }
 };

@@ -29,7 +29,7 @@ __decorate([
     __metadata("design:type", Boolean)
 ], PasswordResetToken.prototype, "isUsed", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.resetTokens),
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.resetTokens, { onDelete: 'CASCADE' }),
     __metadata("design:type", user_entity_1.User)
 ], PasswordResetToken.prototype, "user", void 0);
 exports.PasswordResetToken = PasswordResetToken = __decorate([

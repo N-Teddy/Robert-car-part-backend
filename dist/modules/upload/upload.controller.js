@@ -80,7 +80,13 @@ __decorate([
                 },
                 entityType: {
                     type: 'string',
-                    enum: ['USER-PROFILE', 'VEHICLE', 'PART', 'QR-CODE', 'CATEGORY'],
+                    enum: [
+                        'USER PROFILE',
+                        'VEHICLE',
+                        'PART',
+                        'QR-CODE',
+                        'CATEGORY',
+                    ],
                 },
                 entityId: {
                     type: 'string',
@@ -119,7 +125,13 @@ __decorate([
                 },
                 entityType: {
                     type: 'string',
-                    enum: ['USER-PROFILE', 'VEHICLE', 'PART', 'QR-CODE', 'CATEGORY'],
+                    enum: [
+                        'USER-PROFILE',
+                        'VEHICLE',
+                        'PART',
+                        'QR-CODE',
+                        'CATEGORY',
+                    ],
                 },
                 entityId: {
                     type: 'string',

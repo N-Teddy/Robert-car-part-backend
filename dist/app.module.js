@@ -57,7 +57,7 @@ exports.AppModule = AppModule = __decorate([
                     supabase_config_1.default,
                     jwt_config_1.default,
                     email_config_1.default,
-                    auth_config_1.default
+                    auth_config_1.default,
                 ],
             }),
             auditlog_module_1.AuditLogModule,

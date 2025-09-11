@@ -30,9 +30,9 @@ let AuditLogInterceptor = AuditLogInterceptor_1 = class AuditLogInterceptor {
             '/auth/register',
             '/auth/login',
             '/auth/forgot-password',
-            '/auth/reset-password'
+            '/auth/reset-password',
         ];
-        if (skipRoutes.some(route => url.includes(route))) {
+        if (skipRoutes.some((route) => url.includes(route))) {
             this.logger.debug(`Skipping audit log for unauthenticated route: ${url}`);
             return next.handle();
         }
@@ -82,7 +82,9 @@ let AuditLogInterceptor = AuditLogInterceptor_1 = class AuditLogInterceptor {
         if (url.includes('/create') || method === 'POST') {
             return entity_enum_1.AuditActionEnum.CREATE;
         }
-        else if (url.includes('/update') || method === 'PUT' || method === 'PATCH') {
+        else if (url.includes('/update') ||
+            method === 'PUT' ||
+            method === 'PATCH') {
             return entity_enum_1.AuditActionEnum.UPDATE;
         }
         else if (url.includes('/delete') || method === 'DELETE') {
@@ -97,9 +99,14 @@ let AuditLogInterceptor = AuditLogInterceptor_1 = class AuditLogInterceptor {
         return entity_enum_1.AuditActionEnum.OTHER;
     }
     filterSensitiveHeaders(headers) {
-        const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key', 'x-access-token'];
+        const sensitiveHeaders = [
+            'authorization',
+            'cookie',
+            'x-api-key',
+            'x-access-token',
+        ];
         const filtered = { ...headers };
-        sensitiveHeaders.forEach(header => {
+        sensitiveHeaders.forEach((header) => {
             if (filtered[header]) {
                 filtered[header] = '[REDACTED]';
             }
@@ -109,9 +116,16 @@ let AuditLogInterceptor = AuditLogInterceptor_1 = class AuditLogInterceptor {
     filterSensitiveData(data) {
         if (!data)
             return data;
-        const sensitiveFields = ['password', 'token', 'accessToken', 'refreshToken', 'creditCard', 'cvv'];
+        const sensitiveFields = [
+            'password',
+            'token',
+            'accessToken',
+            'refreshToken',
+            'creditCard',
+            'cvv',
+        ];
         const filtered = { ...data };
-        sensitiveFields.forEach(field => {
+        sensitiveFields.forEach((field) => {
             if (filtered[field]) {
                 filtered[field] = '[REDACTED]';
             }
