@@ -29,7 +29,9 @@ export interface PaginatedResponse<T> {
 }
 
 @Injectable()
-export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T | PaginatedResponse<T>>> {
+export class ResponseInterceptor<T>
+	implements NestInterceptor<T, Response<T | PaginatedResponse<T>>>
+{
 	constructor(private reflector: Reflector) {}
 
 	intercept(
@@ -54,11 +56,17 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T | P
 								total: data.total,
 								page: data.page,
 								limit: data.limit,
-								totalPages: data.totalPages || Math.ceil(data.total / data.limit),
-								hasNext: data.hasNext || data.page < (data.totalPages || Math.ceil(data.total / data.limit)),
+								totalPages:
+									data.totalPages ||
+									Math.ceil(data.total / data.limit),
+								hasNext:
+									data.hasNext ||
+									data.page <
+										(data.totalPages ||
+											Math.ceil(data.total / data.limit)),
 								hasPrev: data.hasPrev || data.page > 1,
-							}
-						}
+							},
+						},
 					};
 				}
 
@@ -78,9 +86,15 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T | P
 
 	private isPaginatedResponse(data: any): boolean {
 		// Check if data has pagination properties
-		return data &&
-			(data.hasOwnProperty('total') || data.hasOwnProperty('page') || data.hasOwnProperty('limit')) &&
-			(data.hasOwnProperty('users') || data.hasOwnProperty('items') || data.hasOwnProperty('data'));
+		return (
+			data &&
+			(data.hasOwnProperty('total') ||
+				data.hasOwnProperty('page') ||
+				data.hasOwnProperty('limit')) &&
+			(data.hasOwnProperty('users') ||
+				data.hasOwnProperty('items') ||
+				data.hasOwnProperty('data'))
+		);
 	}
 
 	private formatErrorResponse(error: any) {

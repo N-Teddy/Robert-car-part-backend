@@ -7,14 +7,15 @@ import {
 	TreeChildren,
 	TreeParent,
 	Index,
-	OneToOne, // Add this import
+	OneToOne,
+	JoinColumn, // Add this import
 } from 'typeorm';
 import { Part } from './part.entity';
 import { BaseEntity } from './base.entity';
 import { Image } from './image.entity';
 
 @Entity('categories')
-@Tree('nested-set')
+@Tree('materialized-path')
 export class Category extends BaseEntity {
 	@Column()
 	@Index() // For faster searching
@@ -38,7 +39,9 @@ export class Category extends BaseEntity {
 	// Add one-to-one relationship with Image
 	@OneToOne(() => Image, (image) => image.category, {
 		nullable: true,
-		onDelete: 'CASCADE',
+		onDelete: 'SET NULL',
+		cascade: true,
 	})
+	@JoinColumn()
 	image: Image;
 }

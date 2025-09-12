@@ -45,12 +45,14 @@ __decorate([
 __decorate([
     (0, typeorm_1.OneToOne)(() => image_entity_1.Image, (image) => image.category, {
         nullable: true,
-        onDelete: 'CASCADE',
+        onDelete: 'SET NULL',
+        cascade: true,
     }),
+    (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", image_entity_1.Image)
 ], Category.prototype, "image", void 0);
 exports.Category = Category = __decorate([
     (0, typeorm_1.Entity)('categories'),
-    (0, typeorm_1.Tree)('nested-set')
+    (0, typeorm_1.Tree)('materialized-path')
 ], Category);
 //# sourceMappingURL=category.entity.js.map

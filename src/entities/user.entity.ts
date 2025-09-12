@@ -45,7 +45,9 @@ export class User extends BaseEntity {
 	@JoinColumn()
 	profileImage?: Image;
 
-	@OneToMany(() => PasswordResetToken, (token) => token.user, { onDelete: 'CASCADE' })
+	@OneToMany(() => PasswordResetToken, (token) => token.user, {
+		onDelete: 'CASCADE',
+	})
 	resetTokens: PasswordResetToken[];
 
 	@OneToMany(() => Notification, (notification) => notification.user, {
@@ -53,6 +55,8 @@ export class User extends BaseEntity {
 	})
 	notifications: Notification[];
 
-	@OneToMany(() => AuditLog, (auditLog) => auditLog.user, { onDelete: 'CASCADE' })
+	@OneToMany(() => AuditLog, (auditLog) => auditLog.user, {
+		onDelete: 'CASCADE',
+	})
 	auditLogs: AuditLog[];
 }

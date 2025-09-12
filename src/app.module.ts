@@ -35,6 +35,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { SeedModule } from './seed/seed.module';
 import authConfig from './config/auth.config';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
 	imports: [
@@ -57,6 +58,7 @@ import authConfig from './config/auth.config';
 		AuthModule,
 		UserModule,
 		SeedModule,
+		CategoryModule,
 
 		// Dynamically configure TypeORM based on the environment
 		TypeOrmModule.forRootAsync({
@@ -148,8 +150,6 @@ import authConfig from './config/auth.config';
 				];
 			},
 		}),
-
-		UploadModule,
 	],
 	controllers: [AppController],
 	providers: [

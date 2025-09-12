@@ -158,7 +158,7 @@ let UploadService = UploadService_1 = class UploadService {
             }
             const uploader = await this.userRepository.findOne({
                 where: { id: userId },
-                select: ['id', 'email', 'firstName', 'lastName'],
+                select: ['id', 'email', 'fullName'],
             });
             return this.mapToResponseDto(imageWithRelations, uploader);
         }

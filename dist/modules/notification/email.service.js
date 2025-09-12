@@ -233,6 +233,10 @@ let EmailService = EmailService_1 = class EmailService {
             [notification_enum_1.NotificationEnum.PROFILE_UPDATED]: '',
             [notification_enum_1.NotificationEnum.USER_UPDATED]: '',
             [notification_enum_1.NotificationEnum.USER_DELETED]: '',
+            [notification_enum_1.NotificationEnum.CATEGORY_CREATED]: '',
+            [notification_enum_1.NotificationEnum.CATEGORY_UPDATED]: '',
+            [notification_enum_1.NotificationEnum.CATEGORY_DELETED]: '',
+            [notification_enum_1.NotificationEnum.REORDER_CATEGORIES]: '',
         };
         return templateMap[type] || 'default';
     }

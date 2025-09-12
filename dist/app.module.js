@@ -42,6 +42,7 @@ const auth_module_1 = require("./modules/auth/auth.module");
 const user_module_1 = require("./modules/user/user.module");
 const seed_module_1 = require("./seed/seed.module");
 const auth_config_1 = require("./config/auth.config");
+const category_module_1 = require("./modules/category/category.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -66,6 +67,7 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             user_module_1.UserModule,
             seed_module_1.SeedModule,
+            category_module_1.CategoryModule,
             typeorm_1.TypeOrmModule.forRootAsync({
                 inject: [config_1.ConfigService],
                 useFactory: (configService) => {
@@ -147,7 +149,6 @@ exports.AppModule = AppModule = __decorate([
                     ];
                 },
             }),
-            upload_module_1.UploadModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

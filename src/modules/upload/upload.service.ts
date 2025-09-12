@@ -212,7 +212,7 @@ export class UploadService {
 			// Get the user who uploaded for response
 			const uploader = await this.userRepository.findOne({
 				where: { id: userId },
-				select: ['id', 'email', 'firstName', 'lastName'] as any,
+				select: ['id', 'email', 'fullName'] as any,
 			});
 
 			return this.mapToResponseDto(imageWithRelations, uploader);

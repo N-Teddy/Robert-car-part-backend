@@ -1,25 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotificationChannelEnum = exports.NotificationAudienceEnum = exports.NotificationEnum = exports.NotificationStatus = exports.NotificationPriority = exports.NotificationChannel = exports.NotificationType = void 0;
-var NotificationType;
-(function (NotificationType) {
-    NotificationType["WELCOME"] = "welcome";
-    NotificationType["PASSWORD_RESET"] = "password_reset";
-    NotificationType["PASSWORD_CHANGED"] = "password_changed";
-    NotificationType["NEW_DEVICE_LOGIN"] = "new_device_login";
-    NotificationType["ROLE_ASSIGNED"] = "role_assigned";
-    NotificationType["PROFILE_UPDATED"] = "profile_updated";
-    NotificationType["ACCOUNT_ACTIVATED"] = "account_activated";
-    NotificationType["ACCOUNT_DEACTIVATED"] = "account_deactivated";
-    NotificationType["EMAIL_VERIFICATION"] = "email_verification";
-    NotificationType["VEHICLE_CREATED"] = "vehicle_created";
-    NotificationType["VEHICLE_UPDATED"] = "vehicle_updated";
-    NotificationType["VEHICLE_DELETED"] = "vehicle_deleted";
-    NotificationType["VEHICLE_PARTED_OUT"] = "vehicle_parted_out";
-    NotificationType["NEW_CATEGORY"] = "new_category";
-    NotificationType["CATEGORY_UPDATED"] = "category_updated";
-    NotificationType["SYSTEM_ANNOUNCEMENT"] = "system_announcement";
-})(NotificationType || (exports.NotificationType = NotificationType = {}));
+exports.NotificationChannelEnum = exports.NotificationAudienceEnum = exports.NotificationEnum = exports.NotificationStatus = exports.NotificationPriority = exports.NotificationChannel = void 0;
 var NotificationChannel;
 (function (NotificationChannel) {
     NotificationChannel["EMAIL"] = "email";
@@ -67,6 +48,10 @@ var NotificationEnum;
     NotificationEnum["ORDER_CANCELLED"] = "ORDER_CANCELLED";
     NotificationEnum["REPORT_GENERATED"] = "REPORT_GENERATED";
     NotificationEnum["REPORT_READY"] = "REPORT_READY";
+    NotificationEnum["CATEGORY_CREATED"] = "CATEGORY_CREATED";
+    NotificationEnum["CATEGORY_UPDATED"] = "CATEGORY_UPDATED";
+    NotificationEnum["CATEGORY_DELETED"] = "CATEGORY_DELETED";
+    NotificationEnum["REORDER_CATEGORIES"] = "REORDER_CATEGORIES";
 })(NotificationEnum || (exports.NotificationEnum = NotificationEnum = {}));
 var NotificationAudienceEnum;
 (function (NotificationAudienceEnum) {

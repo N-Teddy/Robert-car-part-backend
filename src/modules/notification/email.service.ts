@@ -303,6 +303,10 @@ export class EmailService {
 			[NotificationEnum.PROFILE_UPDATED]: '',
 			[NotificationEnum.USER_UPDATED]: '',
 			[NotificationEnum.USER_DELETED]: '',
+			[NotificationEnum.CATEGORY_CREATED]: '',
+			[NotificationEnum.CATEGORY_UPDATED]: '',
+			[NotificationEnum.CATEGORY_DELETED]: '',
+			[NotificationEnum.REORDER_CATEGORIES]: '',
 		};
 
 		return templateMap[type] || 'default';

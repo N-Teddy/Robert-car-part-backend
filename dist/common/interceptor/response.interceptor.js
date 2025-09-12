@@ -30,11 +30,15 @@ let ResponseInterceptor = class ResponseInterceptor {
                             total: data.total,
                             page: data.page,
                             limit: data.limit,
-                            totalPages: data.totalPages || Math.ceil(data.total / data.limit),
-                            hasNext: data.hasNext || data.page < (data.totalPages || Math.ceil(data.total / data.limit)),
+                            totalPages: data.totalPages ||
+                                Math.ceil(data.total / data.limit),
+                            hasNext: data.hasNext ||
+                                data.page <
+                                    (data.totalPages ||
+                                        Math.ceil(data.total / data.limit)),
                             hasPrev: data.hasPrev || data.page > 1,
-                        }
-                    }
+                        },
+                    },
                 };
             }
             return {
@@ -47,9 +51,13 @@ let ResponseInterceptor = class ResponseInterceptor {
         }));
     }
     isPaginatedResponse(data) {
-        return data &&
-            (data.hasOwnProperty('total') || data.hasOwnProperty('page') || data.hasOwnProperty('limit')) &&
-            (data.hasOwnProperty('users') || data.hasOwnProperty('items') || data.hasOwnProperty('data'));
+        return (data &&
+            (data.hasOwnProperty('total') ||
+                data.hasOwnProperty('page') ||
+                data.hasOwnProperty('limit')) &&
+            (data.hasOwnProperty('users') ||
+                data.hasOwnProperty('items') ||
+                data.hasOwnProperty('data')));
     }
     formatErrorResponse(error) {
         if (error instanceof common_1.HttpException) {

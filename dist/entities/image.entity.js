@@ -70,7 +70,6 @@ __decorate([
         nullable: true,
         onDelete: 'CASCADE',
     }),
-    (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", category_entity_1.Category)
 ], Image.prototype, "category", void 0);
 __decorate([

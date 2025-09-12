@@ -185,5 +185,3 @@ export class NotificationListResponseDto {
 	@ApiProperty({ description: 'Whether there is a previous page' })
 	hasPrev: boolean;
 }
-
-

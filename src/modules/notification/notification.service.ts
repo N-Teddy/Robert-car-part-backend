@@ -245,9 +245,7 @@ export class NotificationService {
 	}
 
 	// Get notifications with filters
-	async getNotifications(
-		filter: NotificationFilterDto
-	): Promise<any> {
+	async getNotifications(filter: NotificationFilterDto): Promise<any> {
 		const { page = 1, limit = 20, ...restFilter } = filter;
 		const skip = (page - 1) * limit;
 

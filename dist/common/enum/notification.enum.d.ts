@@ -1,21 +1,3 @@
-export declare enum NotificationType {
-    WELCOME = "welcome",
-    PASSWORD_RESET = "password_reset",
-    PASSWORD_CHANGED = "password_changed",
-    NEW_DEVICE_LOGIN = "new_device_login",
-    ROLE_ASSIGNED = "role_assigned",
-    PROFILE_UPDATED = "profile_updated",
-    ACCOUNT_ACTIVATED = "account_activated",
-    ACCOUNT_DEACTIVATED = "account_deactivated",
-    EMAIL_VERIFICATION = "email_verification",
-    VEHICLE_CREATED = "vehicle_created",
-    VEHICLE_UPDATED = "vehicle_updated",
-    VEHICLE_DELETED = "vehicle_deleted",
-    VEHICLE_PARTED_OUT = "vehicle_parted_out",
-    NEW_CATEGORY = "new_category",
-    CATEGORY_UPDATED = "category_updated",
-    SYSTEM_ANNOUNCEMENT = "system_announcement"
-}
 export declare enum NotificationChannel {
     EMAIL = "email",
     IN_APP = "in_app"
@@ -58,7 +40,11 @@ export declare enum NotificationEnum {
     ORDER_COMPLETED = "ORDER_COMPLETED",
     ORDER_CANCELLED = "ORDER_CANCELLED",
     REPORT_GENERATED = "REPORT_GENERATED",
-    REPORT_READY = "REPORT_READY"
+    REPORT_READY = "REPORT_READY",
+    CATEGORY_CREATED = "CATEGORY_CREATED",
+    CATEGORY_UPDATED = "CATEGORY_UPDATED",
+    CATEGORY_DELETED = "CATEGORY_DELETED",
+    REORDER_CATEGORIES = "REORDER_CATEGORIES"
 }
 export declare enum NotificationAudienceEnum {
     ALL = "ALL",

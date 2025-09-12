@@ -38,7 +38,7 @@ export class UserService {
 		@InjectRepository(User)
 		private readonly userRepository: Repository<User>,
 		private readonly notificationService: NotificationService
-	) { }
+	) {}
 
 	async getProfile(userId: string): Promise<UserProfileResponseDto> {
 		try {
