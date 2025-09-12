@@ -11,7 +11,6 @@ export declare class Part extends BaseEntity {
     quantity: number;
     condition?: string;
     partNumber?: string;
-    isFeatured: boolean;
     vehicle: Vehicle;
     category: Category;
     orderItems: OrderItem[];

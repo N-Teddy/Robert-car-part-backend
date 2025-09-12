@@ -9,12 +9,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateVehicleDto = exports.CreateVehicleDto = void 0;
+exports.UpdatePartDto = exports.CreatePartDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
-class CreateVehicleDto {
+class CreatePartDto {
 }
-exports.CreateVehicleDto = CreateVehicleDto;
+exports.CreatePartDto = CreatePartDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
         type: 'array',
@@ -22,64 +22,59 @@ __decorate([
             type: 'string',
             format: 'binary',
         },
-        description: 'Vehicle image files (optional)',
+        description: 'Part image files (optional)',
     }),
     __metadata("design:type", Array)
-], CreateVehicleDto.prototype, "images", void 0);
+], CreatePartDto.prototype, "images", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateVehicleDto.prototype, "make", void 0);
+], CreatePartDto.prototype, "name", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateVehicleDto.prototype, "model", void 0);
+], CreatePartDto.prototype, "description", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
     __metadata("design:type", Number)
-], CreateVehicleDto.prototype, "year", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)(),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], CreateVehicleDto.prototype, "vin", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)(),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], CreateVehicleDto.prototype, "description", void 0);
+], CreatePartDto.prototype, "price", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
     __metadata("design:type", Number)
-], CreateVehicleDto.prototype, "purchasePrice", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)(),
-    (0, class_validator_1.IsDateString)(),
-    __metadata("design:type", String)
-], CreateVehicleDto.prototype, "purchaseDate", void 0);
+], CreatePartDto.prototype, "quantity", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], CreateVehicleDto.prototype, "auctionName", void 0);
+], CreatePartDto.prototype, "condition", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], CreateVehicleDto.prototype, "isPartedOut", void 0);
-class UpdateVehicleDto {
+    __metadata("design:type", String)
+], CreatePartDto.prototype, "partNumber", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreatePartDto.prototype, "vehicleId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreatePartDto.prototype, "categoryId", void 0);
+class UpdatePartDto {
 }
-exports.UpdateVehicleDto = UpdateVehicleDto;
+exports.UpdatePartDto = UpdatePartDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
         type: 'array',
@@ -87,68 +82,58 @@ __decorate([
             type: 'string',
             format: 'binary',
         },
-        description: 'Vehicles image files (optional)',
+        description: 'Part image files (optional)',
     }),
     __metadata("design:type", Array)
-], UpdateVehicleDto.prototype, "images", void 0);
+], UpdatePartDto.prototype, "images", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], UpdateVehicleDto.prototype, "make", void 0);
+], UpdatePartDto.prototype, "name", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], UpdateVehicleDto.prototype, "model", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsDate)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Date)
-], UpdateVehicleDto.prototype, "year", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], UpdateVehicleDto.prototype, "vin", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], UpdateVehicleDto.prototype, "description", void 0);
+], UpdatePartDto.prototype, "description", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
-], UpdateVehicleDto.prototype, "purchasePrice", void 0);
+], UpdatePartDto.prototype, "price", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsDateString)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], UpdateVehicleDto.prototype, "purchaseDate", void 0);
+    __metadata("design:type", Number)
+], UpdatePartDto.prototype, "quantity", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], UpdateVehicleDto.prototype, "auctionName", void 0);
+], UpdatePartDto.prototype, "condition", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], UpdateVehicleDto.prototype, "isPartedOut", void 0);
+    __metadata("design:type", String)
+], UpdatePartDto.prototype, "partNumber", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsUUID)(),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], UpdateVehicleDto.prototype, "isActive", void 0);
-//# sourceMappingURL=vehicle.dto.js.map
+    __metadata("design:type", String)
+], UpdatePartDto.prototype, "vehicleId", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdatePartDto.prototype, "categoryId", void 0);
+//# sourceMappingURL=part.dto.js.map

@@ -14,7 +14,6 @@ export class QrCode extends BaseEntity {
 
 	@OneToOne(() => Part, (part) => part.qrCode, {
 		onDelete: 'CASCADE',
-		nullable: false,
 	})
 	part: Part;
 
@@ -23,6 +22,5 @@ export class QrCode extends BaseEntity {
 		nullable: true,
 		onDelete: 'SET NULL', // Set image to null if qrCode is deleted
 	})
-	@JoinColumn()
 	image?: Image; // This will store the actual QR code image
 }

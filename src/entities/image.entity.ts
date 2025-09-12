@@ -54,7 +54,7 @@ export class Image extends BaseEntity {
 
 	@OneToOne(() => QrCode, (qrCode) => qrCode.image, {
 		nullable: true,
-		onDelete: 'CASCADE',
 	})
+	@JoinColumn()
 	qrCode: QrCode;
 }

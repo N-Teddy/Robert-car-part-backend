@@ -43,6 +43,7 @@ export enum NotificationEnum {
 	// Part notifications
 	PART_CREATED = 'PART_CREATED',
 	PART_UPDATED = 'PART_UPDATED',
+	PART_DELETED = 'PART_DELETED',
 	PART_SOLD = 'PART_SOLD',
 	PART_LOW_STOCK = 'PART_LOW_STOCK',
 

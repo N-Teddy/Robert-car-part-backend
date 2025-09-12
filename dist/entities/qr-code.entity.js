@@ -28,7 +28,6 @@ __decorate([
 __decorate([
     (0, typeorm_1.OneToOne)(() => part_entity_1.Part, (part) => part.qrCode, {
         onDelete: 'CASCADE',
-        nullable: false,
     }),
     __metadata("design:type", part_entity_1.Part)
 ], QrCode.prototype, "part", void 0);
@@ -37,7 +36,6 @@ __decorate([
         nullable: true,
         onDelete: 'SET NULL',
     }),
-    (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", image_entity_1.Image)
 ], QrCode.prototype, "image", void 0);
 exports.QrCode = QrCode = __decorate([

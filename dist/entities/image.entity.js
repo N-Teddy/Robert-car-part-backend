@@ -75,8 +75,8 @@ __decorate([
 __decorate([
     (0, typeorm_1.OneToOne)(() => qr_code_entity_1.QrCode, (qrCode) => qrCode.image, {
         nullable: true,
-        onDelete: 'CASCADE',
     }),
+    (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", qr_code_entity_1.QrCode)
 ], Image.prototype, "qrCode", void 0);
 exports.Image = Image = __decorate([

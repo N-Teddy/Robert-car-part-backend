@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, OneToMany, Index, OneToOne } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany, Index, OneToOne, JoinColumn } from 'typeorm';
 import { Vehicle } from './vehicle.entity';
 import { Category } from './category.entity';
 import { OrderItem } from './order-item.entity';
@@ -28,9 +28,6 @@ export class Part extends BaseEntity {
 	@Index()
 	partNumber?: string;
 
-	@Column({ default: false })
-	isFeatured: boolean;
-
 	@ManyToOne(() => Vehicle, (vehicle) => vehicle.parts)
 	vehicle: Vehicle;
 
@@ -43,6 +40,7 @@ export class Part extends BaseEntity {
 	@OneToMany(() => Image, (image) => image.part)
 	images: Image[];
 
-	@OneToOne(() => QrCode, (qrCode) => qrCode.part, { cascade: true })
+	@OneToOne(() => QrCode, (qrCode) => qrCode.part, { cascade: true, onDelete: 'CASCADE', })
+	@JoinColumn()
 	qrCode: QrCode;
 }

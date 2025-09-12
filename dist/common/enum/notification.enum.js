@@ -40,6 +40,7 @@ var NotificationEnum;
     NotificationEnum["VEHICLE_PARTED_OUT"] = "VEHICLE_PARTED_OUT";
     NotificationEnum["PART_CREATED"] = "PART_CREATED";
     NotificationEnum["PART_UPDATED"] = "PART_UPDATED";
+    NotificationEnum["PART_DELETED"] = "PART_DELETED";
     NotificationEnum["PART_SOLD"] = "PART_SOLD";
     NotificationEnum["PART_LOW_STOCK"] = "PART_LOW_STOCK";
     NotificationEnum["ORDER_CREATED"] = "ORDER_CREATED";

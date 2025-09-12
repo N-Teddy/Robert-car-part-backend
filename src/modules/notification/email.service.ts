@@ -290,6 +290,7 @@ export class EmailService {
 			[NotificationEnum.VEHICLE_PARTED_OUT]: 'notify-vehicle-parted-out',
 			[NotificationEnum.PART_CREATED]: 'part-created',
 			[NotificationEnum.PART_UPDATED]: 'part-updated',
+			[NotificationEnum.PART_DELETED]: 'part-deleted',
 			[NotificationEnum.PART_SOLD]: 'part-sold',
 			[NotificationEnum.PART_LOW_STOCK]: 'part-low-stock',
 			[NotificationEnum.ORDER_CREATED]: 'order-created',

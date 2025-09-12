@@ -16,7 +16,7 @@ export class CreateVehicleDto {
 			type: 'string',
 			format: 'binary',
 		},
-		description: 'Category image files (optional)',
+		description: 'Vehicle image files (optional)',
 	})
 	images?: any[];
 

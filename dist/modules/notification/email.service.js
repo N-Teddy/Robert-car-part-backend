@@ -220,6 +220,7 @@ let EmailService = EmailService_1 = class EmailService {
             [notification_enum_1.NotificationEnum.VEHICLE_PARTED_OUT]: 'notify-vehicle-parted-out',
             [notification_enum_1.NotificationEnum.PART_CREATED]: 'part-created',
             [notification_enum_1.NotificationEnum.PART_UPDATED]: 'part-updated',
+            [notification_enum_1.NotificationEnum.PART_DELETED]: 'part-deleted',
             [notification_enum_1.NotificationEnum.PART_SOLD]: 'part-sold',
             [notification_enum_1.NotificationEnum.PART_LOW_STOCK]: 'part-low-stock',
             [notification_enum_1.NotificationEnum.ORDER_CREATED]: 'order-created',
