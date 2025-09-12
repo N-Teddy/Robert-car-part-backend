@@ -1,4 +1,5 @@
-import { Entity, Column, OneToMany, Index } from 'typeorm';
+// src/entities/vehicle.entity.ts
+import { Entity, Column, OneToMany, Index, ManyToOne } from 'typeorm';
 import { Part } from './part.entity';
 import { VehicleProfit } from './vehicle-profit.entity';
 import { Image } from './image.entity';
@@ -35,6 +36,9 @@ export class Vehicle extends BaseEntity {
 
 	@Column({ default: false })
 	isPartedOut: boolean;
+
+	@Column({ default: true })
+	isActive: boolean;
 
 	@OneToMany(() => Part, (part) => part.vehicle)
 	parts: Part[];

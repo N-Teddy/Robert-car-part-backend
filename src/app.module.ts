@@ -36,6 +36,7 @@ import { UserModule } from './modules/user/user.module';
 import { SeedModule } from './seed/seed.module';
 import authConfig from './config/auth.config';
 import { CategoryModule } from './modules/category/category.module';
+import { VehicleModule } from './modules/vehicle/vehicle.module';
 
 @Module({
 	imports: [
@@ -59,6 +60,7 @@ import { CategoryModule } from './modules/category/category.module';
 		UserModule,
 		SeedModule,
 		CategoryModule,
+		VehicleModule,
 
 		// Dynamically configure TypeORM based on the environment
 		TypeOrmModule.forRootAsync({

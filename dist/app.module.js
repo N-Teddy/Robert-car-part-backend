@@ -43,6 +43,7 @@ const user_module_1 = require("./modules/user/user.module");
 const seed_module_1 = require("./seed/seed.module");
 const auth_config_1 = require("./config/auth.config");
 const category_module_1 = require("./modules/category/category.module");
+const vehicle_module_1 = require("./modules/vehicle/vehicle.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -68,6 +69,7 @@ exports.AppModule = AppModule = __decorate([
             user_module_1.UserModule,
             seed_module_1.SeedModule,
             category_module_1.CategoryModule,
+            vehicle_module_1.VehicleModule,
             typeorm_1.TypeOrmModule.forRootAsync({
                 inject: [config_1.ConfigService],
                 useFactory: (configService) => {

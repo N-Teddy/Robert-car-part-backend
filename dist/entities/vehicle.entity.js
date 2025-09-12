@@ -58,6 +58,10 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Vehicle.prototype, "isPartedOut", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ default: true }),
+    __metadata("design:type", Boolean)
+], Vehicle.prototype, "isActive", void 0);
+__decorate([
     (0, typeorm_1.OneToMany)(() => part_entity_1.Part, (part) => part.vehicle),
     __metadata("design:type", Array)
 ], Vehicle.prototype, "parts", void 0);
