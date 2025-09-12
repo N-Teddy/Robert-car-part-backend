@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CategoryResponseDto = void 0;
+exports.PaginatedCategoryTreeResponse = exports.CategoryResponseDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 class CategoryResponseDto {
     static fromEntity(entity) {
@@ -81,4 +81,35 @@ __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Last update date' }),
     __metadata("design:type", Date)
 ], CategoryResponseDto.prototype, "updatedAt", void 0);
+class PaginatedCategoryTreeResponse {
+}
+exports.PaginatedCategoryTreeResponse = PaginatedCategoryTreeResponse;
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [CategoryResponseDto], description: 'Array of category trees' }),
+    __metadata("design:type", Array)
+], PaginatedCategoryTreeResponse.prototype, "data", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Total number of root categories' }),
+    __metadata("design:type", Number)
+], PaginatedCategoryTreeResponse.prototype, "total", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Current page number' }),
+    __metadata("design:type", Number)
+], PaginatedCategoryTreeResponse.prototype, "page", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Number of items per page' }),
+    __metadata("design:type", Number)
+], PaginatedCategoryTreeResponse.prototype, "limit", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Total number of pages' }),
+    __metadata("design:type", Number)
+], PaginatedCategoryTreeResponse.prototype, "totalPages", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Whether there is a next page' }),
+    __metadata("design:type", Boolean)
+], PaginatedCategoryTreeResponse.prototype, "hasNext", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Whether there is a previous page' }),
+    __metadata("design:type", Boolean)
+], PaginatedCategoryTreeResponse.prototype, "hasPrev", void 0);
 //# sourceMappingURL=category.dto.js.map

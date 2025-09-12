@@ -16,3 +16,12 @@ export declare class CategoryResponseDto {
     static fromEntity(entity: Category): CategoryResponseDto;
     static fromEntityWithChildren(entity: Category): CategoryResponseDto;
 }
+export declare class PaginatedCategoryTreeResponse {
+    data: CategoryResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+}

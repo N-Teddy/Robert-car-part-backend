@@ -62,19 +62,19 @@ export class UpdateCategoryDto {
 	@MaxLength(500)
 	description?: string;
 
-  @ApiPropertyOptional({
-    description: 'Parent category ID (set to null for root)',
-  })
-  @Transform(({ value }) => {
-    // Convert empty string to null, otherwise return the value as-is
-    if (value === '') {
-      return null;
-    }
-    return value;
-  })
-  @IsUUID()
-  @IsOptional()
-  parentId?: string | null;
+	@ApiPropertyOptional({
+		description: 'Parent category ID (set to null for root)',
+	})
+	@Transform(({ value }) => {
+		// Convert empty string to null, otherwise return the value as-is
+		if (value === '') {
+			return null;
+		}
+		return value;
+	})
+	@IsUUID()
+	@IsOptional()
+	parentId?: string | null;
 }
 
 export class CategoryQueryDto {

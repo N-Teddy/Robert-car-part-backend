@@ -79,10 +79,79 @@ let CategoryService = class CategoryService {
             throw new common_1.InternalServerErrorException(error?.message || 'Failed to create category');
         }
     }
-    async findTree() {
+    async findTree(page = 1, limit = 10, search) {
         try {
-            const categories = await this.categoryRepo.findTrees();
-            return categories.map((category) => this.mapToTreeResponseDto(category));
+            const query = this.categoryRepo.createQueryBuilder('category')
+                .leftJoinAndSelect('category.image', 'image')
+                .where('category.parentId IS NULL');
+            if (search) {
+                query.andWhere('(category.name ILIKE :search OR category.description ILIKE :search)', {
+                    search: `%${search}%`
+                });
+            }
+            const total = await query.getCount();
+            const totalPages = Math.ceil(total / limit);
+            const hasNext = page < totalPages;
+            const hasPrev = page > 1;
+            const skip = (page - 1) * limit;
+            const rootCategories = await query
+                .orderBy('category.name', 'ASC')
+                .skip(skip)
+                .take(limit)
+                .getMany();
+            const categoriesWithTrees = await Promise.all(rootCategories.map(async (rootCategory) => {
+                const fullTree = await this.categoryRepo.findDescendantsTree(rootCategory);
+                return fullTree;
+            }));
+            const allCategoryIds = categoriesWithTrees.reduce((ids, tree) => {
+                const getIdsFromTree = (category) => {
+                    const categoryIds = [category.id];
+                    if (category.children && category.children.length > 0) {
+                        category.children.forEach(child => {
+                            categoryIds.push(...getIdsFromTree(child));
+                        });
+                    }
+                    return categoryIds;
+                };
+                return [...ids, ...getIdsFromTree(tree)];
+            }, []);
+            let data;
+            if (allCategoryIds.length > 0) {
+                const categoriesWithImages = await this.categoryRepo
+                    .createQueryBuilder('category')
+                    .leftJoinAndSelect('category.image', 'image')
+                    .where('category.id IN (:...ids)', { ids: allCategoryIds })
+                    .getMany();
+                const imageMap = new Map();
+                categoriesWithImages.forEach(cat => {
+                    if (cat.image) {
+                        imageMap.set(cat.id, cat.image);
+                    }
+                });
+                const addImagesToTree = (category) => {
+                    return {
+                        ...category,
+                        image: imageMap.get(category.id) || null,
+                        children: category.children && category.children.length > 0
+                            ? category.children.map(child => addImagesToTree(child))
+                            : []
+                    };
+                };
+                const treesWithImages = categoriesWithTrees.map(tree => addImagesToTree(tree));
+                data = treesWithImages.map(tree => this.mapToTreeResponseDto(tree));
+            }
+            else {
+                data = categoriesWithTrees.map(tree => this.mapToTreeResponseDto(tree));
+            }
+            return {
+                data,
+                total,
+                page,
+                limit,
+                totalPages,
+                hasNext,
+                hasPrev
+            };
         }
         catch (error) {
             throw new common_1.InternalServerErrorException(error?.message || 'Failed to fetch category tree');

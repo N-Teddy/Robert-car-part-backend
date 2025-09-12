@@ -10,7 +10,7 @@ import {
 	Put,
 	Delete,
 	Query,
-  UseGuards,
+	UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -23,7 +23,7 @@ import {
 	ApiQuery,
 } from '@nestjs/swagger';
 import { CategoryService } from './category.service';
-import { CategoryResponseDto } from '../../dto/response/category.dto';
+import { CategoryResponseDto, PaginatedCategoryTreeResponse } from '../../dto/response/category.dto';
 import {
 	CreateCategoryDto,
 	UpdateCategoryDto,
@@ -32,8 +32,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
 @ApiTags('Categories')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('categories')
 export class CategoryController {
 	constructor(private readonly categoryService: CategoryService) {}
@@ -51,9 +51,21 @@ export class CategoryController {
 	}
 
 	@Get('tree')
-	@ApiOperation({ summary: 'Get all categories as a tree structure' })
-	async findTree(): Promise<CategoryResponseDto[]> {
-		return this.categoryService.findTree();
+	@ApiOperation({ summary: 'Get all categories as a tree structure with pagination' })
+	@ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
+	@ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page (default: 10)' })
+	@ApiQuery({ name: 'search', required: false, type: String, description: 'Search term for category name or description' })
+	@ApiResponse({
+		status: 200,
+		description: 'Paginated category tree retrieved successfully',
+		type: PaginatedCategoryTreeResponse
+	})
+	async findTree(
+		@Query('page') page: number = 1,
+		@Query('limit') limit: number = 10,
+		@Query('search') search?: string
+	): Promise<PaginatedCategoryTreeResponse> {
+		return this.categoryService.findTree(page, limit, search);
 	}
 
 	@Get(':id/children')

@@ -17,7 +17,8 @@ const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
 const swagger_1 = require("@nestjs/swagger");
 const category_service_1 = require("./category.service");
-const category_dto_1 = require("../../dto/request/category.dto");
+const category_dto_1 = require("../../dto/response/category.dto");
+const category_dto_2 = require("../../dto/request/category.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
 let CategoryController = class CategoryController {
@@ -27,8 +28,8 @@ let CategoryController = class CategoryController {
     async create(dto, image, req) {
         return this.categoryService.create(dto, image, req.user?.id);
     }
-    async findTree() {
-        return this.categoryService.findTree();
+    async findTree(page = 1, limit = 10, search) {
+        return this.categoryService.findTree(page, limit, search);
     }
     async findChildren(id) {
         return this.categoryService.findChildren(id);
@@ -56,14 +57,25 @@ __decorate([
     __param(1, (0, common_1.UploadedFile)()),
     __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [category_dto_1.CreateCategoryDto, Object, Object]),
+    __metadata("design:paramtypes", [category_dto_2.CreateCategoryDto, Object, Object]),
     __metadata("design:returntype", Promise)
 ], CategoryController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)('tree'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all categories as a tree structure' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all categories as a tree structure with pagination' }),
+    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' }),
+    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number, description: 'Number of items per page (default: 10)' }),
+    (0, swagger_1.ApiQuery)({ name: 'search', required: false, type: String, description: 'Search term for category name or description' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Paginated category tree retrieved successfully',
+        type: category_dto_1.PaginatedCategoryTreeResponse
+    }),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Query)('search')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Number, Number, String]),
     __metadata("design:returntype", Promise)
 ], CategoryController.prototype, "findTree", null);
 __decorate([
@@ -105,7 +117,7 @@ __decorate([
     __param(2, (0, common_1.UploadedFile)()),
     __param(3, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, category_dto_1.UpdateCategoryDto, Object, Object]),
+    __metadata("design:paramtypes", [String, category_dto_2.UpdateCategoryDto, Object, Object]),
     __metadata("design:returntype", Promise)
 ], CategoryController.prototype, "update", null);
 __decorate([
