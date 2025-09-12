@@ -85,7 +85,10 @@ class PaginatedCategoryTreeResponse {
 }
 exports.PaginatedCategoryTreeResponse = PaginatedCategoryTreeResponse;
 __decorate([
-    (0, swagger_1.ApiProperty)({ type: [CategoryResponseDto], description: 'Array of category trees' }),
+    (0, swagger_1.ApiProperty)({
+        type: [CategoryResponseDto],
+        description: 'Array of category trees',
+    }),
     __metadata("design:type", Array)
 ], PaginatedCategoryTreeResponse.prototype, "data", void 0);
 __decorate([

@@ -83,7 +83,10 @@ export class CategoryResponseDto {
 }
 
 export class PaginatedCategoryTreeResponse {
-	@ApiProperty({ type: [CategoryResponseDto], description: 'Array of category trees' })
+	@ApiProperty({
+		type: [CategoryResponseDto],
+		description: 'Array of category trees',
+	})
 	data: CategoryResponseDto[];
 
 	@ApiProperty({ description: 'Total number of root categories' })

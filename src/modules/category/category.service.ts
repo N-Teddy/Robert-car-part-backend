@@ -19,7 +19,10 @@ import {
 	CreateCategoryDto,
 	UpdateCategoryDto,
 } from '../../dto/request/category.dto';
-import { CategoryResponseDto, PaginatedCategoryTreeResponse } from '../../dto/response/category.dto';
+import {
+	CategoryResponseDto,
+	PaginatedCategoryTreeResponse,
+} from '../../dto/response/category.dto';
 import { UploadService } from '../upload/upload.service';
 import { NotificationService } from '../notification/notification.service';
 import { ImageEnum } from '../../common/enum/entity.enum';
@@ -126,15 +129,19 @@ export class CategoryService {
 	): Promise<PaginatedCategoryTreeResponse> {
 		try {
 			// First get all root categories (categories without parents) with pagination and search
-			const query = this.categoryRepo.createQueryBuilder('category')
+			const query = this.categoryRepo
+				.createQueryBuilder('category')
 				.leftJoinAndSelect('category.image', 'image')
 				.where('category.parentId IS NULL');
 
 			// Apply search filter if provided
 			if (search) {
-				query.andWhere('(category.name ILIKE :search OR category.description ILIKE :search)', {
-					search: `%${search}%`
-				});
+				query.andWhere(
+					'(category.name ILIKE :search OR category.description ILIKE :search)',
+					{
+						search: `%${search}%`,
+					}
+				);
 			}
 
 			// Get total count of root categories
@@ -156,7 +163,10 @@ export class CategoryService {
 			// For each root category, get its full descendant tree
 			const categoriesWithTrees = await Promise.all(
 				rootCategories.map(async (rootCategory) => {
-					const fullTree = await this.categoryRepo.findDescendantsTree(rootCategory);
+					const fullTree =
+						await this.categoryRepo.findDescendantsTree(
+							rootCategory
+						);
 					return fullTree;
 				})
 			);
@@ -166,7 +176,7 @@ export class CategoryService {
 				const getIdsFromTree = (category: Category): string[] => {
 					const categoryIds = [category.id];
 					if (category.children && category.children.length > 0) {
-						category.children.forEach(child => {
+						category.children.forEach((child) => {
 							categoryIds.push(...getIdsFromTree(child));
 						});
 					}
@@ -187,7 +197,7 @@ export class CategoryService {
 
 				// Create image map
 				const imageMap = new Map<string, Image>();
-				categoriesWithImages.forEach(cat => {
+				categoriesWithImages.forEach((cat) => {
 					if (cat.image) {
 						imageMap.set(cat.id, cat.image);
 					}
@@ -198,16 +208,25 @@ export class CategoryService {
 					return {
 						...category,
 						image: imageMap.get(category.id) || null,
-						children: category.children && category.children.length > 0
-							? category.children.map(child => addImagesToTree(child))
-							: []
+						children:
+							category.children && category.children.length > 0
+								? category.children.map((child) =>
+										addImagesToTree(child)
+									)
+								: [],
 					};
 				};
 
-				const treesWithImages = categoriesWithTrees.map(tree => addImagesToTree(tree));
-				data = treesWithImages.map(tree => this.mapToTreeResponseDto(tree));
+				const treesWithImages = categoriesWithTrees.map((tree) =>
+					addImagesToTree(tree)
+				);
+				data = treesWithImages.map((tree) =>
+					this.mapToTreeResponseDto(tree)
+				);
 			} else {
-				data = categoriesWithTrees.map(tree => this.mapToTreeResponseDto(tree));
+				data = categoriesWithTrees.map((tree) =>
+					this.mapToTreeResponseDto(tree)
+				);
 			}
 
 			return {
@@ -217,7 +236,7 @@ export class CategoryService {
 				limit,
 				totalPages,
 				hasNext,
-				hasPrev
+				hasPrev,
 			};
 		} catch (error) {
 			throw new InternalServerErrorException(

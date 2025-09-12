@@ -9,13 +9,13 @@ import { UploadModule } from '../upload/upload.module';
 import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([Vehicle, Image]),
-        UploadModule,
-        NotificationModule,
-    ],
-    controllers: [VehicleController],
-    providers: [VehicleService],
-    exports: [VehicleService],
+	imports: [
+		TypeOrmModule.forFeature([Vehicle, Image]),
+		UploadModule,
+		NotificationModule,
+	],
+	controllers: [VehicleController],
+	providers: [VehicleService],
+	exports: [VehicleService],
 })
-export class VehicleModule { }
+export class VehicleModule {}

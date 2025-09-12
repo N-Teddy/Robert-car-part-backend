@@ -23,7 +23,10 @@ import {
 	ApiQuery,
 } from '@nestjs/swagger';
 import { CategoryService } from './category.service';
-import { CategoryResponseDto, PaginatedCategoryTreeResponse } from '../../dto/response/category.dto';
+import {
+	CategoryResponseDto,
+	PaginatedCategoryTreeResponse,
+} from '../../dto/response/category.dto';
 import {
 	CreateCategoryDto,
 	UpdateCategoryDto,
@@ -51,14 +54,31 @@ export class CategoryController {
 	}
 
 	@Get('tree')
-	@ApiOperation({ summary: 'Get all categories as a tree structure with pagination' })
-	@ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
-	@ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of items per page (default: 10)' })
-	@ApiQuery({ name: 'search', required: false, type: String, description: 'Search term for category name or description' })
+	@ApiOperation({
+		summary: 'Get all categories as a tree structure with pagination',
+	})
+	@ApiQuery({
+		name: 'page',
+		required: false,
+		type: Number,
+		description: 'Page number (default: 1)',
+	})
+	@ApiQuery({
+		name: 'limit',
+		required: false,
+		type: Number,
+		description: 'Number of items per page (default: 10)',
+	})
+	@ApiQuery({
+		name: 'search',
+		required: false,
+		type: String,
+		description: 'Search term for category name or description',
+	})
 	@ApiResponse({
 		status: 200,
 		description: 'Paginated category tree retrieved successfully',
-		type: PaginatedCategoryTreeResponse
+		type: PaginatedCategoryTreeResponse,
 	})
 	async findTree(
 		@Query('page') page: number = 1,

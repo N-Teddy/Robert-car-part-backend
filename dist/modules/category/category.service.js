@@ -81,12 +81,13 @@ let CategoryService = class CategoryService {
     }
     async findTree(page = 1, limit = 10, search) {
         try {
-            const query = this.categoryRepo.createQueryBuilder('category')
+            const query = this.categoryRepo
+                .createQueryBuilder('category')
                 .leftJoinAndSelect('category.image', 'image')
                 .where('category.parentId IS NULL');
             if (search) {
                 query.andWhere('(category.name ILIKE :search OR category.description ILIKE :search)', {
-                    search: `%${search}%`
+                    search: `%${search}%`,
                 });
             }
             const total = await query.getCount();
@@ -107,7 +108,7 @@ let CategoryService = class CategoryService {
                 const getIdsFromTree = (category) => {
                     const categoryIds = [category.id];
                     if (category.children && category.children.length > 0) {
-                        category.children.forEach(child => {
+                        category.children.forEach((child) => {
                             categoryIds.push(...getIdsFromTree(child));
                         });
                     }
@@ -123,7 +124,7 @@ let CategoryService = class CategoryService {
                     .where('category.id IN (:...ids)', { ids: allCategoryIds })
                     .getMany();
                 const imageMap = new Map();
-                categoriesWithImages.forEach(cat => {
+                categoriesWithImages.forEach((cat) => {
                     if (cat.image) {
                         imageMap.set(cat.id, cat.image);
                     }
@@ -133,15 +134,15 @@ let CategoryService = class CategoryService {
                         ...category,
                         image: imageMap.get(category.id) || null,
                         children: category.children && category.children.length > 0
-                            ? category.children.map(child => addImagesToTree(child))
-                            : []
+                            ? category.children.map((child) => addImagesToTree(child))
+                            : [],
                     };
                 };
-                const treesWithImages = categoriesWithTrees.map(tree => addImagesToTree(tree));
-                data = treesWithImages.map(tree => this.mapToTreeResponseDto(tree));
+                const treesWithImages = categoriesWithTrees.map((tree) => addImagesToTree(tree));
+                data = treesWithImages.map((tree) => this.mapToTreeResponseDto(tree));
             }
             else {
-                data = categoriesWithTrees.map(tree => this.mapToTreeResponseDto(tree));
+                data = categoriesWithTrees.map((tree) => this.mapToTreeResponseDto(tree));
             }
             return {
                 data,
@@ -150,7 +151,7 @@ let CategoryService = class CategoryService {
                 limit,
                 totalPages,
                 hasNext,
-                hasPrev
+                hasPrev,
             };
         }
         catch (error) {

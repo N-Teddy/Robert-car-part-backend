@@ -1,133 +1,139 @@
 // src/modules/vehicle/vehicle.controller.ts
 import {
-    Controller,
-    Post,
-    Body,
-    UploadedFiles,
-    UseInterceptors,
-    Get,
-    Param,
-    Put,
-    Delete,
-    Query,
-    Req,
-    UseGuards,
-    Patch
+	Controller,
+	Post,
+	Body,
+	UploadedFiles,
+	UseInterceptors,
+	Get,
+	Param,
+	Put,
+	Delete,
+	Query,
+	Req,
+	UseGuards,
+	Patch,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import {
-    ApiTags,
-    ApiOperation,
-    ApiResponse,
-    ApiConsumes,
-    ApiBody,
-    ApiBearerAuth,
-    ApiQuery
+	ApiTags,
+	ApiOperation,
+	ApiResponse,
+	ApiConsumes,
+	ApiBody,
+	ApiBearerAuth,
+	ApiQuery,
 } from '@nestjs/swagger';
 import { VehicleResponseDto } from '../../dto/response/vehicle.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { VehicleService } from './vehicle.service';
-import { CreateVehicleDto, UpdateVehicleDto } from 'src/dto/request/vehicle.dto';
+import {
+	CreateVehicleDto,
+	UpdateVehicleDto,
+} from 'src/dto/request/vehicle.dto';
 
 @ApiTags('Vehicles')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('vehicles')
 export class VehicleController {
-    constructor(private readonly vehicleService: VehicleService) { }
+	constructor(private readonly vehicleService: VehicleService) {}
 
-    @Post()
-    @UseInterceptors(FilesInterceptor('images', 10)) // Allow up to 10 images
-    @ApiConsumes('multipart/form-data')
-    @ApiOperation({ summary: 'Create a new vehicle' })
-    @ApiBody({
-        description: 'Vehicle data with optional images',
-        type: CreateVehicleDto,
-    })
-    async create(
-        @Body() dto: CreateVehicleDto,
-        @UploadedFiles() images: Express.Multer.File[],
-        @Req() req: any
-    ): Promise<VehicleResponseDto> {
-        return this.vehicleService.create(dto, images, req.user.id);
-    }
+	@Post()
+	@UseInterceptors(FilesInterceptor('images', 10)) // Allow up to 10 images
+	@ApiConsumes('multipart/form-data')
+	@ApiOperation({ summary: 'Create a new vehicle' })
+	@ApiBody({
+		description: 'Vehicle data with optional images',
+		type: CreateVehicleDto,
+	})
+	async create(
+		@Body() dto: CreateVehicleDto,
+		@UploadedFiles() images: Express.Multer.File[],
+		@Req() req: any
+	): Promise<VehicleResponseDto> {
+		return this.vehicleService.create(dto, images, req.user.id);
+	}
 
-    @Get()
-    @ApiOperation({ summary: 'Get paginated list of vehicles with filters' })
-    @ApiQuery({ name: 'page', required: false, type: Number })
-    @ApiQuery({ name: 'limit', required: false, type: Number })
-    @ApiQuery({ name: 'search', required: false, type: String })
-    @ApiQuery({ name: 'make', required: false, type: String })
-    @ApiQuery({ name: 'model', required: false, type: String })
-    @ApiQuery({ name: 'year', required: false, type: Number })
-    @ApiQuery({ name: 'minYear', required: false, type: Number })
-    @ApiQuery({ name: 'maxYear', required: false, type: Number })
-    @ApiQuery({ name: 'isPartedOut', required: false, type: Boolean })
-    async findAll(
-        @Query('page') page: number = 1,
-        @Query('limit') limit: number = 10,
-        @Query('search') search?: string,
-        @Query('make') make?: string,
-        @Query('model') model?: string,
-        @Query('year') year?: number,
-        @Query('minYear') minYear?: number,
-        @Query('maxYear') maxYear?: number,
-        @Query('isPartedOut') isPartedOut?: boolean,
-    ) {
-        return this.vehicleService.findAll(
-            page,
-            limit,
-            search,
-            make,
-            model,
-            year,
-            minYear,
-            maxYear,
-            isPartedOut
-        );
-    }
+	@Get()
+	@ApiOperation({ summary: 'Get paginated list of vehicles with filters' })
+	@ApiQuery({ name: 'page', required: false, type: Number })
+	@ApiQuery({ name: 'limit', required: false, type: Number })
+	@ApiQuery({ name: 'search', required: false, type: String })
+	@ApiQuery({ name: 'make', required: false, type: String })
+	@ApiQuery({ name: 'model', required: false, type: String })
+	@ApiQuery({ name: 'year', required: false, type: Number })
+	@ApiQuery({ name: 'minYear', required: false, type: Number })
+	@ApiQuery({ name: 'maxYear', required: false, type: Number })
+	@ApiQuery({ name: 'isPartedOut', required: false, type: Boolean })
+	async findAll(
+		@Query('page') page: number = 1,
+		@Query('limit') limit: number = 10,
+		@Query('search') search?: string,
+		@Query('make') make?: string,
+		@Query('model') model?: string,
+		@Query('year') year?: number,
+		@Query('minYear') minYear?: number,
+		@Query('maxYear') maxYear?: number,
+		@Query('isPartedOut') isPartedOut?: boolean
+	) {
+		return this.vehicleService.findAll(
+			page,
+			limit,
+			search,
+			make,
+			model,
+			year,
+			minYear,
+			maxYear,
+			isPartedOut
+		);
+	}
 
-    @Get(':id')
-    @ApiOperation({ summary: 'Get a specific vehicle' })
-    async findOne(@Param('id') id: string): Promise<VehicleResponseDto> {
-        return this.vehicleService.findOne(id);
-    }
+	@Get(':id')
+	@ApiOperation({ summary: 'Get a specific vehicle' })
+	async findOne(@Param('id') id: string): Promise<VehicleResponseDto> {
+		return this.vehicleService.findOne(id);
+	}
 
-    @Patch(':id')
-    @UseInterceptors(FilesInterceptor('images', 10))
-    @ApiConsumes('multipart/form-data')
-    @ApiOperation({ summary: 'Update a vehicle' })
-    async update(
-        @Param('id') id: string,
-        @Body() dto: UpdateVehicleDto,
-        @UploadedFiles() images: Express.Multer.File[],
-        @Req() req: any
-    ): Promise<VehicleResponseDto> {
-        return this.vehicleService.update(id, dto, images, req.user.id);
-    }
+	@Patch(':id')
+	@UseInterceptors(FilesInterceptor('images', 10))
+	@ApiConsumes('multipart/form-data')
+	@ApiOperation({ summary: 'Update a vehicle' })
+	async update(
+		@Param('id') id: string,
+		@Body() dto: UpdateVehicleDto,
+		@UploadedFiles() images: Express.Multer.File[],
+		@Req() req: any
+	): Promise<VehicleResponseDto> {
+		return this.vehicleService.update(id, dto, images, req.user.id);
+	}
 
-    @Delete(':id')
-    @ApiOperation({ summary: 'Delete a vehicle' })
-    async remove(@Param('id') id: string, @Req() req: any) {
-        return this.vehicleService.remove(id, req.user.id);
-    }
+	@Delete(':id')
+	@ApiOperation({ summary: 'Delete a vehicle' })
+	async remove(@Param('id') id: string, @Req() req: any) {
+		return this.vehicleService.remove(id, req.user.id);
+	}
 
-    @Post(':id/part-out')
-    @ApiOperation({ summary: 'Mark vehicle as parted out' })
-    async markAsPartedOut(@Param('id') id: string, @Req() req: any): Promise<VehicleResponseDto> {
-        return this.vehicleService.markAsPartedOut(id, req.user.id);
-    }
+	@Post(':id/part-out')
+	@ApiOperation({ summary: 'Mark vehicle as parted out' })
+	async markAsPartedOut(
+		@Param('id') id: string,
+		@Req() req: any
+	): Promise<VehicleResponseDto> {
+		return this.vehicleService.markAsPartedOut(id, req.user.id);
+	}
 
-    @Get('stats/summary')
-    @ApiOperation({ summary: 'Get vehicle statistics summary' })
-    async getStatistics() {
-        return this.vehicleService.getStatistics();
-    }
+	@Get('stats/summary')
+	@ApiOperation({ summary: 'Get vehicle statistics summary' })
+	async getStatistics() {
+		return this.vehicleService.getStatistics();
+	}
 
-    @Get('stats/make-model')
-    @ApiOperation({ summary: 'Get vehicle statistics by make and model' })
-    async getMakeModelStatistics() {
-        return this.vehicleService.getMakeModelStatistics();
-    }
+	@Get('stats/make-model')
+	@ApiOperation({ summary: 'Get vehicle statistics by make and model' })
+	async getMakeModelStatistics() {
+		return this.vehicleService.getMakeModelStatistics();
+	}
 }

@@ -46,7 +46,7 @@ let VehicleService = VehicleService_1 = class VehicleService {
             });
             const savedVehicle = await this.vehicleRepository.save(vehicle);
             if (imageFiles && imageFiles.length > 0) {
-                await Promise.all(imageFiles.map(file => this.uploadService.uploadSingleImage(file, entity_enum_1.ImageEnum.VEHICLE, savedVehicle.id, userId)));
+                await Promise.all(imageFiles.map((file) => this.uploadService.uploadSingleImage(file, entity_enum_1.ImageEnum.VEHICLE, savedVehicle.id, userId)));
             }
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.VEHICLE_CREATED,
@@ -98,19 +98,31 @@ let VehicleService = VehicleService_1 = class VehicleService {
                 options.where = { ...options.where, make: (0, typeorm_2.ILike)(`%${make}%`) };
             }
             if (model) {
-                options.where = { ...options.where, model: (0, typeorm_2.ILike)(`%${model}%`) };
+                options.where = {
+                    ...options.where,
+                    model: (0, typeorm_2.ILike)(`%${model}%`),
+                };
             }
             if (year) {
                 options.where = { ...options.where, year };
             }
             if (minYear !== undefined && maxYear !== undefined) {
-                options.where = { ...options.where, year: (0, typeorm_2.Between)(minYear, maxYear) };
+                options.where = {
+                    ...options.where,
+                    year: (0, typeorm_2.Between)(minYear, maxYear),
+                };
             }
             else if (minYear !== undefined) {
-                options.where = { ...options.where, year: (0, typeorm_2.MoreThanOrEqual)(minYear) };
+                options.where = {
+                    ...options.where,
+                    year: (0, typeorm_2.MoreThanOrEqual)(minYear),
+                };
             }
             else if (maxYear !== undefined) {
-                options.where = { ...options.where, year: (0, typeorm_2.LessThanOrEqual)(maxYear) };
+                options.where = {
+                    ...options.where,
+                    year: (0, typeorm_2.LessThanOrEqual)(maxYear),
+                };
             }
             if (isPartedOut !== undefined) {
                 options.where = { ...options.where, isPartedOut };
@@ -174,9 +186,9 @@ let VehicleService = VehicleService_1 = class VehicleService {
             Object.assign(vehicle, cleanedDto);
             const savedVehicle = await this.vehicleRepository.save(vehicle);
             if (imageFiles && imageFiles.length > 0) {
-                await Promise.all(imageFiles.map(file => this.uploadService.uploadSingleImage(file, entity_enum_1.ImageEnum.VEHICLE, savedVehicle.id, userId)));
+                await Promise.all(imageFiles.map((file) => this.uploadService.uploadSingleImage(file, entity_enum_1.ImageEnum.VEHICLE, savedVehicle.id, userId)));
             }
-            console.log("here2");
+            console.log('here2');
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.VEHICLE_UPDATED,
                 title: 'Vehicle Updated',
@@ -198,7 +210,8 @@ let VehicleService = VehicleService_1 = class VehicleService {
             return vehicle_dto_1.VehicleResponseDto.fromEntity(updatedVehicle);
         }
         catch (error) {
-            if (error instanceof common_1.NotFoundException || error instanceof common_1.ConflictException) {
+            if (error instanceof common_1.NotFoundException ||
+                error instanceof common_1.ConflictException) {
                 throw error;
             }
             throw new common_1.InternalServerErrorException('Failed to update vehicle');
@@ -217,7 +230,7 @@ let VehicleService = VehicleService_1 = class VehicleService {
                 throw new common_1.BadRequestException('Cannot delete vehicle with associated parts');
             }
             if (vehicle.images && vehicle.images.length > 0) {
-                await Promise.all(vehicle.images.map(image => this.uploadService.deleteImage(image.id)));
+                await Promise.all(vehicle.images.map((image) => this.uploadService.deleteImage(image.id)));
             }
             await this.vehicleRepository.remove(vehicle);
             await this.notificationService.sendNotification({
@@ -237,7 +250,8 @@ let VehicleService = VehicleService_1 = class VehicleService {
             return { success: true };
         }
         catch (error) {
-            if (error instanceof common_1.NotFoundException || error instanceof common_1.BadRequestException) {
+            if (error instanceof common_1.NotFoundException ||
+                error instanceof common_1.BadRequestException) {
                 throw error;
             }
             throw new common_1.InternalServerErrorException('Failed to delete vehicle');
@@ -280,13 +294,17 @@ let VehicleService = VehicleService_1 = class VehicleService {
     async getStatistics() {
         try {
             const totalVehicles = await this.vehicleRepository.count();
-            const activeVehicles = await this.vehicleRepository.count({ where: { isActive: true } });
-            const partedOutVehicles = await this.vehicleRepository.count({ where: { isPartedOut: true } });
+            const activeVehicles = await this.vehicleRepository.count({
+                where: { isActive: true },
+            });
+            const partedOutVehicles = await this.vehicleRepository.count({
+                where: { isPartedOut: true },
+            });
             const currentYear = new Date().getFullYear();
             const vehiclesThisYear = await this.vehicleRepository.count({
                 where: {
-                    purchaseDate: (0, typeorm_2.Between)(new Date(`${currentYear}-01-01`), new Date(`${currentYear}-12-31`))
-                }
+                    purchaseDate: (0, typeorm_2.Between)(new Date(`${currentYear}-01-01`), new Date(`${currentYear}-12-31`)),
+                },
             });
             return {
                 totalVehicles,
