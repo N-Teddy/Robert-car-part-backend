@@ -12,13 +12,13 @@ import { UploadModule } from '../upload/upload.module';
 import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([Part, Vehicle, Category, QrCode, Image]),
-        UploadModule,
-        NotificationModule,
-    ],
-    controllers: [PartController],
-    providers: [PartService],
-    exports: [PartService],
+	imports: [
+		TypeOrmModule.forFeature([Part, Vehicle, Category, QrCode, Image]),
+		UploadModule,
+		NotificationModule,
+	],
+	controllers: [PartController],
+	providers: [PartService],
+	exports: [PartService],
 })
-export class PartModule { }
+export class PartModule {}

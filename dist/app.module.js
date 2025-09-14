@@ -45,6 +45,7 @@ const auth_config_1 = require("./config/auth.config");
 const category_module_1 = require("./modules/category/category.module");
 const vehicle_module_1 = require("./modules/vehicle/vehicle.module");
 const part_module_1 = require("./modules/part/part.module");
+const order_module_1 = require("./modules/order/order.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -72,6 +73,7 @@ exports.AppModule = AppModule = __decorate([
             category_module_1.CategoryModule,
             vehicle_module_1.VehicleModule,
             part_module_1.PartModule,
+            order_module_1.OrdersModule,
             typeorm_1.TypeOrmModule.forRootAsync({
                 inject: [config_1.ConfigService],
                 useFactory: (configService) => {

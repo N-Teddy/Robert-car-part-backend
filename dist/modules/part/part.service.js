@@ -62,7 +62,7 @@ let PartService = PartService_1 = class PartService {
             const savedPart = await this.partRepository.save(part);
             await this.generateQrCodeForPart(savedPart, userId);
             if (imageFiles && imageFiles.length > 0) {
-                await Promise.all(imageFiles.map(file => this.uploadService.uploadSingleImage(file, entity_enum_1.ImageEnum.PART, savedPart.id, userId)));
+                await Promise.all(imageFiles.map((file) => this.uploadService.uploadSingleImage(file, entity_enum_1.ImageEnum.PART, savedPart.id, userId)));
             }
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.PART_CREATED,
@@ -81,7 +81,13 @@ let PartService = PartService_1 = class PartService {
             });
             const partWithRelations = await this.partRepository.findOne({
                 where: { id: savedPart.id },
-                relations: ['images', 'vehicle', 'category', 'qrCode', 'qrCode.image'],
+                relations: [
+                    'images',
+                    'vehicle',
+                    'category',
+                    'qrCode',
+                    'qrCode.image',
+                ],
             });
             return part_dto_1.PartResponseDto.fromEntity(partWithRelations);
         }
@@ -124,7 +130,7 @@ let PartService = PartService_1 = class PartService {
             };
             const uploadedImage = await this.uploadService.uploadSingleImage(mockFile, entity_enum_1.ImageEnum.QR_CODE, savedQrCode.id, userId);
             await this.imageRepository.update(uploadedImage.id, {
-                qrCode: { id: savedQrCode.id }
+                qrCode: { id: savedQrCode.id },
             });
             this.logger.log(`QR code generated for part ${part.id}`);
         }
@@ -135,7 +141,8 @@ let PartService = PartService_1 = class PartService {
     async findAll(page = 1, limit = 10, search, vehicleId, categoryId, minPrice, maxPrice, minQuantity, maxQuantity, condition) {
         try {
             const skip = (page - 1) * limit;
-            const query = this.partRepository.createQueryBuilder('part')
+            const query = this.partRepository
+                .createQueryBuilder('part')
                 .leftJoinAndSelect('part.images', 'images')
                 .leftJoinAndSelect('part.vehicle', 'vehicle')
                 .leftJoinAndSelect('part.category', 'category')
@@ -144,7 +151,7 @@ let PartService = PartService_1 = class PartService {
                 .orderBy('part.createdAt', 'DESC');
             if (search) {
                 query.where('(part.name ILIKE :search OR part.description ILIKE :search OR part.partNumber ILIKE :search)', {
-                    search: `%${search}%`
+                    search: `%${search}%`,
                 });
             }
             if (vehicleId) {
@@ -154,7 +161,10 @@ let PartService = PartService_1 = class PartService {
                 query.andWhere('part.categoryId = :categoryId', { categoryId });
             }
             if (minPrice !== undefined && maxPrice !== undefined) {
-                query.andWhere('part.price BETWEEN :minPrice AND :maxPrice', { minPrice, maxPrice });
+                query.andWhere('part.price BETWEEN :minPrice AND :maxPrice', {
+                    minPrice,
+                    maxPrice,
+                });
             }
             else if (minPrice !== undefined) {
                 query.andWhere('part.price >= :minPrice', { minPrice });
@@ -166,10 +176,14 @@ let PartService = PartService_1 = class PartService {
                 query.andWhere('part.quantity BETWEEN :minQuantity AND :maxQuantity', { minQuantity, maxQuantity });
             }
             else if (minQuantity !== undefined) {
-                query.andWhere('part.quantity >= :minQuantity', { minQuantity });
+                query.andWhere('part.quantity >= :minQuantity', {
+                    minQuantity,
+                });
             }
             else if (maxQuantity !== undefined) {
-                query.andWhere('part.quantity <= :maxQuantity', { maxQuantity });
+                query.andWhere('part.quantity <= :maxQuantity', {
+                    maxQuantity,
+                });
             }
             if (condition) {
                 query.andWhere('part.condition = :condition', { condition });
@@ -200,7 +214,14 @@ let PartService = PartService_1 = class PartService {
         try {
             const part = await this.partRepository.findOne({
                 where: { id },
-                relations: ['images', 'vehicle', 'category', 'qrCode', 'qrCode.image', 'orderItems'],
+                relations: [
+                    'images',
+                    'vehicle',
+                    'category',
+                    'qrCode',
+                    'qrCode.image',
+                    'orderItems',
+                ],
             });
             if (!part) {
                 throw new common_1.NotFoundException('Part not found');
@@ -246,7 +267,7 @@ let PartService = PartService_1 = class PartService {
                 part.category = { id: dto.categoryId };
             const savedPart = await this.partRepository.save(part);
             if (imageFiles && imageFiles.length > 0) {
-                await Promise.all(imageFiles.map(file => this.uploadService.uploadSingleImage(file, entity_enum_1.ImageEnum.PART, savedPart.id, userId)));
+                await Promise.all(imageFiles.map((file) => this.uploadService.uploadSingleImage(file, entity_enum_1.ImageEnum.PART, savedPart.id, userId)));
             }
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.PART_UPDATED,
@@ -263,7 +284,13 @@ let PartService = PartService_1 = class PartService {
             });
             const updatedPart = await this.partRepository.findOne({
                 where: { id: savedPart.id },
-                relations: ['images', 'vehicle', 'category', 'qrCode', 'qrCode.image'],
+                relations: [
+                    'images',
+                    'vehicle',
+                    'category',
+                    'qrCode',
+                    'qrCode.image',
+                ],
             });
             return part_dto_1.PartResponseDto.fromEntity(updatedPart);
         }
@@ -316,7 +343,8 @@ let PartService = PartService_1 = class PartService {
         }
         catch (error) {
             await queryRunner.rollbackTransaction();
-            if (error instanceof common_1.NotFoundException || error instanceof common_1.BadRequestException) {
+            if (error instanceof common_1.NotFoundException ||
+                error instanceof common_1.BadRequestException) {
                 throw error;
             }
             this.logger.error('Failed to delete part', error);
@@ -330,10 +358,10 @@ let PartService = PartService_1 = class PartService {
         try {
             const totalParts = await this.partRepository.count();
             const lowStockParts = await this.partRepository.count({
-                where: { quantity: (0, typeorm_2.LessThanOrEqual)(5) }
+                where: { quantity: (0, typeorm_2.LessThanOrEqual)(5) },
             });
             const outOfStockParts = await this.partRepository.count({
-                where: { quantity: 0 }
+                where: { quantity: 0 },
             });
             const totalValue = await this.partRepository
                 .createQueryBuilder('part')

@@ -63,7 +63,10 @@ __decorate([
     __metadata("design:type", Array)
 ], Part.prototype, "images", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => qr_code_entity_1.QrCode, (qrCode) => qrCode.part, { cascade: true, onDelete: 'CASCADE', }),
+    (0, typeorm_1.OneToOne)(() => qr_code_entity_1.QrCode, (qrCode) => qrCode.part, {
+        cascade: true,
+        onDelete: 'CASCADE',
+    }),
     (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", qr_code_entity_1.QrCode)
 ], Part.prototype, "qrCode", void 0);
