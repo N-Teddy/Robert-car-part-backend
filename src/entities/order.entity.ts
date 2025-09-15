@@ -3,7 +3,7 @@ import { OrderItem } from './order-item.entity';
 import {
 	DeliveryMethodEnum,
 	OrderStatusEnum,
-} from 'src/common/enum/entity.enum';
+} from '../common/enum/entity.enum';
 import { BaseEntity } from './base.entity';
 
 @Entity('orders')

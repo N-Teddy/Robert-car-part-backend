@@ -1,4 +1,4 @@
-import { ReportPeriodEnum, ReportTypeEnum } from 'src/common/enum/entity.enum';
+import { ReportPeriodEnum, ReportTypeEnum } from '../common/enum/entity.enum';
 import { BaseEntity } from './base.entity';
 export declare class Report extends BaseEntity {
     type: ReportTypeEnum;
