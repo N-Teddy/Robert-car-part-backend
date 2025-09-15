@@ -211,6 +211,7 @@ let ReportService = ReportService_1 = class ReportService {
                     website: 'www.autopartsstore.com',
                 },
             };
+            console.log(JSON.stringify(templateData, null, 2));
             return this.pdfService.generatePDF(templateName, templateData);
         }
         catch (error) {

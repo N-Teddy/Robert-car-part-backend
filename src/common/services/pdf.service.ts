@@ -52,6 +52,34 @@ export class PDFService {
 				return a - b;
 			});
 
+			// Currency formatting
+			handlebars.registerHelper('formatCurrency', (amount: any) => {
+				if (amount === null || amount === undefined) return '0.00';
+				const num = parseFloat(amount);
+				return num.toLocaleString('en-US', {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2
+				});
+			});
+
+			// Percentage formatting
+			handlebars.registerHelper('formatPercentage', (value: any) => {
+				if (value === null || value === undefined) return '0.00';
+				const num = parseFloat(value);
+				return num.toLocaleString('en-US', {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2
+				});
+			});
+
+			// Rounding numbers
+			handlebars.registerHelper('round', (value: any, decimals: number) => {
+				if (value === null || value === undefined) return '0';
+				const num = parseFloat(value);
+				const precision = decimals || 0;
+				return num.toFixed(precision);
+			});
+
 			handlebars.registerHelper('getStatusColor', (status: string) => {
 				const colors: { [key: string]: string } = {
 					'COMPLETED': '#27ae60',

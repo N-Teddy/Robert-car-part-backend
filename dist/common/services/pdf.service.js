@@ -51,6 +51,31 @@ let PDFService = PDFService_1 = class PDFService {
             handlebars.registerHelper('subtract', (a, b) => {
                 return a - b;
             });
+            handlebars.registerHelper('formatCurrency', (amount) => {
+                if (amount === null || amount === undefined)
+                    return '0.00';
+                const num = parseFloat(amount);
+                return num.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            });
+            handlebars.registerHelper('formatPercentage', (value) => {
+                if (value === null || value === undefined)
+                    return '0.00';
+                const num = parseFloat(value);
+                return num.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            });
+            handlebars.registerHelper('round', (value, decimals) => {
+                if (value === null || value === undefined)
+                    return '0';
+                const num = parseFloat(value);
+                const precision = decimals || 0;
+                return num.toFixed(precision);
+            });
             handlebars.registerHelper('getStatusColor', (status) => {
                 const colors = {
                     'COMPLETED': '#27ae60',
