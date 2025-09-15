@@ -22,6 +22,7 @@ export enum ReportTypeEnum {
 	SALES = 'SALES',
 	INVENTORY = 'INVENTORY',
 	PROFIT = 'PROFIT',
+	ALL = 'ALL'
 }
 
 export enum ReportPeriodEnum {

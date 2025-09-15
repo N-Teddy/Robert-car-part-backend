@@ -26,6 +26,7 @@ var ReportTypeEnum;
     ReportTypeEnum["SALES"] = "SALES";
     ReportTypeEnum["INVENTORY"] = "INVENTORY";
     ReportTypeEnum["PROFIT"] = "PROFIT";
+    ReportTypeEnum["ALL"] = "ALL";
 })(ReportTypeEnum || (exports.ReportTypeEnum = ReportTypeEnum = {}));
 var ReportPeriodEnum;
 (function (ReportPeriodEnum) {

@@ -34,6 +34,24 @@ export class PDFService {
 				return parseFloat(amount).toFixed(2);
 			});
 
+			// Add these to the registerHandlebarsHelpers method in PDF service
+			handlebars.registerHelper('multiply', (a: any, b: any) => {
+				return a * b;
+			});
+
+			handlebars.registerHelper('divide', (a: any, b: any) => {
+				if (b === 0) return 0;
+				return a / b;
+			});
+
+			handlebars.registerHelper('add', (a: any, b: any) => {
+				return a + b;
+			});
+
+			handlebars.registerHelper('subtract', (a: any, b: any) => {
+				return a - b;
+			});
+
 			handlebars.registerHelper('getStatusColor', (status: string) => {
 				const colors: { [key: string]: string } = {
 					'COMPLETED': '#27ae60',

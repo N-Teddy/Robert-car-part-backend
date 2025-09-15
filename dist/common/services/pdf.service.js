@@ -37,6 +37,20 @@ let PDFService = PDFService_1 = class PDFService {
             handlebars.registerHelper('formatCurrency', (amount) => {
                 return parseFloat(amount).toFixed(2);
             });
+            handlebars.registerHelper('multiply', (a, b) => {
+                return a * b;
+            });
+            handlebars.registerHelper('divide', (a, b) => {
+                if (b === 0)
+                    return 0;
+                return a / b;
+            });
+            handlebars.registerHelper('add', (a, b) => {
+                return a + b;
+            });
+            handlebars.registerHelper('subtract', (a, b) => {
+                return a - b;
+            });
             handlebars.registerHelper('getStatusColor', (status) => {
                 const colors = {
                     'COMPLETED': '#27ae60',

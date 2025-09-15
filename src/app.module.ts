@@ -39,6 +39,7 @@ import { CategoryModule } from './modules/category/category.module';
 import { VehicleModule } from './modules/vehicle/vehicle.module';
 import { PartModule } from './modules/part/part.module';
 import { OrdersModule } from './modules/order/order.module';
+import { ReportModule } from './modules/report/report.module';
 
 @Module({
 	imports: [
@@ -65,6 +66,7 @@ import { OrdersModule } from './modules/order/order.module';
 		VehicleModule,
 		PartModule,
 		OrdersModule,
+		ReportModule,
 
 		// Dynamically configure TypeORM based on the environment
 		TypeOrmModule.forRootAsync({

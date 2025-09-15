@@ -18,7 +18,8 @@ export declare enum DeliveryMethodEnum {
 export declare enum ReportTypeEnum {
     SALES = "SALES",
     INVENTORY = "INVENTORY",
-    PROFIT = "PROFIT"
+    PROFIT = "PROFIT",
+    ALL = "ALL"
 }
 export declare enum ReportPeriodEnum {
     DAILY = "DAILY",
