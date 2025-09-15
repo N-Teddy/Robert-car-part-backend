@@ -52,18 +52,7 @@ export class PartController {
 	async findAll(
 		@Query('page') @Query() queryDto: PartsQueryDto
 	) {
-		return this.partService.findAll(
-			queryDto.page,
-			queryDto.limit,
-			queryDto.search,
-			queryDto.vehicleId,
-			queryDto.categoryId,
-			queryDto.minPrice,
-			queryDto.maxPrice,
-			queryDto.minQuantity,
-			queryDto.maxQuantity,
-			queryDto.condition
-		);
+		return this.partService.findAll(queryDto);
 	}
 
 	@Get(':id')

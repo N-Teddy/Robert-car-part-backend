@@ -24,7 +24,7 @@ import {
 } from '../../common/enum/notification.enum';
 import * as QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
-import { CreatePartDto, UpdatePartDto } from 'src/dto/request/part.dto';
+import { CreatePartDto, PartsQueryDto, UpdatePartDto } from 'src/dto/request/part.dto';
 import { Readable } from 'stream';
 
 @Injectable()
@@ -193,18 +193,7 @@ export class PartService {
 		}
 	}
 
-	async findAll(
-		page: number = 1,
-		limit: number = 10,
-		search?: string,
-		vehicleId?: string,
-		categoryId?: string,
-		minPrice?: number,
-		maxPrice?: number,
-		minQuantity?: number,
-		maxQuantity?: number,
-		condition?: string
-	): Promise<{
+	async findAll( queryParams: PartsQueryDto ): Promise<{
 		data: PartResponseDto[];
 		total: number;
 		page: number;
@@ -214,6 +203,7 @@ export class PartService {
 		hasPrev: boolean;
 	}> {
 		try {
+			const { page, limit, search, vehicleId, categoryId, minPrice, maxPrice, minQuantity, maxQuantity, condition } = queryParams;
 			const skip = (page - 1) * limit;
 			const query = this.partRepository
 				.createQueryBuilder('part')

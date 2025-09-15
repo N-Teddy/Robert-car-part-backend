@@ -138,8 +138,9 @@ let PartService = PartService_1 = class PartService {
             this.logger.error('Failed to generate QR code for part', error);
         }
     }
-    async findAll(page = 1, limit = 10, search, vehicleId, categoryId, minPrice, maxPrice, minQuantity, maxQuantity, condition) {
+    async findAll(queryParams) {
         try {
+            const { page, limit, search, vehicleId, categoryId, minPrice, maxPrice, minQuantity, maxQuantity, condition } = queryParams;
             const skip = (page - 1) * limit;
             const query = this.partRepository
                 .createQueryBuilder('part')

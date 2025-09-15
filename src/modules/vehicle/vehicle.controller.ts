@@ -29,6 +29,7 @@ import { VehicleService } from './vehicle.service';
 import {
 	CreateVehicleDto,
 	UpdateVehicleDto,
+	VehicleQueryDto,
 } from 'src/dto/request/vehicle.dto';
 
 @ApiTags('Vehicles')
@@ -56,37 +57,10 @@ export class VehicleController {
 
 	@Get()
 	@ApiOperation({ summary: 'Get paginated list of vehicles with filters' })
-	@ApiQuery({ name: 'page', required: false, type: Number })
-	@ApiQuery({ name: 'limit', required: false, type: Number })
-	@ApiQuery({ name: 'search', required: false, type: String })
-	@ApiQuery({ name: 'make', required: false, type: String })
-	@ApiQuery({ name: 'model', required: false, type: String })
-	@ApiQuery({ name: 'year', required: false, type: Number })
-	@ApiQuery({ name: 'minYear', required: false, type: Number })
-	@ApiQuery({ name: 'maxYear', required: false, type: Number })
-	@ApiQuery({ name: 'isPartedOut', required: false, type: Boolean })
 	async findAll(
-		@Query('page') page: number = 1,
-		@Query('limit') limit: number = 10,
-		@Query('search') search?: string,
-		@Query('make') make?: string,
-		@Query('model') model?: string,
-		@Query('year') year?: number,
-		@Query('minYear') minYear?: number,
-		@Query('maxYear') maxYear?: number,
-		@Query('isPartedOut') isPartedOut?: boolean
+		@Query() query: VehicleQueryDto
 	) {
-		return this.vehicleService.findAll(
-			page,
-			limit,
-			search,
-			make,
-			model,
-			year,
-			minYear,
-			maxYear,
-			isPartedOut
-		);
+		return this.vehicleService.findAll(query);
 	}
 
 	@Get(':id')

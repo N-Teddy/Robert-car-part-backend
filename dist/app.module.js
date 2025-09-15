@@ -47,6 +47,7 @@ const vehicle_module_1 = require("./modules/vehicle/vehicle.module");
 const part_module_1 = require("./modules/part/part.module");
 const order_module_1 = require("./modules/order/order.module");
 const report_module_1 = require("./modules/report/report.module");
+const health_module_1 = require("./health/health.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -157,6 +158,7 @@ exports.AppModule = AppModule = __decorate([
                     ];
                 },
             }),
+            health_module_1.HealthModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

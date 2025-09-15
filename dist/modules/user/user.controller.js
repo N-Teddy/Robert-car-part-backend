@@ -27,68 +27,28 @@ let UserController = class UserController {
         this.userService = userService;
     }
     async getProfile(req) {
-        try {
-            return await this.userService.getProfile(req.user.id);
-        }
-        catch (error) {
-            throw error;
-        }
+        return await this.userService.getProfile(req.user.id);
     }
     async updateProfile(req, dto) {
-        try {
-            return await this.userService.updateProfile(req.user.id, dto);
-        }
-        catch (error) {
-            throw error;
-        }
+        return await this.userService.updateProfile(req.user.id, dto);
     }
     async assignRole(req, dto) {
-        try {
-            return await this.userService.assignRole(req.user.id, dto);
-        }
-        catch (error) {
-            throw error;
-        }
+        return await this.userService.assignRole(req.user.id, dto);
     }
     async getAllUsers(filter) {
-        try {
-            return await this.userService.getAllUsers(filter);
-        }
-        catch (error) {
-            throw error;
-        }
+        return await this.userService.getAllUsers(filter);
     }
     async getUsersWithoutRole() {
-        try {
-            return await this.userService.getUsersWithoutRole();
-        }
-        catch (error) {
-            throw error;
-        }
+        return await this.userService.getUsersWithoutRole();
     }
     async getUserById(id) {
-        try {
-            return await this.userService.getUserById(id);
-        }
-        catch (error) {
-            throw error;
-        }
+        return await this.userService.getUserById(id);
     }
     async updateUser(req, id, dto) {
-        try {
-            return await this.userService.updateUser(req.user.id, id, dto);
-        }
-        catch (error) {
-            throw error;
-        }
+        return await this.userService.updateUser(req.user.id, id, dto);
     }
     async deleteUser(req, id) {
-        try {
-            return await this.userService.deleteUser(req.user.id, id);
-        }
-        catch (error) {
-            throw error;
-        }
+        return await this.userService.deleteUser(req.user.id, id);
     }
 };
 exports.UserController = UserController;

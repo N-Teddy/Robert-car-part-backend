@@ -30,6 +30,7 @@ import {
 import {
 	CreateVehicleDto,
 	UpdateVehicleDto,
+	VehicleQueryDto,
 } from 'src/dto/request/vehicle.dto';
 import { VehicleProfit } from 'src/entities/vehicle-profit.entity';
 
@@ -117,17 +118,7 @@ export class VehicleService {
 		}
 	}
 
-	async findAll(
-		page: number = 1,
-		limit: number = 10,
-		search?: string,
-		make?: string,
-		model?: string,
-		year?: number,
-		minYear?: number,
-		maxYear?: number,
-		isPartedOut?: boolean
-	): Promise<{
+	async findAll( query: VehicleQueryDto ): Promise<{
 		data: VehicleResponseDto[];
 		total: number;
 		page: number;
@@ -137,6 +128,7 @@ export class VehicleService {
 		hasPrev: boolean;
 	}> {
 		try {
+			const { page, limit, search, make, model, year, minYear, maxYear, isPartedOut } = query;
 			const skip = (page - 1) * limit;
 			const options: FindManyOptions<Vehicle> = {
 				relations: ['images'],

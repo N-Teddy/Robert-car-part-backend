@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
 	IsString,
 	IsNotEmpty,
@@ -123,4 +124,57 @@ export class UpdateVehicleDto {
 	@IsBoolean()
 	@IsOptional()
 	isActive?: boolean;
+}
+
+export class VehicleQueryDto {
+	@ApiPropertyOptional({ description: 'Page number', example: 1 })
+	@Type(() => Number)
+	@IsOptional()
+	@IsNumber()
+	page?: number = 1;
+
+	@ApiPropertyOptional({ description: 'Items per page', example: 10 })
+	@Type(() => Number)
+	@IsOptional()
+	@IsNumber()
+	limit?: number = 10;
+
+	@ApiPropertyOptional({ description: 'Search keyword', example: 'Toyota' })
+	@IsOptional()
+	@IsString()
+	search?: string;
+
+	@ApiPropertyOptional({ description: 'Vehicle make', example: 'Honda' })
+	@IsOptional()
+	@IsString()
+	make?: string;
+
+	@ApiPropertyOptional({ description: 'Vehicle model', example: 'Civic' })
+	@IsOptional()
+	@IsString()
+	model?: string;
+
+	@ApiPropertyOptional({ description: 'Exact vehicle year', example: 2020 })
+	@Type(() => Number)
+	@IsOptional()
+	@IsNumber()
+	year?: number;
+
+	@ApiPropertyOptional({ description: 'Minimum year', example: 2000 })
+	@Type(() => Number)
+	@IsOptional()
+	@IsNumber()
+	minYear?: number;
+
+	@ApiPropertyOptional({ description: 'Maximum year', example: 2025 })
+	@Type(() => Number)
+	@IsOptional()
+	@IsNumber()
+	maxYear?: number;
+
+	@ApiPropertyOptional({ description: 'Filter by parted out status', example: true })
+	@Type(() => Boolean)
+	@IsOptional()
+	@IsBoolean()
+	isPartedOut?: boolean;
 }

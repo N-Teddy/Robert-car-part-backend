@@ -28,7 +28,7 @@ let PartController = class PartController {
         return this.partService.create(dto, images, req.user.id);
     }
     async findAll(queryDto) {
-        return this.partService.findAll(queryDto.page, queryDto.limit, queryDto.search, queryDto.vehicleId, queryDto.categoryId, queryDto.minPrice, queryDto.maxPrice, queryDto.minQuantity, queryDto.maxQuantity, queryDto.condition);
+        return this.partService.findAll(queryDto);
     }
     async findOne(id) {
         return this.partService.findOne(id);

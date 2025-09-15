@@ -7,7 +7,7 @@ import { Image } from '../../entities/image.entity';
 import { PartResponseDto } from '../../dto/response/part.dto';
 import { UploadService } from '../upload/upload.service';
 import { NotificationService } from '../notification/notification.service';
-import { CreatePartDto, UpdatePartDto } from 'src/dto/request/part.dto';
+import { CreatePartDto, PartsQueryDto, UpdatePartDto } from 'src/dto/request/part.dto';
 export declare class PartService {
     private readonly partRepository;
     private readonly vehicleRepository;
@@ -20,7 +20,7 @@ export declare class PartService {
     constructor(partRepository: Repository<Part>, vehicleRepository: Repository<Vehicle>, categoryRepository: Repository<Category>, qrCodeRepository: Repository<QrCode>, imageRepository: Repository<Image>, uploadService: UploadService, notificationService: NotificationService);
     create(dto: CreatePartDto, imageFiles: Express.Multer.File[], userId: string): Promise<PartResponseDto>;
     private generateQrCodeForPart;
-    findAll(page?: number, limit?: number, search?: string, vehicleId?: string, categoryId?: string, minPrice?: number, maxPrice?: number, minQuantity?: number, maxQuantity?: number, condition?: string): Promise<{
+    findAll(queryParams: PartsQueryDto): Promise<{
         data: PartResponseDto[];
         total: number;
         page: number;

@@ -40,6 +40,7 @@ import { VehicleModule } from './modules/vehicle/vehicle.module';
 import { PartModule } from './modules/part/part.module';
 import { OrdersModule } from './modules/order/order.module';
 import { ReportModule } from './modules/report/report.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
 	imports: [
@@ -158,6 +159,8 @@ import { ReportModule } from './modules/report/report.module';
 				];
 			},
 		}),
+
+		HealthModule,
 	],
 	controllers: [AppController],
 	providers: [

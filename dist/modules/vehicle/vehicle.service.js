@@ -77,8 +77,9 @@ let VehicleService = VehicleService_1 = class VehicleService {
             throw new common_1.InternalServerErrorException('Failed to create vehicle');
         }
     }
-    async findAll(page = 1, limit = 10, search, make, model, year, minYear, maxYear, isPartedOut) {
+    async findAll(query) {
         try {
+            const { page, limit, search, make, model, year, minYear, maxYear, isPartedOut } = query;
             const skip = (page - 1) * limit;
             const options = {
                 relations: ['images'],

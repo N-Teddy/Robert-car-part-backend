@@ -27,8 +27,8 @@ let VehicleController = class VehicleController {
     async create(dto, images, req) {
         return this.vehicleService.create(dto, images, req.user.id);
     }
-    async findAll(page = 1, limit = 10, search, make, model, year, minYear, maxYear, isPartedOut) {
-        return this.vehicleService.findAll(page, limit, search, make, model, year, minYear, maxYear, isPartedOut);
+    async findAll(query) {
+        return this.vehicleService.findAll(query);
     }
     async findOne(id) {
         return this.vehicleService.findOne(id);
@@ -69,26 +69,9 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get paginated list of vehicles with filters' }),
-    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number }),
-    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number }),
-    (0, swagger_1.ApiQuery)({ name: 'search', required: false, type: String }),
-    (0, swagger_1.ApiQuery)({ name: 'make', required: false, type: String }),
-    (0, swagger_1.ApiQuery)({ name: 'model', required: false, type: String }),
-    (0, swagger_1.ApiQuery)({ name: 'year', required: false, type: Number }),
-    (0, swagger_1.ApiQuery)({ name: 'minYear', required: false, type: Number }),
-    (0, swagger_1.ApiQuery)({ name: 'maxYear', required: false, type: Number }),
-    (0, swagger_1.ApiQuery)({ name: 'isPartedOut', required: false, type: Boolean }),
-    __param(0, (0, common_1.Query)('page')),
-    __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Query)('search')),
-    __param(3, (0, common_1.Query)('make')),
-    __param(4, (0, common_1.Query)('model')),
-    __param(5, (0, common_1.Query)('year')),
-    __param(6, (0, common_1.Query)('minYear')),
-    __param(7, (0, common_1.Query)('maxYear')),
-    __param(8, (0, common_1.Query)('isPartedOut')),
+    __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String, String, String, Number, Number, Number, Boolean]),
+    __metadata("design:paramtypes", [vehicle_dto_1.VehicleQueryDto]),
     __metadata("design:returntype", Promise)
 ], VehicleController.prototype, "findAll", null);
 __decorate([

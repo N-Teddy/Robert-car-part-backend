@@ -23,3 +23,14 @@ export declare class UpdateVehicleDto {
     isPartedOut?: boolean;
     isActive?: boolean;
 }
+export declare class VehicleQueryDto {
+    page?: number;
+    limit?: number;
+    search?: string;
+    make?: string;
+    model?: string;
+    year?: number;
+    minYear?: number;
+    maxYear?: number;
+    isPartedOut?: boolean;
+}

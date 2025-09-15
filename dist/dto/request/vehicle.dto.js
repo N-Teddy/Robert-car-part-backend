@@ -9,8 +9,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateVehicleDto = exports.CreateVehicleDto = void 0;
+exports.VehicleQueryDto = exports.UpdateVehicleDto = exports.CreateVehicleDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
+const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 class CreateVehicleDto {
 }
@@ -151,4 +152,71 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
 ], UpdateVehicleDto.prototype, "isActive", void 0);
+class VehicleQueryDto {
+    constructor() {
+        this.page = 1;
+        this.limit = 10;
+    }
+}
+exports.VehicleQueryDto = VehicleQueryDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Page number', example: 1 }),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], VehicleQueryDto.prototype, "page", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Items per page', example: 10 }),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], VehicleQueryDto.prototype, "limit", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Search keyword', example: 'Toyota' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], VehicleQueryDto.prototype, "search", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Vehicle make', example: 'Honda' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], VehicleQueryDto.prototype, "make", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Vehicle model', example: 'Civic' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], VehicleQueryDto.prototype, "model", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Exact vehicle year', example: 2020 }),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], VehicleQueryDto.prototype, "year", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Minimum year', example: 2000 }),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], VehicleQueryDto.prototype, "minYear", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Maximum year', example: 2025 }),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], VehicleQueryDto.prototype, "maxYear", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Filter by parted out status', example: true }),
+    (0, class_transformer_1.Type)(() => Boolean),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], VehicleQueryDto.prototype, "isPartedOut", void 0);
 //# sourceMappingURL=vehicle.dto.js.map

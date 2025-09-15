@@ -41,17 +41,13 @@ import { Roles } from 'src/common/decorator/roles.decorator';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UserController {
-	constructor(private readonly userService: UserService) {}
+	constructor(private readonly userService: UserService) { }
 
 	@Get('profile')
 	@ApiOperation({ summary: 'Get current user profile' })
 	@ApiResponse({ status: 200, type: UserProfileResponseDto })
 	async getProfile(@Request() req): Promise<UserProfileResponseDto> {
-		try {
-			return await this.userService.getProfile(req.user.id);
-		} catch (error) {
-			throw error;
-		}
+		return await this.userService.getProfile(req.user.id);
 	}
 
 	@Put('profile')
@@ -61,11 +57,7 @@ export class UserController {
 		@Request() req,
 		@Body() dto: UpdateProfileDto
 	): Promise<UserProfileResponseDto> {
-		try {
-			return await this.userService.updateProfile(req.user.id, dto);
-		} catch (error) {
-			throw error;
-		}
+		return await this.userService.updateProfile(req.user.id, dto);
 	}
 
 	@Post('assign-role')
@@ -76,11 +68,7 @@ export class UserController {
 		@Request() req,
 		@Body() dto: AssignRoleDto
 	): Promise<UserResponseDto> {
-		try {
-			return await this.userService.assignRole(req.user.id, dto);
-		} catch (error) {
-			throw error;
-		}
+		return await this.userService.assignRole(req.user.id, dto);
 	}
 
 	@Get()
@@ -90,11 +78,7 @@ export class UserController {
 	async getAllUsers(
 		@Query() filter: UserFilterDto
 	): Promise<UsersListResponseDto> {
-		try {
-			return await this.userService.getAllUsers(filter);
-		} catch (error) {
-			throw error;
-		}
+		return await this.userService.getAllUsers(filter);
 	}
 
 	@Get('without-role')
@@ -102,11 +86,7 @@ export class UserController {
 	@ApiOperation({ summary: 'Get users without assigned role' })
 	@ApiResponse({ status: 200, type: [UserResponseDto] })
 	async getUsersWithoutRole(): Promise<UserResponseDto[]> {
-		try {
-			return await this.userService.getUsersWithoutRole();
-		} catch (error) {
-			throw error;
-		}
+		return await this.userService.getUsersWithoutRole();
 	}
 
 	@Get(':id')
@@ -114,11 +94,7 @@ export class UserController {
 	@ApiOperation({ summary: 'Get user by ID' })
 	@ApiResponse({ status: 200, type: UserResponseDto })
 	async getUserById(@Param('id') id: string): Promise<UserResponseDto> {
-		try {
-			return await this.userService.getUserById(id);
-		} catch (error) {
-			throw error;
-		}
+		return await this.userService.getUserById(id);
 	}
 
 	@Put(':id')
@@ -130,21 +106,13 @@ export class UserController {
 		@Param('id') id: string,
 		@Body() dto: UpdateUserDto
 	): Promise<UserResponseDto> {
-		try {
-			return await this.userService.updateUser(req.user.id, id, dto);
-		} catch (error) {
-			throw error;
-		}
+		return await this.userService.updateUser(req.user.id, id, dto);
 	}
 
 	@Delete(':id')
 	@Roles(UserRoleEnum.ADMIN)
 	@ApiOperation({ summary: 'Delete user by ID' })
 	async deleteUser(@Request() req, @Param('id') id: string): Promise<any> {
-		try {
-			return await this.userService.deleteUser(req.user.id, id);
-		} catch (error) {
-			throw error;
-		}
+		return await this.userService.deleteUser(req.user.id, id);
 	}
 }

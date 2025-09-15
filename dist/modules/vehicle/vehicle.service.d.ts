@@ -3,7 +3,7 @@ import { Vehicle } from '../../entities/vehicle.entity';
 import { VehicleResponseDto } from '../../dto/response/vehicle.dto';
 import { UploadService } from '../upload/upload.service';
 import { NotificationService } from '../notification/notification.service';
-import { CreateVehicleDto, UpdateVehicleDto } from 'src/dto/request/vehicle.dto';
+import { CreateVehicleDto, UpdateVehicleDto, VehicleQueryDto } from 'src/dto/request/vehicle.dto';
 import { VehicleProfit } from 'src/entities/vehicle-profit.entity';
 export declare class VehicleService {
     private readonly vehicleRepository;
@@ -13,7 +13,7 @@ export declare class VehicleService {
     private readonly logger;
     constructor(vehicleRepository: Repository<Vehicle>, vehicleProfitRepository: Repository<VehicleProfit>, uploadService: UploadService, notificationService: NotificationService);
     create(dto: CreateVehicleDto, imageFiles: Express.Multer.File[], userId: string): Promise<VehicleResponseDto>;
-    findAll(page?: number, limit?: number, search?: string, make?: string, model?: string, year?: number, minYear?: number, maxYear?: number, isPartedOut?: boolean): Promise<{
+    findAll(query: VehicleQueryDto): Promise<{
         data: VehicleResponseDto[];
         total: number;
         page: number;
