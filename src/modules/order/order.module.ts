@@ -8,7 +8,7 @@ import { Part } from 'src/entities/part.entity';
 import { NotificationModule } from '../notification/notification.module';
 import { OrdersController } from './order.controller';
 import { OrdersService } from './order.service';
-import { PdfService } from 'src/common/services/pdf.service';
+import { PDFService } from 'src/common/services/pdf.service';
 
 @Module({
 	imports: [
@@ -16,7 +16,7 @@ import { PdfService } from 'src/common/services/pdf.service';
 		NotificationModule,
 	],
 	controllers: [OrdersController],
-	providers: [OrdersService, PdfService],
-	exports: [OrdersService, PdfService],
+	providers: [OrdersService, PDFService],
+	exports: [OrdersService, PDFService],
 })
 export class OrdersModule {}

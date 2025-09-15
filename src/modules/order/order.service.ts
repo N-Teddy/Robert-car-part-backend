@@ -25,7 +25,7 @@ import {
 } from 'src/dto/request/order.dto';
 import { OrderStatusEnum } from 'src/common/enum/entity.enum';
 import { NotificationService } from '../notification/notification.service';
-import { PdfService } from 'src/common/services/pdf.service';
+import { PDFService } from 'src/common/services/pdf.service';
 
 @Injectable()
 export class OrdersService {
@@ -37,7 +37,7 @@ export class OrdersService {
 		@InjectRepository(Part)
 		private partRepository: Repository<Part>,
 		private notificationsService: NotificationService,
-		private pdfService: PdfService
+		private pdfService: PDFService
 	) {}
 
 	async create(
@@ -346,8 +346,7 @@ export class OrdersService {
 			},
 		};
 
-		// return this.pdfService.generatePDF('order-receipt', templateData);
-		return Buffer.from('PDF generation not implemented'); // Placeholder
+		return this.pdfService.generatePDF('order-receipt', templateData);
 	}
 
 	private async sendOrderNotification(

@@ -1,87 +1,135 @@
-// src/pdf/pdf.service.ts
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { firefox } from 'playwright';
-import { compile } from 'handlebars';
+// src/common/services/pdf.service.ts
+import { Injectable, Logger } from '@nestjs/common';
+import * as handlebars from 'handlebars';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import * as puppeteer from 'puppeteer';
 
 @Injectable()
-export class PdfService implements OnModuleInit, OnModuleDestroy {
-	private browser: any;
+export class PDFService {
+	private readonly logger = new Logger(PDFService.name);
+	private templates: Map<string, HandlebarsTemplateDelegate> = new Map();
 
-	async onModuleInit() {
-		// Launch Firefox browser when the module initializes
+	async compileTemplate(templateName: string): Promise<HandlebarsTemplateDelegate> {
+		if (this.templates.has(templateName)) {
+			return this.templates.get(templateName);
+		}
+
 		try {
-			this.browser = await firefox.launch({
-				headless: true, // Run in headless mode for production
-				args: ['--no-sandbox', '--disable-setuid-sandbox'], // Needed for Linux environments
+			const templatePath = path.join(process.cwd(), 'templates', `${templateName}.hbs`);
+			const templateContent = await fs.readFile(templatePath, 'utf-8');
+
+			// Register Handlebars helpers
+			handlebars.registerHelper('formatDate', (date: any) => {
+				return new Date(date).toLocaleDateString('en-US', {
+					year: 'numeric',
+					month: 'long',
+					day: 'numeric',
+					hour: '2-digit',
+					minute: '2-digit'
+				});
 			});
-			console.log(
-				'Firefox browser launched successfully for PDF generation'
-			);
+
+			handlebars.registerHelper('formatCurrency', (amount: any) => {
+				return parseFloat(amount).toFixed(2);
+			});
+
+			handlebars.registerHelper('getStatusColor', (status: string) => {
+				const colors: { [key: string]: string } = {
+					'COMPLETED': '#27ae60',
+					'PENDING': '#f39c12',
+					'CANCELLED': '#e74c3c',
+					'PROCESSING': '#3498db'
+				};
+				return colors[status] || '#7f8c8d';
+			});
+
+			const template = handlebars.compile(templateContent);
+			this.templates.set(templateName, template);
+			return template;
 		} catch (error) {
-			console.error('Failed to launch Firefox browser:', error);
-			throw new Error('PDF service initialization failed');
+			this.logger.error(`Failed to compile template: ${templateName}`, error);
+			throw new Error(`Failed to compile template: ${templateName}`);
 		}
 	}
 
-	async onModuleDestroy() {
-		// Close the browser when the module is destroyed
-		if (this.browser) {
-			await this.browser.close();
-			console.log('Firefox browser closed');
-		}
-	}
-
-	/**
-	 * Generate PDF from a Handlebars template
-	 * @param templateName Name of the template file (without extension)
-	 * @param data Data to pass to the template
-	 * @returns PDF buffer
-	 */
 	async generatePDF(templateName: string, data: any): Promise<Buffer> {
-		if (!this.browser) {
-			throw new Error(
-				'PDF service not initialized. Browser not available.'
-			);
-		}
+		let browser: puppeteer.Browser | null = null;
 
 		try {
-			// Read and compile the Handlebars template
-			const templatePath = join(
-				process.cwd(),
-				'templates',
-				`${templateName}.hbs`
-			);
-			const templateContent = readFileSync(templatePath, 'utf8');
-			const compiledTemplate = compile(templateContent);
+			const template = await this.compileTemplate(templateName);
+			const html = template(data);
 
-			// Render the template with data
-			const htmlContent = compiledTemplate(data);
-
-			// Create a new page and set content
-			const page = await this.browser.newPage();
-			await page.setContent(htmlContent, { waitUntil: 'networkidle' });
-
-			// Generate PDF
-			const pdfBuffer = await page.pdf({
-				format: 'A4',
-				printBackground: true,
-				margin: {
-					top: '20mm',
-					right: '20mm',
-					bottom: '20mm',
-					left: '20mm',
-				},
+			// Launch Puppeteer - use boolean instead of string for headless
+			browser = await puppeteer.launch({
+				headless: true, // Changed from 'new' to true
+				args: ['--no-sandbox', '--disable-setuid-sandbox']
 			});
 
-			// Close the page
-			await page.close();
+			const page = await browser.newPage();
 
-			return pdfBuffer;
+			// Set the HTML content
+			await page.setContent(html, {
+				waitUntil: 'networkidle0'
+			});
+
+			// Generate PDF - explicitly convert to Buffer
+			const pdfBuffer = await page.pdf({
+				format: 'A4' as const,
+				margin: {
+					top: '0.5in',
+					right: '0.5in',
+					bottom: '0.5in',
+					left: '0.5in'
+				},
+				printBackground: true
+			});
+
+			// Convert Uint8Array to Buffer
+			return Buffer.from(pdfBuffer);
 		} catch (error) {
-			console.error('PDF generation error:', error);
-			throw new Error(`Failed to generate PDF: ${error.message}`);
+			this.logger.error('Failed to generate PDF', error);
+			throw new Error(`Failed to generate PDF: ${(error as Error).message}`);
+		} finally {
+			if (browser) {
+				await browser.close();
+			}
+		}
+	}
+
+	// Helper method to generate PDF from HTML string directly
+	async generatePDFFromHTML(html: string): Promise<Buffer> {
+		let browser: puppeteer.Browser | null = null;
+
+		try {
+			browser = await puppeteer.launch({
+				headless: true, // Changed from 'new' to true
+				args: ['--no-sandbox', '--disable-setuid-sandbox']
+			});
+
+			const page = await browser.newPage();
+			await page.setContent(html, { waitUntil: 'networkidle0' as const });
+
+			const pdfBuffer = await page.pdf({
+				format: 'A4' as const,
+				margin: {
+					top: '0.5in',
+					right: '0.5in',
+					bottom: '0.5in',
+					left: '0.5in'
+				},
+				printBackground: true
+			});
+
+			// Convert Uint8Array to Buffer
+			return Buffer.from(pdfBuffer);
+		} catch (error) {
+			this.logger.error('Failed to generate PDF from HTML', error);
+			throw new Error(`Failed to generate PDF from HTML: ${(error as Error).message}`);
+		} finally {
+			if (browser) {
+				await browser.close();
+			}
 		}
 	}
 }

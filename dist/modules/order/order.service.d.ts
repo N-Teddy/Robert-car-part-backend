@@ -5,14 +5,14 @@ import { Part } from 'src/entities/part.entity';
 import { OrderResponseDto, OrderStatsResponseDto } from 'src/dto/response/order.dto';
 import { CreateOrderDto, OrderQueryDto, UpdateOrderDto } from 'src/dto/request/order.dto';
 import { NotificationService } from '../notification/notification.service';
-import { PdfService } from 'src/common/services/pdf.service';
+import { PDFService } from 'src/common/services/pdf.service';
 export declare class OrdersService {
     private orderRepository;
     private orderItemRepository;
     private partRepository;
     private notificationsService;
     private pdfService;
-    constructor(orderRepository: Repository<Order>, orderItemRepository: Repository<OrderItem>, partRepository: Repository<Part>, notificationsService: NotificationService, pdfService: PdfService);
+    constructor(orderRepository: Repository<Order>, orderItemRepository: Repository<OrderItem>, partRepository: Repository<Part>, notificationsService: NotificationService, pdfService: PDFService);
     create(createOrderDto: CreateOrderDto, userId: string): Promise<OrderResponseDto>;
     findAll(query: OrderQueryDto): Promise<{
         data: OrderResponseDto[];

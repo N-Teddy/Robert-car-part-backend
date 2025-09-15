@@ -1,7 +1,7 @@
-import { OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-export declare class PdfService implements OnModuleInit, OnModuleDestroy {
-    private browser;
-    onModuleInit(): Promise<void>;
-    onModuleDestroy(): Promise<void>;
+export declare class PDFService {
+    private readonly logger;
+    private templates;
+    compileTemplate(templateName: string): Promise<HandlebarsTemplateDelegate>;
     generatePDF(templateName: string, data: any): Promise<Buffer>;
+    generatePDFFromHTML(html: string): Promise<Buffer>;
 }

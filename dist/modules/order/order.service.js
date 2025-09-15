@@ -241,7 +241,7 @@ let OrdersService = class OrdersService {
                 website: 'www.autopartsstore.com',
             },
         };
-        return Buffer.from('PDF generation not implemented');
+        return this.pdfService.generatePDF('order-receipt', templateData);
     }
     async sendOrderNotification(type, title, message, order) {
         try {
@@ -323,6 +323,6 @@ exports.OrdersService = OrdersService = __decorate([
         typeorm_2.Repository,
         typeorm_2.Repository,
         notification_service_1.NotificationService,
-        pdf_service_1.PdfService])
+        pdf_service_1.PDFService])
 ], OrdersService);
 //# sourceMappingURL=order.service.js.map
