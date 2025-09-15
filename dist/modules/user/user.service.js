@@ -58,6 +58,9 @@ let UserService = UserService_1 = class UserService {
                 user.fullName = dto.fullName;
             if (dto.phoneNumber !== undefined)
                 user.phoneNumber = dto.phoneNumber;
+            if (dto.email !== undefined)
+                user.email = dto.email;
+            user.updatedBy = userId;
             const updatedUser = await this.userRepository.save(user);
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.PROFILE_UPDATED,
@@ -101,6 +104,7 @@ let UserService = UserService_1 = class UserService {
             }
             const previousRole = user.role;
             user.role = dto.role;
+            user.updatedBy = adminId;
             const updatedUser = await this.userRepository.save(user);
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.ROLE_ASSIGNED,
@@ -127,7 +131,7 @@ let UserService = UserService_1 = class UserService {
                     userEmail: user.email,
                     previousRole,
                     newRole: dto.role,
-                    assignedBy: admin.id,
+                    assignedBy: admin.fullName,
                 },
             });
             return this.mapToResponseDto(updatedUser);
@@ -225,6 +229,7 @@ let UserService = UserService_1 = class UserService {
                 user.role = dto.role;
             if (dto.isActive !== undefined)
                 user.isActive = dto.isActive;
+            user.updatedBy = adminId;
             const updatedUser = await this.userRepository.save(user);
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.USER_UPDATED,

@@ -2,7 +2,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Part } from '../../entities/part.entity';
 import { Image } from '../../entities/image.entity';
-import { QrCode } from '../../entities/qr-code.entity';
 
 export class PartResponseDto {
 	@ApiProperty()

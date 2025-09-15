@@ -4,6 +4,11 @@ export declare class CreateCategoryDto {
     description?: string;
     parentId?: string;
 }
+export declare class CategoryTreeQueryDto {
+    page?: number;
+    limit?: number;
+    search?: string;
+}
 export declare class UpdateCategoryDto {
     image?: any;
     name?: string;

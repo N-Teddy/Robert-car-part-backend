@@ -181,14 +181,13 @@ let VehicleService = VehicleService_1 = class VehicleService {
                     throw new common_1.ConflictException('Vehicle with this VIN already exists');
                 }
             }
-            console.log(dto);
             const cleanedDto = Object.fromEntries(Object.entries(dto).filter(([_, v]) => v !== '' && v !== null && v !== undefined));
             Object.assign(vehicle, cleanedDto);
+            vehicle.updatedBy = userId;
             const savedVehicle = await this.vehicleRepository.save(vehicle);
             if (imageFiles && imageFiles.length > 0) {
                 await Promise.all(imageFiles.map((file) => this.uploadService.uploadSingleImage(file, entity_enum_1.ImageEnum.VEHICLE, savedVehicle.id, userId)));
             }
-            console.log('here2');
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.VEHICLE_UPDATED,
                 title: 'Vehicle Updated',
@@ -267,6 +266,7 @@ let VehicleService = VehicleService_1 = class VehicleService {
                 throw new common_1.NotFoundException('Vehicle not found');
             }
             vehicle.isPartedOut = true;
+            vehicle.updatedBy = userId;
             const savedVehicle = await this.vehicleRepository.save(vehicle);
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.VEHICLE_PARTED_OUT,

@@ -91,7 +91,6 @@ let AuthController = class AuthController {
 exports.AuthController = AuthController;
 __decorate([
     (0, common_1.Post)('register'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
     (0, swagger_1.ApiOperation)({ summary: 'Register a new user' }),
     (0, swagger_1.ApiResponse)({ status: 201, type: auth_dto_2.AuthResponseDto }),
     __param(0, (0, common_1.Body)()),
@@ -101,7 +100,6 @@ __decorate([
 ], AuthController.prototype, "register", null);
 __decorate([
     (0, common_1.Post)('login'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Login user' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: auth_dto_2.AuthResponseDto }),
     __param(0, (0, common_1.Body)()),
@@ -111,7 +109,6 @@ __decorate([
 ], AuthController.prototype, "login", null);
 __decorate([
     (0, common_1.Post)('refresh'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Refresh access token' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: auth_dto_2.AuthResponseDto }),
     __param(0, (0, common_1.Body)()),
@@ -121,7 +118,6 @@ __decorate([
 ], AuthController.prototype, "refreshToken", null);
 __decorate([
     (0, common_1.Post)('forgot-password'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Request password reset' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: auth_dto_2.MessageResponseDto }),
     __param(0, (0, common_1.Body)()),
@@ -131,7 +127,6 @@ __decorate([
 ], AuthController.prototype, "forgotPassword", null);
 __decorate([
     (0, common_1.Post)('reset-password'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Reset password with token' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: auth_dto_2.MessageResponseDto }),
     __param(0, (0, common_1.Body)()),
@@ -143,7 +138,6 @@ __decorate([
     (0, common_1.Post)('change-password'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Change password for authenticated user' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: auth_dto_2.MessageResponseDto }),
     __param(0, (0, common_1.Request)()),
@@ -156,7 +150,6 @@ __decorate([
     (0, common_1.Post)('logout'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Logout user' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: auth_dto_2.MessageResponseDto }),
     __param(0, (0, common_1.Request)()),

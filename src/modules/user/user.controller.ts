@@ -70,7 +70,6 @@ export class UserController {
 
 	@Post('assign-role')
 	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV)
-	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Assign role to user' })
 	@ApiResponse({ status: 200, type: UserResponseDto })
 	async assignRole(
@@ -140,9 +139,7 @@ export class UserController {
 
 	@Delete(':id')
 	@Roles(UserRoleEnum.ADMIN)
-	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiOperation({ summary: 'Delete user by ID' })
-	@ApiResponse({ status: 204 })
 	async deleteUser(@Request() req, @Param('id') id: string): Promise<any> {
 		try {
 			return await this.userService.deleteUser(req.user.id, id);

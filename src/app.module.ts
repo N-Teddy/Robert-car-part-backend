@@ -177,4 +177,4 @@ import { OrdersModule } from './modules/order/order.module';
 		},
 	],
 })
-export class AppModule { }
+export class AppModule {}

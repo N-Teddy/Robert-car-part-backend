@@ -46,7 +46,6 @@ let SeedService = SeedService_1 = class SeedService {
                     password: hashedPassword,
                 });
                 await this.userRepository.save(user);
-                this.logger.log(`Created user: ${userData.email} (${userData.role})`);
                 result.created++;
             }
             this.logger.log(`Seed completed. Created: ${result.created}, Skipped: ${result.skipped}`);

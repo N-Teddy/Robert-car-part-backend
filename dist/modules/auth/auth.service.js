@@ -44,7 +44,6 @@ let AuthService = AuthService_1 = class AuthService {
                 throw new common_1.BadRequestException('User with this email already exists');
             }
             const hashedPassword = await bcrypt.hash(dto.password, this.configService.get('auth.saltRounds'));
-            console.log('ok1');
             const user = this.userRepository.create({
                 email: dto.email,
                 password: hashedPassword,

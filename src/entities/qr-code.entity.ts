@@ -1,5 +1,5 @@
 // src/entities/qr-code.entity.ts
-import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, OneToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { Part } from './part.entity';
 import { Image } from './image.entity'; // Add this import

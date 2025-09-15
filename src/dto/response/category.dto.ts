@@ -107,3 +107,17 @@ export class PaginatedCategoryTreeResponse {
 	@ApiProperty({ description: 'Whether there is a previous page' })
 	hasPrev: boolean;
 }
+
+export class PaginatedCategoryResponse {
+	@ApiProperty({ type: [CategoryResponseDto] })
+	data: CategoryResponseDto[];
+
+	@ApiProperty()
+	total: number;
+
+	@ApiProperty()
+	page: number;
+
+	@ApiProperty()
+	limit: number;
+}

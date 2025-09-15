@@ -1,5 +1,5 @@
 // src/entities/vehicle.entity.ts
-import { Entity, Column, OneToMany, Index, ManyToOne } from 'typeorm';
+import { Entity, Column, OneToMany, Index } from 'typeorm';
 import { Part } from './part.entity';
 import { VehicleProfit } from './vehicle-profit.entity';
 import { Image } from './image.entity';

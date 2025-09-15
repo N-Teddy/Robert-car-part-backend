@@ -7,7 +7,7 @@ export declare class NotificationController {
     sendNotification(dto: SendNotificationDto): Promise<SendNotificationResultDto>;
     batchSendNotifications(dto: BatchSendNotificationDto): Promise<BatchSendResultDto>;
     markAsRead(dto: MarkAsReadDto, req: any): Promise<void>;
-    getNotifications(filter: NotificationFilterDto, req: any): Promise<NotificationListResponseDto>;
+    getNotifications(filter: NotificationFilterDto): Promise<NotificationListResponseDto>;
     getUnreadCount(req: any): Promise<{
         count: number;
     }>;

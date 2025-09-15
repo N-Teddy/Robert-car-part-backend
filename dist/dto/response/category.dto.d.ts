@@ -25,3 +25,9 @@ export declare class PaginatedCategoryTreeResponse {
     hasNext: boolean;
     hasPrev: boolean;
 }
+export declare class PaginatedCategoryResponse {
+    data: CategoryResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+}

@@ -39,7 +39,11 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateOrderItemDto.prototype, "unitPrice", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Discount amount', required: false, default: 0 }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Discount amount',
+        required: false,
+        default: 0,
+    }),
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)

@@ -5,11 +5,11 @@ import { CreateOrderDto, OrderQueryDto, UpdateOrderDto } from 'src/dto/request/o
 export declare class OrdersController {
     private readonly ordersService;
     constructor(ordersService: OrdersService);
-    create(createOrderDto: CreateOrderDto): Promise<OrderResponseDto>;
+    create(createOrderDto: CreateOrderDto, req: any): Promise<OrderResponseDto>;
     findAll(query: OrderQueryDto): Promise<PaginatedOrdersResponseDto>;
     getStats(): Promise<OrderStatsResponseDto>;
     findOne(id: string): Promise<OrderResponseDto>;
-    update(id: string, updateOrderDto: UpdateOrderDto): Promise<OrderResponseDto>;
+    update(id: string, updateOrderDto: UpdateOrderDto, req: any): Promise<OrderResponseDto>;
     remove(id: string): Promise<{
         message: string;
     }>;

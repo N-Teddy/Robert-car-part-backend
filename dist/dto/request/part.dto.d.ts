@@ -20,3 +20,15 @@ export declare class UpdatePartDto {
     vehicleId?: string;
     categoryId?: string;
 }
+export declare class PartsQueryDto {
+    page?: number;
+    limit?: number;
+    search?: string;
+    vehicleId?: string;
+    categoryId?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    minQuantity?: number;
+    maxQuantity?: number;
+    condition?: string;
+}

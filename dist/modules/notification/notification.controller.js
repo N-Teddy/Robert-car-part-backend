@@ -33,7 +33,7 @@ let NotificationController = class NotificationController {
     async markAsRead(dto, req) {
         return this.notificationService.markAsRead(dto, req.user.id);
     }
-    async getNotifications(filter, req) {
+    async getNotifications(filter) {
         return this.notificationService.getNotifications(filter);
     }
     async getUnreadCount(req) {
@@ -72,7 +72,6 @@ __decorate([
     (0, common_1.Put)('mark-as-read'),
     (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
     (0, swagger_1.ApiOperation)({ summary: 'Mark notifications as read' }),
-    (0, swagger_1.ApiResponse)({ status: 204 }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -84,15 +83,13 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Get notifications with filters' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: [notification_dto_2.NotificationResponseDto] }),
     __param(0, (0, common_1.Query)()),
-    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [notification_dto_1.NotificationFilterDto, Object]),
+    __metadata("design:paramtypes", [notification_dto_1.NotificationFilterDto]),
     __metadata("design:returntype", Promise)
 ], NotificationController.prototype, "getNotifications", null);
 __decorate([
     (0, common_1.Get)('unread-count'),
     (0, swagger_1.ApiOperation)({ summary: 'Get unread notifications count' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Returns unread count' }),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -112,10 +109,6 @@ __decorate([
     (0, common_1.Delete)('cleanup'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Delete old read notifications' }),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: 'Returns number of deleted notifications',
-    }),
     __param(0, (0, common_1.Query)('daysToKeep')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),

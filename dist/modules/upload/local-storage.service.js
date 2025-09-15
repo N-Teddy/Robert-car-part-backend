@@ -19,7 +19,6 @@ const util_1 = require("util");
 const entity_enum_1 = require("../../common/enum/entity.enum");
 const unlinkAsync = (0, util_1.promisify)(fs.unlink);
 const mkdirAsync = (0, util_1.promisify)(fs.mkdir);
-const existsAsync = (0, util_1.promisify)(fs.exists);
 let LocalStorageService = LocalStorageService_1 = class LocalStorageService {
     constructor(configService) {
         this.configService = configService;

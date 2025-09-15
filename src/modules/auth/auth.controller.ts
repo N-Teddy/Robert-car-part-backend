@@ -35,7 +35,6 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Post('register')
-	@HttpCode(HttpStatus.CREATED)
 	@ApiOperation({ summary: 'Register a new user' })
 	@ApiResponse({ status: 201, type: AuthResponseDto })
 	async register(@Body() dto: RegisterDto): Promise<AuthResponseDto> {
@@ -47,7 +46,6 @@ export class AuthController {
 	}
 
 	@Post('login')
-	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Login user' })
 	@ApiResponse({ status: 200, type: AuthResponseDto })
 	async login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
@@ -59,7 +57,6 @@ export class AuthController {
 	}
 
 	@Post('refresh')
-	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Refresh access token' })
 	@ApiResponse({ status: 200, type: AuthResponseDto })
 	async refreshToken(@Body() dto: RefreshTokenDto): Promise<AuthResponseDto> {
@@ -71,7 +68,6 @@ export class AuthController {
 	}
 
 	@Post('forgot-password')
-	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Request password reset' })
 	@ApiResponse({ status: 200, type: MessageResponseDto })
 	async forgotPassword(
@@ -85,7 +81,6 @@ export class AuthController {
 	}
 
 	@Post('reset-password')
-	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Reset password with token' })
 	@ApiResponse({ status: 200, type: MessageResponseDto })
 	async resetPassword(
@@ -101,7 +96,6 @@ export class AuthController {
 	@Post('change-password')
 	@UseGuards(JwtAuthGuard)
 	@ApiBearerAuth()
-	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Change password for authenticated user' })
 	@ApiResponse({ status: 200, type: MessageResponseDto })
 	async changePassword(
@@ -118,7 +112,6 @@ export class AuthController {
 	@Post('logout')
 	@UseGuards(JwtAuthGuard)
 	@ApiBearerAuth()
-	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Logout user' })
 	@ApiResponse({ status: 200, type: MessageResponseDto })
 	async logout(@Request() req): Promise<MessageResponseDto> {

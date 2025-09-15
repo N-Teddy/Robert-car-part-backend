@@ -2,6 +2,7 @@ import { UserRoleEnum } from '../../common/enum/entity.enum';
 export declare class UpdateProfileDto {
     fullName?: string;
     phoneNumber?: string;
+    email?: string;
 }
 export declare class AssignRoleDto {
     userId: string;

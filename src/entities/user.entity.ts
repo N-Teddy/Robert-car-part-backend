@@ -1,11 +1,4 @@
-import {
-	Column,
-	Entity,
-	OneToMany,
-	ManyToOne,
-	OneToOne,
-	JoinColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { PasswordResetToken } from './password-reset-token.entity';
 import { Notification } from './notification.entity';
 import { Image } from './image.entity';

@@ -26,8 +26,8 @@ let OrdersController = class OrdersController {
     constructor(ordersService) {
         this.ordersService = ordersService;
     }
-    async create(createOrderDto) {
-        return this.ordersService.create(createOrderDto);
+    async create(createOrderDto, req) {
+        return this.ordersService.create(createOrderDto, req.user.id);
     }
     async findAll(query) {
         const result = await this.ordersService.findAll(query);
@@ -39,8 +39,8 @@ let OrdersController = class OrdersController {
                 limit: query.limit,
                 totalPages: Math.ceil(result.total / query.limit),
                 hasNext: query.page < Math.ceil(result.total / query.limit),
-                hasPrev: query.page > 1
-            }
+                hasPrev: query.page > 1,
+            },
         };
     }
     async getStats() {
@@ -49,8 +49,8 @@ let OrdersController = class OrdersController {
     async findOne(id) {
         return this.ordersService.findOne(id);
     }
-    async update(id, updateOrderDto) {
-        return this.ordersService.update(id, updateOrderDto);
+    async update(id, updateOrderDto, req) {
+        return this.ordersService.update(id, updateOrderDto, req.user.id);
     }
     async remove(id) {
         await this.ordersService.remove(id);
@@ -67,17 +67,18 @@ exports.OrdersController = OrdersController;
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new order' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Order created successfully', type: order_dto_1.OrderResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 201, type: order_dto_1.OrderResponseDto }),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.CUSTOMER, entity_enum_1.UserRoleEnum.STAFF, entity_enum_1.UserRoleEnum.SALES, entity_enum_1.UserRoleEnum.ADMIN),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [order_dto_2.CreateOrderDto]),
+    __metadata("design:paramtypes", [order_dto_2.CreateOrderDto, Object]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get all orders with pagination and filtering' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Orders retrieved successfully', type: order_dto_1.PaginatedOrdersResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 200, type: order_dto_1.PaginatedOrdersResponseDto }),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.STAFF, entity_enum_1.UserRoleEnum.SALES, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.ADMIN),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
@@ -87,7 +88,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('stats'),
     (0, swagger_1.ApiOperation)({ summary: 'Get order statistics' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Order statistics retrieved', type: order_dto_1.OrderStatsResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 200, type: order_dto_1.OrderStatsResponseDto }),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.ADMIN),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
@@ -96,7 +97,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get a specific order by ID' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Order retrieved successfully', type: order_dto_1.OrderResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 200, type: order_dto_1.OrderResponseDto }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'Order ID' }),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.STAFF, entity_enum_1.UserRoleEnum.SALES, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.ADMIN),
     __param(0, (0, common_1.Param)('id')),
@@ -107,19 +108,19 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Update an order' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Order updated successfully', type: order_dto_1.OrderResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 200, type: order_dto_1.OrderResponseDto }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'Order ID' }),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.STAFF, entity_enum_1.UserRoleEnum.SALES, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.ADMIN),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, order_dto_2.UpdateOrderDto]),
+    __metadata("design:paramtypes", [String, order_dto_2.UpdateOrderDto, Object]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Delete an order' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Order deleted successfully' }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'Order ID' }),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.ADMIN),
     __param(0, (0, common_1.Param)('id')),
@@ -130,7 +131,6 @@ __decorate([
 __decorate([
     (0, common_1.Get)(':id/receipt'),
     (0, swagger_1.ApiOperation)({ summary: 'Generate and download order receipt PDF' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'PDF receipt generated' }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'Order ID' }),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.CUSTOMER, entity_enum_1.UserRoleEnum.STAFF, entity_enum_1.UserRoleEnum.SALES, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.ADMIN),
     __param(0, (0, common_1.Param)('id')),

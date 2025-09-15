@@ -18,7 +18,6 @@ export class UpdateProfileDto {
 	@ApiPropertyOptional({ example: 'John Doe Updated' })
 	@IsOptional()
 	@IsString()
-	@IsNotEmpty()
 	fullName?: string;
 
 	@ApiPropertyOptional({ example: '+1234567890' })
@@ -28,6 +27,11 @@ export class UpdateProfileDto {
 		message: 'Invalid phone number format',
 	})
 	phoneNumber?: string;
+
+	@ApiPropertyOptional({ example: 'examplegmail.com' })
+	@IsOptional()
+	@IsEmail()
+	email?: string;
 }
 
 export class AssignRoleDto {

@@ -5,7 +5,7 @@ import {
 	NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In, IsNull, Not } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Notification } from '../../entities/notification.entity';
 import { User } from '../../entities/user.entity';
 import { EmailService } from './email.service';
@@ -52,6 +52,7 @@ export class NotificationService {
 			message: dto.message,
 			metadata: dto.metadata,
 			user: dto.userId ? { id: dto.userId } : null,
+			createdBy: dto.userId,
 		});
 
 		const saved = await this.notificationRepository.save(notification);

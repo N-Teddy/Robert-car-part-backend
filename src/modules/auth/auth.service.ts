@@ -31,7 +31,6 @@ import {
 import {
 	AuthResponseDto,
 	MessageResponseDto,
-	TokenValidationResponseDto,
 } from '../../dto/response/auth.dto';
 
 @Injectable()
@@ -66,7 +65,6 @@ export class AuthService {
 				dto.password,
 				this.configService.get<number>('auth.saltRounds')
 			);
-			console.log('ok1');
 
 			// Create user with UNKNOWN role
 			const user = this.userRepository.create({

@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PaginatedCategoryTreeResponse = exports.CategoryResponseDto = void 0;
+exports.PaginatedCategoryResponse = exports.PaginatedCategoryTreeResponse = exports.CategoryResponseDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 class CategoryResponseDto {
     static fromEntity(entity) {
@@ -115,4 +115,23 @@ __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Whether there is a previous page' }),
     __metadata("design:type", Boolean)
 ], PaginatedCategoryTreeResponse.prototype, "hasPrev", void 0);
+class PaginatedCategoryResponse {
+}
+exports.PaginatedCategoryResponse = PaginatedCategoryResponse;
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [CategoryResponseDto] }),
+    __metadata("design:type", Array)
+], PaginatedCategoryResponse.prototype, "data", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", Number)
+], PaginatedCategoryResponse.prototype, "total", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", Number)
+], PaginatedCategoryResponse.prototype, "page", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", Number)
+], PaginatedCategoryResponse.prototype, "limit", void 0);
 //# sourceMappingURL=category.dto.js.map

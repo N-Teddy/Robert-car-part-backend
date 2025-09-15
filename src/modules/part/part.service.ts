@@ -3,20 +3,11 @@ import {
 	Injectable,
 	Logger,
 	NotFoundException,
-	ConflictException,
 	InternalServerErrorException,
 	BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-	Repository,
-	FindManyOptions,
-	ILike,
-	Between,
-	MoreThanOrEqual,
-	LessThanOrEqual,
-	In,
-} from 'typeorm';
+import { Repository, LessThanOrEqual } from 'typeorm';
 import { Part } from '../../entities/part.entity';
 import { Vehicle } from '../../entities/vehicle.entity';
 import { Category } from '../../entities/category.entity';
@@ -372,6 +363,7 @@ export class PartService {
 			Object.assign(part, dto);
 			if (dto.vehicleId) part.vehicle = { id: dto.vehicleId } as any;
 			if (dto.categoryId) part.category = { id: dto.categoryId } as any;
+			part.updatedBy = userId;
 
 			const savedPart = await this.partRepository.save(part);
 

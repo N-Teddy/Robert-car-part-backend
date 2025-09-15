@@ -52,6 +52,7 @@ let CategoryService = class CategoryService {
                 name: dto.name,
                 description: dto.description,
                 parent: parent,
+                createdBy: userId,
             });
             const savedCategory = await this.categoryRepo.save(category);
             if (imageFile) {
@@ -223,7 +224,7 @@ let CategoryService = class CategoryService {
     }
     async update(id, dto, imageFile, userId) {
         try {
-            let category = await this.categoryRepo.findOne({
+            const category = await this.categoryRepo.findOne({
                 where: { id },
                 relations: ['image', 'parent'],
             });
@@ -264,6 +265,7 @@ let CategoryService = class CategoryService {
             }
             category.name = dto.name ?? category.name;
             category.description = dto.description ?? category.description;
+            category.updatedBy = userId;
             const savedCategory = await this.categoryRepo.save(category);
             if (imageFile) {
                 await this.uploadService.uploadSingleImage(imageFile, entity_enum_1.ImageEnum.CATEGORY, savedCategory.id, userId);

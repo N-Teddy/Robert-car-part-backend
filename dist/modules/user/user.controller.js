@@ -114,7 +114,6 @@ __decorate([
 __decorate([
     (0, common_1.Post)('assign-role'),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Assign role to user' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: user_dto_2.UserResponseDto }),
     __param(0, (0, common_1.Request)()),
@@ -167,9 +166,7 @@ __decorate([
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN),
-    (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
     (0, swagger_1.ApiOperation)({ summary: 'Delete user by ID' }),
-    (0, swagger_1.ApiResponse)({ status: 204 }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),

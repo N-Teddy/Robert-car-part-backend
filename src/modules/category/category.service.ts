@@ -6,13 +6,7 @@ import {
 	BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-	FindManyOptions,
-	ILike,
-	In,
-	Repository,
-	TreeRepository,
-} from 'typeorm';
+import { FindManyOptions, ILike, Repository, TreeRepository } from 'typeorm';
 import { Category } from '../../entities/category.entity';
 import { Image } from '../../entities/image.entity';
 import {
@@ -77,6 +71,7 @@ export class CategoryService {
 				name: dto.name,
 				description: dto.description,
 				parent: parent,
+				createdBy: userId,
 			});
 
 			const savedCategory = await this.categoryRepo.save(category);
@@ -340,7 +335,7 @@ export class CategoryService {
 		userId?: string
 	): Promise<CategoryResponseDto> {
 		try {
-			let category = await this.categoryRepo.findOne({
+			const category = await this.categoryRepo.findOne({
 				where: { id },
 				relations: ['image', 'parent'],
 			});
@@ -402,6 +397,7 @@ export class CategoryService {
 			// Update other fields
 			category.name = dto.name ?? category.name;
 			category.description = dto.description ?? category.description;
+			category.updatedBy = userId;
 
 			const savedCategory = await this.categoryRepo.save(category);
 

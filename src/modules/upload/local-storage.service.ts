@@ -7,7 +7,7 @@ import { ImageEnum } from '../../common/enum/entity.enum';
 
 const unlinkAsync = promisify(fs.unlink);
 const mkdirAsync = promisify(fs.mkdir);
-const existsAsync = promisify(fs.exists);
+// const existsAsync = promisify(fs.exists);
 
 @Injectable()
 export class LocalStorageService {

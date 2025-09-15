@@ -258,7 +258,6 @@ export class VehicleService {
 					);
 				}
 			}
-			console.log(dto);
 			// Update vehicle fields
 			const cleanedDto = Object.fromEntries(
 				Object.entries(dto).filter(
@@ -266,6 +265,7 @@ export class VehicleService {
 				)
 			);
 			Object.assign(vehicle, cleanedDto);
+			vehicle.updatedBy = userId;
 			const savedVehicle = await this.vehicleRepository.save(vehicle);
 
 			// Upload new images if provided
@@ -281,7 +281,6 @@ export class VehicleService {
 					)
 				);
 			}
-			console.log('here2');
 
 			// Send notification to admins
 			await this.notificationService.sendNotification({
@@ -389,6 +388,7 @@ export class VehicleService {
 			}
 
 			vehicle.isPartedOut = true;
+			vehicle.updatedBy = userId;
 			const savedVehicle = await this.vehicleRepository.save(vehicle);
 
 			// Send notification to admins

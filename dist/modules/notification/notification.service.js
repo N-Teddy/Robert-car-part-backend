@@ -38,6 +38,7 @@ let NotificationService = NotificationService_1 = class NotificationService {
             message: dto.message,
             metadata: dto.metadata,
             user: dto.userId ? { id: dto.userId } : null,
+            createdBy: dto.userId,
         });
         const saved = await this.notificationRepository.save(notification);
         return this.mapToResponseDto(saved);

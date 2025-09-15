@@ -16,7 +16,7 @@ export class Report extends BaseEntity {
 		enum: ReportPeriodEnum,
 		default: ReportPeriodEnum.DAILY,
 	})
-	period: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom';
+	period: ReportPeriodEnum;
 
 	@Column({ type: 'date' })
 	startDate: Date;

@@ -17,7 +17,6 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import {
 	ApiTags,
 	ApiOperation,
-	ApiResponse,
 	ApiConsumes,
 	ApiBody,
 	ApiBearerAuth,
@@ -27,7 +26,7 @@ import { PartService } from './part.service';
 import { PartResponseDto } from '../../dto/response/part.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { CreatePartDto, UpdatePartDto } from 'src/dto/request/part.dto';
+import { CreatePartDto, PartsQueryDto, UpdatePartDto } from 'src/dto/request/part.dto';
 
 @ApiTags('Parts')
 @ApiBearerAuth()
@@ -40,10 +39,6 @@ export class PartController {
 	@UseInterceptors(FilesInterceptor('images', 10))
 	@ApiConsumes('multipart/form-data')
 	@ApiOperation({ summary: 'Create a new part with QR code' })
-	@ApiBody({
-		description: 'Part data with optional images',
-		type: CreatePartDto,
-	})
 	async create(
 		@Body() dto: CreatePartDto,
 		@UploadedFiles() images: Express.Multer.File[],
@@ -54,39 +49,20 @@ export class PartController {
 
 	@Get()
 	@ApiOperation({ summary: 'Get paginated list of parts with filters' })
-	@ApiQuery({ name: 'page', required: false, type: Number })
-	@ApiQuery({ name: 'limit', required: false, type: Number })
-	@ApiQuery({ name: 'search', required: false, type: String })
-	@ApiQuery({ name: 'vehicleId', required: false, type: String })
-	@ApiQuery({ name: 'categoryId', required: false, type: String })
-	@ApiQuery({ name: 'minPrice', required: false, type: Number })
-	@ApiQuery({ name: 'maxPrice', required: false, type: Number })
-	@ApiQuery({ name: 'minQuantity', required: false, type: Number })
-	@ApiQuery({ name: 'maxQuantity', required: false, type: Number })
-	@ApiQuery({ name: 'condition', required: false, type: String })
 	async findAll(
-		@Query('page') page: number = 1,
-		@Query('limit') limit: number = 10,
-		@Query('search') search?: string,
-		@Query('vehicleId') vehicleId?: string,
-		@Query('categoryId') categoryId?: string,
-		@Query('minPrice') minPrice?: number,
-		@Query('maxPrice') maxPrice?: number,
-		@Query('minQuantity') minQuantity?: number,
-		@Query('maxQuantity') maxQuantity?: number,
-		@Query('condition') condition?: string
+		@Query('page') @Query() queryDto: PartsQueryDto
 	) {
 		return this.partService.findAll(
-			page,
-			limit,
-			search,
-			vehicleId,
-			categoryId,
-			minPrice,
-			maxPrice,
-			minQuantity,
-			maxQuantity,
-			condition
+			queryDto.page,
+			queryDto.limit,
+			queryDto.search,
+			queryDto.vehicleId,
+			queryDto.categoryId,
+			queryDto.minPrice,
+			queryDto.maxPrice,
+			queryDto.minQuantity,
+			queryDto.maxQuantity,
+			queryDto.condition
 		);
 	}
 

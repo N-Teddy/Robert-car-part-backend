@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CategoryQueryDto = exports.UpdateCategoryDto = exports.CreateCategoryDto = void 0;
+exports.CategoryQueryDto = exports.UpdateCategoryDto = exports.CategoryTreeQueryDto = exports.CreateCategoryDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const swagger_1 = require("@nestjs/swagger");
@@ -47,6 +47,47 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateCategoryDto.prototype, "parentId", void 0);
+class CategoryTreeQueryDto {
+    constructor() {
+        this.page = 1;
+        this.limit = 10;
+    }
+}
+exports.CategoryTreeQueryDto = CategoryTreeQueryDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Page number',
+        example: 1,
+        default: 1,
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], CategoryTreeQueryDto.prototype, "page", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Number of items per page',
+        example: 10,
+        default: 10,
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1),
+    (0, class_validator_1.Max)(100),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], CategoryTreeQueryDto.prototype, "limit", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Search term for category name or description',
+        example: 'electronics',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CategoryTreeQueryDto.prototype, "search", void 0);
 class UpdateCategoryDto {
 }
 exports.UpdateCategoryDto = UpdateCategoryDto;

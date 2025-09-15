@@ -6,6 +6,8 @@ import {
 	IsInt,
 	Min,
 	IsUUID,
+	IsNumber,
+	Max,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -37,6 +39,39 @@ export class CreateCategoryDto {
 	@IsUUID()
 	@IsOptional()
 	parentId?: string;
+}
+
+export class CategoryTreeQueryDto {
+	@ApiPropertyOptional({
+		description: 'Page number',
+		example: 1,
+		default: 1,
+	})
+	@IsOptional()
+	@IsNumber()
+	@Min(1)
+	@Type(() => Number)
+	page?: number = 1;
+
+	@ApiPropertyOptional({
+		description: 'Number of items per page',
+		example: 10,
+		default: 10,
+	})
+	@IsOptional()
+	@IsNumber()
+	@Min(1)
+	@Max(100) // Set a reasonable maximum limit
+	@Type(() => Number)
+	limit?: number = 10;
+
+	@ApiPropertyOptional({
+		description: 'Search term for category name or description',
+		example: 'electronics',
+	})
+	@IsOptional()
+	@IsString()
+	search?: string;
 }
 
 export class UpdateCategoryDto {

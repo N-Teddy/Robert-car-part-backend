@@ -265,6 +265,7 @@ let PartService = PartService_1 = class PartService {
                 part.vehicle = { id: dto.vehicleId };
             if (dto.categoryId)
                 part.category = { id: dto.categoryId };
+            part.updatedBy = userId;
             const savedPart = await this.partRepository.save(part);
             if (imageFiles && imageFiles.length > 0) {
                 await Promise.all(imageFiles.map((file) => this.uploadService.uploadSingleImage(file, entity_enum_1.ImageEnum.PART, savedPart.id, userId)));

@@ -5,20 +5,22 @@ import { Part } from 'src/entities/part.entity';
 import { OrderResponseDto, OrderStatsResponseDto } from 'src/dto/response/order.dto';
 import { CreateOrderDto, OrderQueryDto, UpdateOrderDto } from 'src/dto/request/order.dto';
 import { NotificationService } from '../notification/notification.service';
+import { PdfService } from 'src/common/services/pdf.service';
 export declare class OrdersService {
     private orderRepository;
     private orderItemRepository;
     private partRepository;
     private notificationsService;
-    constructor(orderRepository: Repository<Order>, orderItemRepository: Repository<OrderItem>, partRepository: Repository<Part>, notificationsService: NotificationService);
-    create(createOrderDto: CreateOrderDto): Promise<OrderResponseDto>;
+    private pdfService;
+    constructor(orderRepository: Repository<Order>, orderItemRepository: Repository<OrderItem>, partRepository: Repository<Part>, notificationsService: NotificationService, pdfService: PdfService);
+    create(createOrderDto: CreateOrderDto, userId: string): Promise<OrderResponseDto>;
     findAll(query: OrderQueryDto): Promise<{
         data: OrderResponseDto[];
         total: number;
     }>;
     findOne(id: string): Promise<OrderResponseDto>;
     private findOneEntity;
-    update(id: string, updateOrderDto: UpdateOrderDto): Promise<OrderResponseDto>;
+    update(id: string, updateOrderDto: UpdateOrderDto, userId: string): Promise<OrderResponseDto>;
     remove(id: string): Promise<void>;
     getStats(): Promise<OrderStatsResponseDto>;
     generateReceipt(orderId: string): Promise<Buffer>;

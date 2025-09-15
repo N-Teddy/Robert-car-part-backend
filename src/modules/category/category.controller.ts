@@ -18,16 +18,18 @@ import {
 	ApiOperation,
 	ApiResponse,
 	ApiConsumes,
-	ApiBody,
 	ApiBearerAuth,
 	ApiQuery,
 } from '@nestjs/swagger';
 import { CategoryService } from './category.service';
 import {
 	CategoryResponseDto,
+	PaginatedCategoryResponse,
 	PaginatedCategoryTreeResponse,
 } from '../../dto/response/category.dto';
 import {
+	CategoryQueryDto,
+	CategoryTreeQueryDto,
 	CreateCategoryDto,
 	UpdateCategoryDto,
 } from 'src/dto/request/category.dto';
@@ -45,6 +47,7 @@ export class CategoryController {
 	@UseInterceptors(FileInterceptor('image'))
 	@ApiConsumes('multipart/form-data')
 	@ApiOperation({ summary: 'Create a new category' })
+		@ApiResponse({ status: 200, type: CategoryResponseDto})
 	async create(
 		@Body() dto: CreateCategoryDto,
 		@UploadedFile() image?: Express.Multer.File,
@@ -54,38 +57,12 @@ export class CategoryController {
 	}
 
 	@Get('tree')
-	@ApiOperation({
-		summary: 'Get all categories as a tree structure with pagination',
-	})
-	@ApiQuery({
-		name: 'page',
-		required: false,
-		type: Number,
-		description: 'Page number (default: 1)',
-	})
-	@ApiQuery({
-		name: 'limit',
-		required: false,
-		type: Number,
-		description: 'Number of items per page (default: 10)',
-	})
-	@ApiQuery({
-		name: 'search',
-		required: false,
-		type: String,
-		description: 'Search term for category name or description',
-	})
-	@ApiResponse({
-		status: 200,
-		description: 'Paginated category tree retrieved successfully',
-		type: PaginatedCategoryTreeResponse,
-	})
+	@ApiOperation({ summary: 'Get all categories as a tree structure with pagination' })
+	@ApiResponse({ status: 200, type: PaginatedCategoryTreeResponse })
 	async findTree(
-		@Query('page') page: number = 1,
-		@Query('limit') limit: number = 10,
-		@Query('search') search?: string
+		@Query() queryDto: CategoryTreeQueryDto
 	): Promise<PaginatedCategoryTreeResponse> {
-		return this.categoryService.findTree(page, limit, search);
+		return this.categoryService.findTree(queryDto.page, queryDto.limit, queryDto.search);
 	}
 
 	@Get(':id/children')
@@ -98,24 +75,16 @@ export class CategoryController {
 
 	@Get()
 	@ApiOperation({ summary: 'Get paginated list of categories' })
-	@ApiQuery({ name: 'page', required: false, type: Number })
-	@ApiQuery({ name: 'limit', required: false, type: Number })
-	@ApiQuery({ name: 'search', required: false, type: String })
+	@ApiResponse({ status: 200, type: PaginatedCategoryResponse})
 	async findAll(
-		@Query('page') page: number = 1,
-		@Query('limit') limit: number = 10,
-		@Query('search') search?: string
-	): Promise<{
-		data: CategoryResponseDto[];
-		total: number;
-		page: number;
-		limit: number;
-	}> {
-		return this.categoryService.findAll(page, limit, search);
+		@Query() queryDto: CategoryQueryDto
+	): Promise<PaginatedCategoryResponse> {
+		return this.categoryService.findAll(queryDto.page, queryDto.limit, queryDto.search);
 	}
 
 	@Get(':id')
 	@ApiOperation({ summary: 'Get a specific category' })
+		@ApiResponse({ status: 200, type: CategoryResponseDto })
 	async findOne(@Param('id') id: string): Promise<CategoryResponseDto> {
 		return this.categoryService.findOne(id);
 	}
@@ -124,6 +93,7 @@ export class CategoryController {
 	@UseInterceptors(FileInterceptor('image'))
 	@ApiConsumes('multipart/form-data')
 	@ApiOperation({ summary: 'Update a category' })
+		@ApiResponse({ status: 200, type: CategoryResponseDto })
 	async update(
 		@Param('id') id: string,
 		@Body() dto: UpdateCategoryDto,

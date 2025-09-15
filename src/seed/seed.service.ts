@@ -43,9 +43,6 @@ export class SeedService {
 				});
 
 				await this.userRepository.save(user);
-				this.logger.log(
-					`Created user: ${userData.email} (${userData.role})`
-				);
 				result.created++;
 			}
 

@@ -13,7 +13,6 @@ import { NotificationService } from '../notification/notification.service';
 import {
 	NotificationEnum,
 	NotificationAudienceEnum,
-	NotificationChannel,
 	NotificationChannelEnum,
 } from '../../common/enum/notification.enum';
 import {
@@ -78,6 +77,8 @@ export class UserService {
 			if (dto.fullName !== undefined) user.fullName = dto.fullName;
 			if (dto.phoneNumber !== undefined)
 				user.phoneNumber = dto.phoneNumber;
+			if (dto.email !== undefined) user.email = dto.email;
+			user.updatedBy = userId;
 
 			const updatedUser = await this.userRepository.save(user);
 
@@ -139,6 +140,7 @@ export class UserService {
 			// Update user role
 			const previousRole = user.role;
 			user.role = dto.role;
+			user.updatedBy = adminId;
 			const updatedUser = await this.userRepository.save(user);
 
 			// Send notification to user
@@ -169,7 +171,7 @@ export class UserService {
 					userEmail: user.email,
 					previousRole,
 					newRole: dto.role,
-					assignedBy: admin.id,
+					assignedBy: admin.fullName,
 				},
 			});
 
@@ -298,6 +300,7 @@ export class UserService {
 				user.phoneNumber = dto.phoneNumber;
 			if (dto.role !== undefined) user.role = dto.role;
 			if (dto.isActive !== undefined) user.isActive = dto.isActive;
+			user.updatedBy = adminId;
 
 			const updatedUser = await this.userRepository.save(user);
 

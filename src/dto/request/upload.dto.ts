@@ -1,10 +1,4 @@
-import {
-	IsEnum,
-	IsUUID,
-	IsOptional,
-	IsArray,
-	ArrayMinSize,
-} from 'class-validator';
+import { IsEnum, IsUUID, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ImageEnum } from '../../common/enum/entity.enum';
 

@@ -23,7 +23,6 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 // import { Roles } from '../auth/decorators/roles.decorator';
 import { NotificationService } from './notification.service';
 import {
-	CreateNotificationDto,
 	SendNotificationDto,
 	BatchSendNotificationDto,
 	MarkAsReadDto,
@@ -35,7 +34,6 @@ import {
 	SendNotificationResultDto,
 	BatchSendResultDto,
 } from '../../dto/response/notification.dto';
-import { UserRoleEnum } from '../../common/enum/entity.enum';
 
 @ApiTags('Notifications')
 @ApiBearerAuth()
@@ -67,7 +65,6 @@ export class NotificationController {
 	@Put('mark-as-read')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiOperation({ summary: 'Mark notifications as read' })
-	@ApiResponse({ status: 204 })
 	async markAsRead(
 		@Body() dto: MarkAsReadDto,
 		@Request() req
@@ -79,15 +76,13 @@ export class NotificationController {
 	@ApiOperation({ summary: 'Get notifications with filters' })
 	@ApiResponse({ status: 200, type: [NotificationResponseDto] })
 	async getNotifications(
-		@Query() filter: NotificationFilterDto,
-		@Request() req
+		@Query() filter: NotificationFilterDto
 	): Promise<NotificationListResponseDto> {
 		return this.notificationService.getNotifications(filter);
 	}
 
 	@Get('unread-count')
 	@ApiOperation({ summary: 'Get unread notifications count' })
-	@ApiResponse({ status: 200, description: 'Returns unread count' })
 	async getUnreadCount(@Request() req): Promise<{ count: number }> {
 		const count = await this.notificationService.getUnreadCount(
 			req.user.id
@@ -113,10 +108,6 @@ export class NotificationController {
 	// @Roles(UserRoleEnum.ADMIN)
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Delete old read notifications' })
-	@ApiResponse({
-		status: 200,
-		description: 'Returns number of deleted notifications',
-	})
 	async cleanupOldNotifications(
 		@Query('daysToKeep') daysToKeep?: number
 	): Promise<{ deleted: number }> {

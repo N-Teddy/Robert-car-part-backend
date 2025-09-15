@@ -7,7 +7,6 @@ import {
 	UseInterceptors,
 	Get,
 	Param,
-	Put,
 	Delete,
 	Query,
 	Req,
@@ -18,7 +17,6 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import {
 	ApiTags,
 	ApiOperation,
-	ApiResponse,
 	ApiConsumes,
 	ApiBody,
 	ApiBearerAuth,

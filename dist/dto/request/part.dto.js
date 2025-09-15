@@ -9,8 +9,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdatePartDto = exports.CreatePartDto = void 0;
+exports.PartsQueryDto = exports.UpdatePartDto = exports.CreatePartDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
+const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 class CreatePartDto {
 }
@@ -136,4 +137,118 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdatePartDto.prototype, "categoryId", void 0);
+class PartsQueryDto {
+    constructor() {
+        this.page = 1;
+        this.limit = 10;
+    }
+}
+exports.PartsQueryDto = PartsQueryDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Page number',
+        example: 1,
+        default: 1,
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], PartsQueryDto.prototype, "page", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Number of items per page',
+        example: 10,
+        default: 10,
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1),
+    (0, class_validator_1.Max)(100),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], PartsQueryDto.prototype, "limit", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Search term for part name, description, or SKU',
+        example: 'brake pad',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_transformer_1.Transform)(({ value }) => value?.trim()),
+    __metadata("design:type", String)
+], PartsQueryDto.prototype, "search", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Filter by vehicle ID',
+        example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], PartsQueryDto.prototype, "vehicleId", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Filter by category ID',
+        example: 'b2c3d4e5-f6g7-8901-bcde-f23456789012',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], PartsQueryDto.prototype, "categoryId", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Minimum price filter',
+        example: 10.99,
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], PartsQueryDto.prototype, "minPrice", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Maximum price filter',
+        example: 100.99,
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], PartsQueryDto.prototype, "maxPrice", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Minimum quantity filter',
+        example: 5,
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], PartsQueryDto.prototype, "minQuantity", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Maximum quantity filter',
+        example: 100,
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], PartsQueryDto.prototype, "maxQuantity", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Filter by condition (NEW, USED, REFURBISHED)',
+        example: 'NEW',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_transformer_1.Transform)(({ value }) => value?.trim().toUpperCase()),
+    __metadata("design:type", String)
+], PartsQueryDto.prototype, "condition", void 0);
 //# sourceMappingURL=part.dto.js.map

@@ -21,7 +21,6 @@ __decorate([
     (0, swagger_1.ApiPropertyOptional)({ example: 'John Doe Updated' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], UpdateProfileDto.prototype, "fullName", void 0);
 __decorate([
@@ -33,6 +32,12 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], UpdateProfileDto.prototype, "phoneNumber", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'examplegmail.com' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEmail)(),
+    __metadata("design:type", String)
+], UpdateProfileDto.prototype, "email", void 0);
 class AssignRoleDto {
 }
 exports.AssignRoleDto = AssignRoleDto;

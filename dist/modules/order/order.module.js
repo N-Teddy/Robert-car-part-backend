@@ -15,6 +15,7 @@ const part_entity_1 = require("../../entities/part.entity");
 const notification_module_1 = require("../notification/notification.module");
 const order_controller_1 = require("./order.controller");
 const order_service_1 = require("./order.service");
+const pdf_service_1 = require("../../common/services/pdf.service");
 let OrdersModule = class OrdersModule {
 };
 exports.OrdersModule = OrdersModule;
@@ -25,10 +26,8 @@ exports.OrdersModule = OrdersModule = __decorate([
             notification_module_1.NotificationModule,
         ],
         controllers: [order_controller_1.OrdersController],
-        providers: [order_service_1.OrdersService,
-        ],
-        exports: [order_service_1.OrdersService,
-        ],
+        providers: [order_service_1.OrdersService, pdf_service_1.PdfService],
+        exports: [order_service_1.OrdersService, pdf_service_1.PdfService],
     })
 ], OrdersModule);
 //# sourceMappingURL=order.module.js.map
