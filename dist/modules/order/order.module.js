@@ -16,13 +16,14 @@ const notification_module_1 = require("../notification/notification.module");
 const order_controller_1 = require("./order.controller");
 const order_service_1 = require("./order.service");
 const pdf_service_1 = require("../../common/services/pdf.service");
+const vehicle_profit_entity_1 = require("../../entities/vehicle-profit.entity");
 let OrdersModule = class OrdersModule {
 };
 exports.OrdersModule = OrdersModule;
 exports.OrdersModule = OrdersModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([order_entity_1.Order, order_item_entity_1.OrderItem, part_entity_1.Part]),
+            typeorm_1.TypeOrmModule.forFeature([order_entity_1.Order, order_item_entity_1.OrderItem, part_entity_1.Part, vehicle_profit_entity_1.VehicleProfit]),
             notification_module_1.NotificationModule,
         ],
         controllers: [order_controller_1.OrdersController],

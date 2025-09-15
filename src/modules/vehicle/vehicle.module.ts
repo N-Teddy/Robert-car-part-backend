@@ -7,10 +7,11 @@ import { VehicleService } from './vehicle.service';
 import { VehicleController } from './vehicle.controller';
 import { UploadModule } from '../upload/upload.module';
 import { NotificationModule } from '../notification/notification.module';
+import { VehicleProfit } from 'src/entities/vehicle-profit.entity';
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([Vehicle, Image]),
+		TypeOrmModule.forFeature([Vehicle, Image, VehicleProfit]),
 		UploadModule,
 		NotificationModule,
 	],

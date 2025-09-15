@@ -24,10 +24,11 @@ const upload_service_1 = require("../upload/upload.service");
 const notification_service_1 = require("../notification/notification.service");
 const entity_enum_1 = require("../../common/enum/entity.enum");
 const notification_enum_1 = require("../../common/enum/notification.enum");
+const vehicle_profit_entity_1 = require("../../entities/vehicle-profit.entity");
 let VehicleService = VehicleService_1 = class VehicleService {
-    constructor(vehicleRepository, imageRepository, uploadService, notificationService) {
+    constructor(vehicleRepository, vehicleProfitRepository, uploadService, notificationService) {
         this.vehicleRepository = vehicleRepository;
-        this.imageRepository = imageRepository;
+        this.vehicleProfitRepository = vehicleProfitRepository;
         this.uploadService = uploadService;
         this.notificationService = notificationService;
         this.logger = new common_1.Logger(VehicleService_1.name);
@@ -306,16 +307,81 @@ let VehicleService = VehicleService_1 = class VehicleService {
                     purchaseDate: (0, typeorm_2.Between)(new Date(`${currentYear}-01-01`), new Date(`${currentYear}-12-31`)),
                 },
             });
+            const profitStats = await this.vehicleProfitRepository
+                .createQueryBuilder('vp')
+                .select('SUM(vp.totalPartsRevenue)', 'totalRevenue')
+                .addSelect('SUM(vp.totalPartsCost)', 'totalCost')
+                .addSelect('SUM(vp.profit)', 'totalProfit')
+                .addSelect('AVG(vp.profitMargin)', 'avgProfitMargin')
+                .getRawOne();
+            const profitableVehicles = await this.vehicleProfitRepository.count({
+                where: { profit: (0, typeorm_2.MoreThanOrEqual)(0) }
+            });
             return {
                 totalVehicles,
                 activeVehicles,
                 partedOutVehicles,
                 vehiclesThisYear,
+                totalRevenue: parseFloat(profitStats.totalRevenue || 0),
+                totalCost: parseFloat(profitStats.totalCost || 0),
+                totalProfit: parseFloat(profitStats.totalProfit || 0),
+                avgProfitMargin: parseFloat(profitStats.avgProfitMargin || 0),
+                profitableVehicles,
+                profitabilityRate: totalVehicles > 0 ? (profitableVehicles / totalVehicles) * 100 : 0
             };
         }
         catch (error) {
             this.logger.error('Failed to fetch vehicle statistics', error);
             throw new common_1.InternalServerErrorException('Failed to fetch vehicle statistics');
+        }
+    }
+    async getVehicleProfitStats(vehicleId) {
+        try {
+            const profitRecord = await this.vehicleProfitRepository.findOne({
+                where: { vehicle: { id: vehicleId } },
+                relations: ['vehicle']
+            });
+            if (!profitRecord) {
+                return this.vehicleProfitRepository.create({
+                    totalPartsRevenue: 0,
+                    totalPartsCost: 0,
+                    profit: 0,
+                    profitMargin: 0,
+                    isThresholdMet: false,
+                    vehicle: { id: vehicleId }
+                });
+            }
+            return profitRecord;
+        }
+        catch (error) {
+            this.logger.error('Failed to fetch vehicle profit stats', error);
+            throw new common_1.InternalServerErrorException('Failed to fetch vehicle profit statistics');
+        }
+    }
+    async getAllVehicleProfits() {
+        try {
+            return await this.vehicleProfitRepository.find({
+                relations: ['vehicle'],
+                order: { profit: 'DESC' }
+            });
+        }
+        catch (error) {
+            this.logger.error('Failed to fetch vehicle profits', error);
+            throw new common_1.InternalServerErrorException('Failed to fetch vehicle profits');
+        }
+    }
+    async getTopPerformingVehicles(limit = 10) {
+        try {
+            return await this.vehicleProfitRepository.find({
+                where: { profitMargin: (0, typeorm_2.MoreThanOrEqual)(0) },
+                relations: ['vehicle'],
+                order: { profitMargin: 'DESC' },
+                take: limit
+            });
+        }
+        catch (error) {
+            this.logger.error('Failed to fetch top performing vehicles', error);
+            throw new common_1.InternalServerErrorException('Failed to fetch top performing vehicles');
         }
     }
     async getMakeModelStatistics() {
@@ -350,6 +416,7 @@ exports.VehicleService = VehicleService = VehicleService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(vehicle_entity_1.Vehicle)),
     __param(1, (0, typeorm_1.InjectRepository)(image_entity_1.Image)),
+    __param(1, (0, typeorm_1.InjectRepository)(vehicle_profit_entity_1.VehicleProfit)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
         upload_service_1.UploadService,

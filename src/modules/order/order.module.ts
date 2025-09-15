@@ -9,14 +9,15 @@ import { NotificationModule } from '../notification/notification.module';
 import { OrdersController } from './order.controller';
 import { OrdersService } from './order.service';
 import { PDFService } from 'src/common/services/pdf.service';
+import { VehicleProfit } from 'src/entities/vehicle-profit.entity';
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([Order, OrderItem, Part]),
+		TypeOrmModule.forFeature([Order, OrderItem, Part, VehicleProfit]),
 		NotificationModule,
 	],
 	controllers: [OrdersController],
 	providers: [OrdersService, PDFService],
 	exports: [OrdersService, PDFService],
 })
-export class OrdersModule {}
+export class OrdersModule { }

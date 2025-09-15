@@ -15,13 +15,14 @@ const vehicle_service_1 = require("./vehicle.service");
 const vehicle_controller_1 = require("./vehicle.controller");
 const upload_module_1 = require("../upload/upload.module");
 const notification_module_1 = require("../notification/notification.module");
+const vehicle_profit_entity_1 = require("../../entities/vehicle-profit.entity");
 let VehicleModule = class VehicleModule {
 };
 exports.VehicleModule = VehicleModule;
 exports.VehicleModule = VehicleModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([vehicle_entity_1.Vehicle, image_entity_1.Image]),
+            typeorm_1.TypeOrmModule.forFeature([vehicle_entity_1.Vehicle, image_entity_1.Image, vehicle_profit_entity_1.VehicleProfit]),
             upload_module_1.UploadModule,
             notification_module_1.NotificationModule,
         ],

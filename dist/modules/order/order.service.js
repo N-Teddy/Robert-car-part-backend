@@ -23,11 +23,12 @@ const part_entity_1 = require("../../entities/part.entity");
 const entity_enum_1 = require("../../common/enum/entity.enum");
 const notification_service_1 = require("../notification/notification.service");
 const pdf_service_1 = require("../../common/services/pdf.service");
+const vehicle_profit_entity_1 = require("../../entities/vehicle-profit.entity");
 let OrdersService = class OrdersService {
-    constructor(orderRepository, orderItemRepository, partRepository, notificationsService, pdfService) {
+    constructor(orderRepository, orderItemRepository, vehicleProfitRepository, notificationsService, pdfService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
-        this.partRepository = partRepository;
+        this.vehicleProfitRepository = vehicleProfitRepository;
         this.notificationsService = notificationsService;
         this.pdfService = pdfService;
     }
@@ -38,6 +39,7 @@ let OrdersService = class OrdersService {
         try {
             let totalAmount = 0;
             const orderItems = [];
+            const vehicleProfitMap = new Map();
             for (const itemDto of createOrderDto.items) {
                 const part = await queryRunner.manager.findOne(part_entity_1.Part, {
                     where: { id: itemDto.partId },
@@ -62,6 +64,15 @@ let OrdersService = class OrdersService {
                 orderItems.push(orderItem);
                 part.quantity -= itemDto.quantity;
                 await queryRunner.manager.save(part);
+                if (part.vehicle) {
+                    const vehicleId = part.vehicle.id;
+                    const current = vehicleProfitMap.get(vehicleId) || { revenue: 0, cost: 0 };
+                    const partCost = part.price || 0;
+                    vehicleProfitMap.set(vehicleId, {
+                        revenue: current.revenue + (unitPrice * itemDto.quantity - (itemDto.discount || 0)),
+                        cost: current.cost + (partCost * itemDto.quantity)
+                    });
+                }
             }
             const order = this.orderRepository.create({
                 ...createOrderDto,
@@ -70,6 +81,9 @@ let OrdersService = class OrdersService {
                 createdBy: userId,
             });
             const savedOrder = await queryRunner.manager.save(order);
+            for (const [vehicleId, profitData] of vehicleProfitMap.entries()) {
+                await this.updateVehicleProfit(vehicleId, profitData.revenue, profitData.cost, queryRunner.manager);
+            }
             await this.sendOrderNotification(notification_enum_1.NotificationEnum.ORDER_CREATED, 'New Order Created', `A new order #${savedOrder.id} has been created`, savedOrder);
             await queryRunner.commitTransaction();
             return this.mapToResponseDto(await this.findOneEntity(savedOrder.id));
@@ -140,41 +154,112 @@ let OrdersService = class OrdersService {
         return order;
     }
     async update(id, updateOrderDto, userId) {
-        const order = await this.findOneEntity(id);
-        const previousStatus = order.status;
-        const updatedOrder = await this.orderRepository.save({
-            ...order,
-            ...updateOrderDto,
-            updatedBy: userId,
-        });
-        if (updateOrderDto.status && updateOrderDto.status !== previousStatus) {
-            let notificationType;
-            let title;
-            let message;
-            switch (updateOrderDto.status) {
-                case entity_enum_1.OrderStatusEnum.COMPLETED:
-                    notificationType = notification_enum_1.NotificationEnum.ORDER_COMPLETED;
-                    title = 'Order Completed';
-                    message = `Order #${id} has been completed`;
-                    break;
-                case entity_enum_1.OrderStatusEnum.CANCELLED:
-                    notificationType = notification_enum_1.NotificationEnum.ORDER_CANCELLED;
-                    title = 'Order Cancelled';
-                    message = `Order #${id} has been cancelled`;
-                    break;
-                default:
-                    notificationType = notification_enum_1.NotificationEnum.ORDER_UPDATED;
-                    title = 'Order Updated';
-                    message = `Order #${id} has been updated`;
+        const queryRunner = this.orderRepository.manager.connection.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        try {
+            const order = await this.findOneEntity(id);
+            const previousStatus = order.status;
+            const shouldUpdateProfits = (updateOrderDto.status === entity_enum_1.OrderStatusEnum.COMPLETED && previousStatus !== entity_enum_1.OrderStatusEnum.COMPLETED) ||
+                (previousStatus === entity_enum_1.OrderStatusEnum.COMPLETED && updateOrderDto.status !== entity_enum_1.OrderStatusEnum.COMPLETED);
+            const updatedOrder = await queryRunner.manager.save(order_entity_1.Order, {
+                ...order,
+                ...updateOrderDto,
+                updatedBy: userId,
+            });
+            if (shouldUpdateProfits) {
+                const vehicleProfitMap = new Map();
+                for (const item of order.items) {
+                    const part = await queryRunner.manager.findOne(part_entity_1.Part, {
+                        where: { id: item.part.id },
+                        relations: ['vehicle']
+                    });
+                    if (part && part.vehicle) {
+                        const vehicleId = part.vehicle.id;
+                        const current = vehicleProfitMap.get(vehicleId) || { revenue: 0, cost: 0 };
+                        const multiplier = updateOrderDto.status === entity_enum_1.OrderStatusEnum.COMPLETED ? 1 : -1;
+                        const partCost = part.price || 0;
+                        vehicleProfitMap.set(vehicleId, {
+                            revenue: current.revenue + (multiplier * (item.unitPrice * item.quantity - item.discount)),
+                            cost: current.cost + (multiplier * (partCost * item.quantity))
+                        });
+                    }
+                }
+                for (const [vehicleId, profitData] of vehicleProfitMap.entries()) {
+                    await this.updateVehicleProfit(vehicleId, profitData.revenue, profitData.cost, queryRunner.manager);
+                }
             }
-            await this.sendOrderNotification(notificationType, title, message, updatedOrder);
+            if (updateOrderDto.status && updateOrderDto.status !== previousStatus) {
+                let notificationType;
+                let title;
+                let message;
+                switch (updateOrderDto.status) {
+                    case entity_enum_1.OrderStatusEnum.COMPLETED:
+                        notificationType = notification_enum_1.NotificationEnum.ORDER_COMPLETED;
+                        title = 'Order Completed';
+                        message = `Order #${id} has been completed`;
+                        break;
+                    case entity_enum_1.OrderStatusEnum.CANCELLED:
+                        notificationType = notification_enum_1.NotificationEnum.ORDER_CANCELLED;
+                        title = 'Order Cancelled';
+                        message = `Order #${id} has been cancelled`;
+                        break;
+                    default:
+                        notificationType = notification_enum_1.NotificationEnum.ORDER_UPDATED;
+                        title = 'Order Updated';
+                        message = `Order #${id} has been updated`;
+                }
+                await this.sendOrderNotification(notificationType, title, message, updatedOrder);
+            }
+            await queryRunner.commitTransaction();
+            return this.mapToResponseDto(await this.findOneEntity(id));
         }
-        return this.mapToResponseDto(await this.findOneEntity(id));
+        catch (error) {
+            await queryRunner.rollbackTransaction();
+            throw error;
+        }
+        finally {
+            await queryRunner.release();
+        }
     }
     async remove(id) {
-        const order = await this.findOneEntity(id);
-        await this.orderRepository.remove(order);
-        await this.sendOrderNotification(notification_enum_1.NotificationEnum.ORDER_CANCELLED, 'Order Deleted', `Order #${id} has been deleted`, order);
+        const queryRunner = this.orderRepository.manager.connection.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        try {
+            const order = await this.findOneEntity(id);
+            if (order.status === entity_enum_1.OrderStatusEnum.COMPLETED) {
+                const vehicleProfitMap = new Map();
+                for (const item of order.items) {
+                    const part = await queryRunner.manager.findOne(part_entity_1.Part, {
+                        where: { id: item.part.id },
+                        relations: ['vehicle']
+                    });
+                    if (part && part.vehicle) {
+                        const vehicleId = part.vehicle.id;
+                        const current = vehicleProfitMap.get(vehicleId) || { revenue: 0, cost: 0 };
+                        const partCost = part.price || 0;
+                        vehicleProfitMap.set(vehicleId, {
+                            revenue: current.revenue - (item.unitPrice * item.quantity - item.discount),
+                            cost: current.cost - (partCost * item.quantity)
+                        });
+                    }
+                }
+                for (const [vehicleId, profitData] of vehicleProfitMap.entries()) {
+                    await this.updateVehicleProfit(vehicleId, profitData.revenue, profitData.cost, queryRunner.manager);
+                }
+            }
+            await queryRunner.manager.remove(order_entity_1.Order, order);
+            await this.sendOrderNotification(notification_enum_1.NotificationEnum.ORDER_CANCELLED, 'Order Deleted', `Order #${id} has been deleted`, order);
+            await queryRunner.commitTransaction();
+        }
+        catch (error) {
+            await queryRunner.rollbackTransaction();
+            throw error;
+        }
+        finally {
+            await queryRunner.release();
+        }
     }
     async getStats() {
         const totalOrders = await this.orderRepository.count();
@@ -242,6 +327,35 @@ let OrdersService = class OrdersService {
             },
         };
         return this.pdfService.generatePDF('order-receipt', templateData);
+    }
+    async updateVehicleProfit(vehicleId, revenue, cost, manager) {
+        let vehicleProfit = await manager.findOne(vehicle_profit_entity_1.VehicleProfit, {
+            where: { vehicle: { id: vehicleId } },
+            relations: ['vehicle']
+        });
+        if (!vehicleProfit) {
+            vehicleProfit = this.vehicleProfitRepository.create({
+                vehicle: { id: vehicleId },
+                totalPartsRevenue: 0,
+                totalPartsCost: 0,
+                profit: 0,
+                profitMargin: 0,
+                isThresholdMet: false
+            });
+        }
+        vehicleProfit.totalPartsRevenue += revenue;
+        vehicleProfit.totalPartsCost += cost;
+        vehicleProfit.profit = vehicleProfit.totalPartsRevenue - vehicleProfit.totalPartsCost;
+        if (vehicleProfit.totalPartsRevenue > 0) {
+            vehicleProfit.profitMargin =
+                (vehicleProfit.profit / vehicleProfit.totalPartsRevenue) * 100;
+        }
+        else {
+            vehicleProfit.profitMargin = 0;
+        }
+        const PROFIT_THRESHOLD = 30;
+        vehicleProfit.isThresholdMet = vehicleProfit.profitMargin >= PROFIT_THRESHOLD;
+        await manager.save(vehicleProfit);
     }
     async sendOrderNotification(type, title, message, order) {
         try {
@@ -319,6 +433,7 @@ exports.OrdersService = OrdersService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(order_entity_1.Order)),
     __param(1, (0, typeorm_1.InjectRepository)(order_item_entity_1.OrderItem)),
     __param(2, (0, typeorm_1.InjectRepository)(part_entity_1.Part)),
+    __param(2, (0, typeorm_1.InjectRepository)(vehicle_profit_entity_1.VehicleProfit)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
