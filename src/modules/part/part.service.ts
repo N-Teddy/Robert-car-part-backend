@@ -143,7 +143,7 @@ export class PartService {
 				name: part.name,
 				partNumber: part.partNumber,
 				price: part.price,
-				createdAt: new Date().toISOString(),
+				createdAt: part.createdAt
 			});
 
 			// Generate QR code as buffer
@@ -204,6 +204,7 @@ export class PartService {
 	}> {
 		try {
 			const { page, limit, search, vehicleId, categoryId, minPrice, maxPrice, minQuantity, maxQuantity, condition } = queryParams;
+			console.log(limit)
 			const skip = (page - 1) * limit;
 			const query = this.partRepository
 				.createQueryBuilder('part')
@@ -349,10 +350,25 @@ export class PartService {
 				}
 			}
 
-			// Update part fields
-			Object.assign(part, dto);
-			if (dto.vehicleId) part.vehicle = { id: dto.vehicleId } as any;
-			if (dto.categoryId) part.category = { id: dto.categoryId } as any;
+			// ✅ Filter out empty fields before updating
+			Object.entries(dto).forEach(([key, value]) => {
+				if (
+					value !== undefined && // ignore undefined
+					value !== null &&      // ignore null
+					value !== ''           // ignore empty string
+				) {
+					(part as any)[key] = value;
+				}
+			});
+
+			// Handle relations separately
+			if (dto.vehicleId) {
+				part.vehicle = { id: dto.vehicleId } as any;
+			}
+			if (dto.categoryId) {
+				part.category = { id: dto.categoryId } as any;
+			}
+
 			part.updatedBy = userId;
 
 			const savedPart = await this.partRepository.save(part);
@@ -406,6 +422,7 @@ export class PartService {
 			throw new InternalServerErrorException('Failed to update part');
 		}
 	}
+
 
 	async remove(id: string, userId: string): Promise<{ success: true }> {
 		const queryRunner =

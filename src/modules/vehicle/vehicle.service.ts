@@ -436,7 +436,7 @@ export class VehicleService {
 			// Add profit statistics
 			const profitStats = await this.vehicleProfitRepository
 				.createQueryBuilder('vp')
-				.select('SUM(vp.totalPartsRevenue)', 'totalRevenue')
+				.select('SUM(vp.profitMargin)', 'totalRevenue')
 				.addSelect('SUM(vp.totalPartsCost)', 'totalCost')
 				.addSelect('SUM(vp.profit)', 'totalProfit')
 				.addSelect('AVG(vp.profitMargin)', 'avgProfitMargin')

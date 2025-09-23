@@ -106,7 +106,7 @@ let PartService = PartService_1 = class PartService {
                 name: part.name,
                 partNumber: part.partNumber,
                 price: part.price,
-                createdAt: new Date().toISOString(),
+                createdAt: part.createdAt
             });
             const qrCodeBuffer = await QRCode.toBuffer(qrData, {
                 width: 300,
@@ -141,6 +141,7 @@ let PartService = PartService_1 = class PartService {
     async findAll(queryParams) {
         try {
             const { page, limit, search, vehicleId, categoryId, minPrice, maxPrice, minQuantity, maxQuantity, condition } = queryParams;
+            console.log(limit);
             const skip = (page - 1) * limit;
             const query = this.partRepository
                 .createQueryBuilder('part')
@@ -261,11 +262,19 @@ let PartService = PartService_1 = class PartService {
                     throw new common_1.NotFoundException('Category not found');
                 }
             }
-            Object.assign(part, dto);
-            if (dto.vehicleId)
+            Object.entries(dto).forEach(([key, value]) => {
+                if (value !== undefined &&
+                    value !== null &&
+                    value !== '') {
+                    part[key] = value;
+                }
+            });
+            if (dto.vehicleId) {
                 part.vehicle = { id: dto.vehicleId };
-            if (dto.categoryId)
+            }
+            if (dto.categoryId) {
                 part.category = { id: dto.categoryId };
+            }
             part.updatedBy = userId;
             const savedPart = await this.partRepository.save(part);
             if (imageFiles && imageFiles.length > 0) {

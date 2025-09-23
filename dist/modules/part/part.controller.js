@@ -65,7 +65,6 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get paginated list of parts with filters' }),
-    __param(0, (0, common_1.Query)('page')),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [part_dto_1.PartsQueryDto]),

@@ -245,16 +245,50 @@ export class CategoryService {
 		try {
 			const parent = await this.categoryRepo.findOne({
 				where: { id: parentId },
-				relations: ['image'],
+				relations: ['image'], // make sure parent image is loaded
 			});
 
 			if (!parent) {
 				throw new NotFoundException('Parent category not found');
 			}
 
-			const childrenTree =
-				await this.categoryRepo.findDescendantsTree(parent);
-			return childrenTree.children.map((child) =>
+			// Load full descendants tree
+			const childrenTree = await this.categoryRepo.findDescendantsTree(parent);
+
+			// Fetch all categories with images
+			const categoriesWithImages = await this.categoryRepo.find({
+				relations: ['image'],
+			});
+
+			// Build image map
+			const imageMap = new Map<string, Image>();
+			categoriesWithImages.forEach((cat) => {
+				if (cat.image) {
+					imageMap.set(cat.id, cat.image);
+				}
+			});
+
+			// Recursive helper to attach images from map
+			const addImagesToTree = (category: Category): Category => {
+				return {
+					...category,
+					image: imageMap.get(category.id) || null,
+					children:
+						category.children && category.children.length > 0
+							? category.children.map((child) =>
+								addImagesToTree(child)
+							)
+							: [],
+				};
+			};
+
+			// Attach images to children
+			const childrenWithImages = childrenTree.children.map((child) =>
+				addImagesToTree(child)
+			);
+
+			// Map to response DTOs
+			return childrenWithImages.map((child) =>
 				this.mapToTreeResponseDto(child)
 			);
 		} catch (error) {
@@ -266,6 +300,7 @@ export class CategoryService {
 			);
 		}
 	}
+
 
 	// Paginated flat list with search
 	async findAll(

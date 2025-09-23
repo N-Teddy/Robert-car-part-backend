@@ -67,6 +67,7 @@ export class UserService {
 		try {
 			const user = await this.userRepository.findOne({
 				where: { id: userId },
+				relations: ['profileImage'],
 			});
 
 			if (!user) {
@@ -131,6 +132,7 @@ export class UserService {
 			// Get target user
 			const user = await this.userRepository.findOne({
 				where: { id: dto.userId },
+				relations: ['profileImage'],
 			});
 
 			if (!user) {
@@ -175,7 +177,7 @@ export class UserService {
 				},
 			});
 
-			return this.mapToResponseDto(updatedUser);
+			return this.mapToProfileResponseDto(updatedUser);
 		} catch (error) {
 			this.logger.error('Failed to assign role', error);
 			if (
@@ -193,7 +195,9 @@ export class UserService {
 			const { page = 1, limit = 10, ...restFilter } = filter;
 			const skip = (page - 1) * limit;
 
-			const query = this.userRepository.createQueryBuilder('user');
+			const query = this.userRepository
+				.createQueryBuilder('user')
+				.leftJoinAndSelect('user.profileImage', 'profileImage');
 
 			// Apply filters
 			if (restFilter.role) {
@@ -232,7 +236,7 @@ export class UserService {
 			const hasPrev = page > 1;
 
 			return {
-				items: users.map((user) => this.mapToResponseDto(user)),
+				items: users.map((user) => this.mapToProfileResponseDto(user)),
 				total,
 				page,
 				limit,
@@ -250,13 +254,14 @@ export class UserService {
 		try {
 			const user = await this.userRepository.findOne({
 				where: { id },
+				relations: ['profileImage'],
 			});
 
 			if (!user) {
 				throw new NotFoundException('User not found');
 			}
 
-			return this.mapToResponseDto(user);
+			return this.mapToProfileResponseDto(user);
 		} catch (error) {
 			this.logger.error(`Failed to get user by ID: ${id}`, error);
 			if (error instanceof NotFoundException) {
@@ -287,6 +292,7 @@ export class UserService {
 
 			const user = await this.userRepository.findOne({
 				where: { id: userId },
+				relations: ['profileImage'],
 			});
 
 			if (!user) {
@@ -313,7 +319,7 @@ export class UserService {
 				channel: NotificationChannelEnum.WEBSOCKET,
 			});
 
-			return this.mapToResponseDto(updatedUser);
+			return this.mapToProfileResponseDto(updatedUser);
 		} catch (error) {
 			this.logger.error('Failed to update user', error);
 			if (
@@ -377,9 +383,10 @@ export class UserService {
 			const users = await this.userRepository.find({
 				where: { role: UserRoleEnum.UNKNOWN },
 				order: { createdAt: 'DESC' },
+				relations: ['profileImage'],
 			});
 
-			return users.map((user) => this.mapToResponseDto(user));
+			return users.map((user) => this.mapToProfileResponseDto(user));
 		} catch (error) {
 			this.logger.error('Failed to get users without role', error);
 			throw new BadRequestException(

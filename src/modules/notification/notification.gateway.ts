@@ -13,9 +13,7 @@ import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
 	cors: {
-		origin: process.env.CORS_ORIGIN?.split(',') || [
-			'http://localhost:3000',
-		],
+		origin: "http://localhost:5173",
 		credentials: true,
 	},
 	namespace: '/notifications',
@@ -33,7 +31,9 @@ export class NotificationGateway
 	private readonly logger = new Logger(NotificationGateway.name);
 	private userSocketMap = new Map<string, string[]>(); // userId -> socketIds[]
 
-	constructor(private readonly jwtService: JwtService) {}
+	constructor(
+		private readonly jwtService: JwtService,
+	) { }
 
 	async handleConnection(client: Socket) {
 		try {

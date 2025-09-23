@@ -13,14 +13,14 @@ async function bootstrap() {
 
 	// Enable CORS
 	app.enableCors({
-		origin: configService.get<string[]>('app.corsOrigin', ['*']),
-		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+		origin: '*',
+		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, OPTION',
 	});
 
 	// Swagger Setup
 	setupSwagger(app);
 
-	await app.listen(configService.get<number>('PORT', 3000));
+	await app.listen(configService.get<number>('PORT', 3000), '0.0.0.0');
 	console.log('Swagger Doc: http://localhost:3000/api/docs');
 	console.log('API : http://localhost:3000/api/');
 	console.log('WebSocket : ws://localhost:3000/notifications');

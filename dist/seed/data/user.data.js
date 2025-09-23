@@ -66,23 +66,5 @@ exports.SAMPLE_USERS = [
         isFirstLogin: false,
         isActive: true,
     },
-    {
-        email: 'admin2@company.com',
-        password: 'admin123',
-        fullName: 'Sarah Admin',
-        phoneNumber: '+1-555-0108',
-        role: entity_enum_1.UserRoleEnum.ADMIN,
-        isFirstLogin: true,
-        isActive: true,
-    },
-    {
-        email: 'customer2@company.com',
-        password: 'customer123',
-        fullName: 'Mike Customer',
-        phoneNumber: '+1-555-0109',
-        role: entity_enum_1.UserRoleEnum.CUSTOMER,
-        isFirstLogin: true,
-        isActive: true,
-    },
 ];
 //# sourceMappingURL=user.data.js.map

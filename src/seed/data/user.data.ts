@@ -11,6 +11,7 @@ export interface SampleUser {
 }
 
 export const SAMPLE_USERS: SampleUser[] = [
+
 	{
 		email: 'admin@company.com',
 		password: 'admin123', // Will be hashed
@@ -74,23 +75,67 @@ export const SAMPLE_USERS: SampleUser[] = [
 		isFirstLogin: false,
 		isActive: true,
 	},
-	// Additional users for each role if needed
-	{
-		email: 'admin2@company.com',
-		password: 'admin123',
-		fullName: 'Sarah Admin',
-		phoneNumber: '+1-555-0108',
-		role: UserRoleEnum.ADMIN,
-		isFirstLogin: true,
-		isActive: true,
-	},
-	{
-		email: 'customer2@company.com',
-		password: 'customer123',
-		fullName: 'Mike Customer',
-		phoneNumber: '+1-555-0109',
-		role: UserRoleEnum.CUSTOMER,
-		isFirstLogin: true,
-		isActive: true,
-	},
+	// // Additional users for each role if needed
+
+
+	// {
+	// 	email: 'testuser1@example.com',
+	// 	password: 'TestPass1!',
+	// 	fullName: 'Test User 1',
+	// 	phoneNumber: '+1-555-0110',
+	// 	role: UserRoleEnum.ADMIN
+	// },
+	// {
+	// 	email: 'testuser2@example.com',
+	// 	password: 'TestPass2!',
+	// 	fullName: 'Test User 2',
+	// 	phoneNumber: '+1-555-0111',
+	// 	role: UserRoleEnum.ADMIN
+	// },
+	// {
+	// 	email: 'testuser3@example.com',
+	// 	password: 'TestPass3!',
+	// 	fullName: 'Test User 3',
+	// 	phoneNumber: '+1-555-0112',
+	// 	role: UserRoleEnum.ADMIN
+	// },
+	// {
+	// 	email: 'testuser4@example.com',
+	// 	password: 'TestPass4!',
+	// 	fullName: 'Test User 4',
+	// 	phoneNumber: '+1-555-0113',
+	// 	role: UserRoleEnum.ADMIN
+	// },
+	// {
+	// 	email: 'testuser5@example.com',
+	// 	password: 'TestPass5!',
+	// 	fullName: 'Test User 5',
+	// 	phoneNumber: '+1-555-0114',
+	// 	role: UserRoleEnum.ADMIN
+	// },
+	// {
+	// 	email: 'testuser6@example.com',
+	// 	password: 'TestPass6!',
+	// 	fullName: 'Mike Customer',
+	// 	phoneNumber: '+1-555-0109',
+	// 	role: UserRoleEnum.UNKNOWN
+	// },
+	// {
+	// 	email: 'testuser7@example.com',
+	// 	password: 'TestPass7!',
+	// 	fullName: 'Sarah Admin',
+	// 	phoneNumber: '+1-555-0108',
+	// 	role: UserRoleEnum.UNKNOWN,
+	// 	isFirstLogin: true,
+	// 	isActive: true,
+	// },
+	// {
+	// 	email: 'testuser8@example.com',
+	// 	password: 'TestPass8!',
+	// 	fullName: 'Mike Customer',
+	// 	phoneNumber: '+1-555-0109',
+	// 	role: UserRoleEnum.UNKNOWN,
+	// 	isFirstLogin: true,
+	// 	isActive: true,
+	// },
 ];

@@ -50,7 +50,7 @@ export class PartController {
 	@Get()
 	@ApiOperation({ summary: 'Get paginated list of parts with filters' })
 	async findAll(
-		@Query('page') @Query() queryDto: PartsQueryDto
+		@Query() queryDto: PartsQueryDto
 	) {
 		return this.partService.findAll(queryDto);
 	}

@@ -37,7 +37,7 @@ import {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('vehicles')
 export class VehicleController {
-	constructor(private readonly vehicleService: VehicleService) {}
+	constructor(private readonly vehicleService: VehicleService) { }
 
 	@Post()
 	@UseInterceptors(FilesInterceptor('images', 10)) // Allow up to 10 images

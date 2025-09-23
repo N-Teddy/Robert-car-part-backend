@@ -25,9 +25,10 @@ const notification_service_1 = require("../notification/notification.service");
 const pdf_service_1 = require("../../common/services/pdf.service");
 const vehicle_profit_entity_1 = require("../../entities/vehicle-profit.entity");
 let OrdersService = class OrdersService {
-    constructor(orderRepository, orderItemRepository, vehicleProfitRepository, notificationsService, pdfService) {
+    constructor(orderRepository, orderItemRepository, partRepository, vehicleProfitRepository, notificationsService, pdfService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
+        this.partRepository = partRepository;
         this.vehicleProfitRepository = vehicleProfitRepository;
         this.notificationsService = notificationsService;
         this.pdfService = pdfService;
@@ -40,11 +41,14 @@ let OrdersService = class OrdersService {
             let totalAmount = 0;
             const orderItems = [];
             const vehicleProfitMap = new Map();
+            const partIds = createOrderDto.items.map(item => item.partId);
+            const parts = await queryRunner.manager.find(part_entity_1.Part, {
+                where: { id: (0, typeorm_2.In)(partIds) },
+                relations: ['vehicle', 'category'],
+            });
+            const partMap = new Map(parts.map(part => [part.id, part]));
             for (const itemDto of createOrderDto.items) {
-                const part = await queryRunner.manager.findOne(part_entity_1.Part, {
-                    where: { id: itemDto.partId },
-                    relations: ['vehicle', 'category'],
-                });
+                const part = partMap.get(itemDto.partId);
                 if (!part) {
                     throw new common_1.NotFoundException(`Part with ID ${itemDto.partId} not found`);
                 }
@@ -55,21 +59,20 @@ let OrdersService = class OrdersService {
                 const itemTotal = unitPrice * itemDto.quantity - (itemDto.discount || 0);
                 totalAmount += itemTotal;
                 const orderItem = this.orderItemRepository.create({
-                    part: { id: itemDto.partId },
+                    part: part,
                     quantity: itemDto.quantity,
                     unitPrice,
                     discount: itemDto.discount || 0,
                     createdBy: userId,
                 });
                 orderItems.push(orderItem);
-                part.quantity -= itemDto.quantity;
-                await queryRunner.manager.save(part);
+                await queryRunner.manager.update(part_entity_1.Part, { id: part.id }, { quantity: part.quantity - itemDto.quantity });
                 if (part.vehicle) {
                     const vehicleId = part.vehicle.id;
                     const current = vehicleProfitMap.get(vehicleId) || { revenue: 0, cost: 0 };
                     const partCost = part.price || 0;
                     vehicleProfitMap.set(vehicleId, {
-                        revenue: current.revenue + (unitPrice * itemDto.quantity - (itemDto.discount || 0)),
+                        revenue: current.revenue + itemTotal,
                         cost: current.cost + (partCost * itemDto.quantity)
                     });
                 }
@@ -386,21 +389,21 @@ let OrdersService = class OrdersService {
             customerEmail: order.customerEmail,
             notes: order.notes,
             deliveryMethod: order.deliveryMethod,
-            items: order.items.map((item) => ({
+            items: order.items?.map((item) => ({
                 id: item.id,
                 quantity: item.quantity,
                 unitPrice: item.unitPrice,
                 discount: item.discount,
                 total: item.unitPrice * item.quantity - item.discount,
                 part: {
-                    id: item.part.id,
-                    name: item.part.name,
-                    description: item.part.description,
-                    price: item.part.price,
-                    quantity: item.part.quantity,
-                    condition: item.part.condition,
-                    partNumber: item.part.partNumber,
-                    vehicle: item.part.vehicle
+                    id: item.part?.id,
+                    name: item.part?.name,
+                    description: item.part?.description,
+                    price: item.part?.price,
+                    quantity: item.part?.quantity,
+                    condition: item.part?.condition,
+                    partNumber: item.part?.partNumber,
+                    vehicle: item.part?.vehicle
                         ? {
                             id: item.part.vehicle.id,
                             make: item.part.vehicle.make,
@@ -408,20 +411,20 @@ let OrdersService = class OrdersService {
                             year: item.part.vehicle.year,
                         }
                         : undefined,
-                    category: item.part.category
+                    category: item.part?.category
                         ? {
                             id: item.part.category.id,
                             name: item.part.category.name,
                         }
                         : undefined,
-                    vehicleId: item.part.vehicle?.id,
-                    categoryId: item.part.category?.id,
-                    createdAt: item.part.createdAt,
-                    updatedAt: item.part.updatedAt,
+                    vehicleId: item.part?.vehicle?.id,
+                    categoryId: item.part?.category?.id,
+                    createdAt: item.part?.createdAt,
+                    updatedAt: item.part?.updatedAt,
                 },
                 createdAt: item.createdAt,
                 updatedAt: item.updatedAt,
-            })),
+            })) || [],
             createdAt: order.createdAt,
             updatedAt: order.updatedAt,
         };
@@ -433,8 +436,9 @@ exports.OrdersService = OrdersService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(order_entity_1.Order)),
     __param(1, (0, typeorm_1.InjectRepository)(order_item_entity_1.OrderItem)),
     __param(2, (0, typeorm_1.InjectRepository)(part_entity_1.Part)),
-    __param(2, (0, typeorm_1.InjectRepository)(vehicle_profit_entity_1.VehicleProfit)),
+    __param(3, (0, typeorm_1.InjectRepository)(vehicle_profit_entity_1.VehicleProfit)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
         notification_service_1.NotificationService,

@@ -169,7 +169,26 @@ let CategoryService = class CategoryService {
                 throw new common_1.NotFoundException('Parent category not found');
             }
             const childrenTree = await this.categoryRepo.findDescendantsTree(parent);
-            return childrenTree.children.map((child) => this.mapToTreeResponseDto(child));
+            const categoriesWithImages = await this.categoryRepo.find({
+                relations: ['image'],
+            });
+            const imageMap = new Map();
+            categoriesWithImages.forEach((cat) => {
+                if (cat.image) {
+                    imageMap.set(cat.id, cat.image);
+                }
+            });
+            const addImagesToTree = (category) => {
+                return {
+                    ...category,
+                    image: imageMap.get(category.id) || null,
+                    children: category.children && category.children.length > 0
+                        ? category.children.map((child) => addImagesToTree(child))
+                        : [],
+                };
+            };
+            const childrenWithImages = childrenTree.children.map((child) => addImagesToTree(child));
+            return childrenWithImages.map((child) => this.mapToTreeResponseDto(child));
         }
         catch (error) {
             if (error instanceof common_1.NotFoundException) {

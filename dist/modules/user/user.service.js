@@ -50,6 +50,7 @@ let UserService = UserService_1 = class UserService {
         try {
             const user = await this.userRepository.findOne({
                 where: { id: userId },
+                relations: ['profileImage'],
             });
             if (!user) {
                 throw new common_1.NotFoundException('User not found');
@@ -98,6 +99,7 @@ let UserService = UserService_1 = class UserService {
             }
             const user = await this.userRepository.findOne({
                 where: { id: dto.userId },
+                relations: ['profileImage'],
             });
             if (!user) {
                 throw new common_1.NotFoundException('User not found');
@@ -134,7 +136,7 @@ let UserService = UserService_1 = class UserService {
                     assignedBy: admin.fullName,
                 },
             });
-            return this.mapToResponseDto(updatedUser);
+            return this.mapToProfileResponseDto(updatedUser);
         }
         catch (error) {
             this.logger.error('Failed to assign role', error);
@@ -149,7 +151,9 @@ let UserService = UserService_1 = class UserService {
         try {
             const { page = 1, limit = 10, ...restFilter } = filter;
             const skip = (page - 1) * limit;
-            const query = this.userRepository.createQueryBuilder('user');
+            const query = this.userRepository
+                .createQueryBuilder('user')
+                .leftJoinAndSelect('user.profileImage', 'profileImage');
             if (restFilter.role) {
                 query.andWhere('user.role = :role', { role: restFilter.role });
             }
@@ -171,7 +175,7 @@ let UserService = UserService_1 = class UserService {
             const hasNext = page < totalPages;
             const hasPrev = page > 1;
             return {
-                items: users.map((user) => this.mapToResponseDto(user)),
+                items: users.map((user) => this.mapToProfileResponseDto(user)),
                 total,
                 page,
                 limit,
@@ -189,11 +193,12 @@ let UserService = UserService_1 = class UserService {
         try {
             const user = await this.userRepository.findOne({
                 where: { id },
+                relations: ['profileImage'],
             });
             if (!user) {
                 throw new common_1.NotFoundException('User not found');
             }
-            return this.mapToResponseDto(user);
+            return this.mapToProfileResponseDto(user);
         }
         catch (error) {
             this.logger.error(`Failed to get user by ID: ${id}`, error);
@@ -215,6 +220,7 @@ let UserService = UserService_1 = class UserService {
             }
             const user = await this.userRepository.findOne({
                 where: { id: userId },
+                relations: ['profileImage'],
             });
             if (!user) {
                 throw new common_1.NotFoundException('User not found');
@@ -239,7 +245,7 @@ let UserService = UserService_1 = class UserService {
                 userIds: [userId],
                 channel: notification_enum_1.NotificationChannelEnum.WEBSOCKET,
             });
-            return this.mapToResponseDto(updatedUser);
+            return this.mapToProfileResponseDto(updatedUser);
         }
         catch (error) {
             this.logger.error('Failed to update user', error);
@@ -292,8 +298,9 @@ let UserService = UserService_1 = class UserService {
             const users = await this.userRepository.find({
                 where: { role: entity_enum_1.UserRoleEnum.UNKNOWN },
                 order: { createdAt: 'DESC' },
+                relations: ['profileImage'],
             });
-            return users.map((user) => this.mapToResponseDto(user));
+            return users.map((user) => this.mapToProfileResponseDto(user));
         }
         catch (error) {
             this.logger.error('Failed to get users without role', error);

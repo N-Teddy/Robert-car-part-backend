@@ -5,7 +5,7 @@ import {
 	BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import { Repository, Between, LessThanOrEqual, MoreThanOrEqual, In } from 'typeorm';
 import {
 	NotificationAudienceEnum,
 	NotificationChannelEnum,
@@ -36,56 +36,50 @@ export class OrdersService {
 		@InjectRepository(OrderItem)
 		private orderItemRepository: Repository<OrderItem>,
 		@InjectRepository(Part)
+		private partRepository: Repository<Part>,
 		@InjectRepository(VehicleProfit) // Add this repository
 		private vehicleProfitRepository: Repository<VehicleProfit>,
 		private notificationsService: NotificationService,
 		private pdfService: PDFService
 	) { }
 
-	async create(
-		createOrderDto: CreateOrderDto,
-		userId: string
-	): Promise<OrderResponseDto> {
-		const queryRunner =
-			this.orderRepository.manager.connection.createQueryRunner();
+	async create(createOrderDto: CreateOrderDto, userId: string): Promise<OrderResponseDto> {
+		const queryRunner = this.orderRepository.manager.connection.createQueryRunner();
 		await queryRunner.connect();
 		await queryRunner.startTransaction();
 
 		try {
-			// Calculate total amount
 			let totalAmount = 0;
 			const orderItems: OrderItem[] = [];
 			const vehicleProfitMap = new Map<string, { revenue: number; cost: number }>();
 
+			// Load all parts in a single query for better performance
+			const partIds = createOrderDto.items.map(item => item.partId);
+			const parts = await queryRunner.manager.find(Part, {
+				where: { id: In(partIds) },
+				relations: ['vehicle', 'category'], // Only load needed relations
+			});
+
+			const partMap = new Map(parts.map(part => [part.id, part]));
+
 			for (const itemDto of createOrderDto.items) {
-				const part = await queryRunner.manager.findOne(Part, {
-					where: { id: itemDto.partId },
-					relations: ['vehicle', 'category'],
-				});
+				const part = partMap.get(itemDto.partId);
 
 				if (!part) {
-					throw new NotFoundException(
-						`Part with ID ${itemDto.partId} not found`
-					);
+					throw new NotFoundException(`Part with ID ${itemDto.partId} not found`);
 				}
 
 				if (part.quantity < itemDto.quantity) {
-					throw new BadRequestException(
-						`Insufficient stock for part ${part.name}`
-					);
+					throw new BadRequestException(`Insufficient stock for part ${part.name}`);
 				}
 
-				// Use part price if unitPrice is not provided
 				const unitPrice = itemDto.unitPrice || part.price;
-
-				// Calculate item total
-				const itemTotal =
-					unitPrice * itemDto.quantity - (itemDto.discount || 0);
+				const itemTotal = unitPrice * itemDto.quantity - (itemDto.discount || 0);
 				totalAmount += itemTotal;
 
 				// Create order item
 				const orderItem = this.orderItemRepository.create({
-					part: { id: itemDto.partId },
+					part: part,
 					quantity: itemDto.quantity,
 					unitPrice,
 					discount: itemDto.discount || 0,
@@ -94,20 +88,21 @@ export class OrdersService {
 
 				orderItems.push(orderItem);
 
-				// Update part quantity
-				part.quantity -= itemDto.quantity;
-				await queryRunner.manager.save(part);
+				// Update part quantity - FIXED: Only update the quantity field
+				await queryRunner.manager.update(
+					Part,
+					{ id: part.id },
+					{ quantity: part.quantity - itemDto.quantity }
+				);
 
-				// Track profit by vehicle if part has a vehicle associated
+				// Track profit by vehicle
 				if (part.vehicle) {
 					const vehicleId = part.vehicle.id;
 					const current = vehicleProfitMap.get(vehicleId) || { revenue: 0, cost: 0 };
-
-					// Calculate part cost (assuming part.cost is the purchase cost)
 					const partCost = part.price || 0;
 
 					vehicleProfitMap.set(vehicleId, {
-						revenue: current.revenue + (unitPrice * itemDto.quantity - (itemDto.discount || 0)),
+						revenue: current.revenue + itemTotal,
 						cost: current.cost + (partCost * itemDto.quantity)
 					});
 				}
@@ -133,7 +128,7 @@ export class OrdersService {
 				);
 			}
 
-			// Send notification to admins only
+			// Send notification
 			await this.sendOrderNotification(
 				NotificationEnum.ORDER_CREATED,
 				'New Order Created',
@@ -143,7 +138,7 @@ export class OrdersService {
 
 			await queryRunner.commitTransaction();
 
-			// Return the complete order with relations
+			// Return the complete order with explicit relations
 			return this.mapToResponseDto(
 				await this.findOneEntity(savedOrder.id)
 			);
@@ -563,21 +558,21 @@ export class OrdersService {
 			customerEmail: order.customerEmail,
 			notes: order.notes,
 			deliveryMethod: order.deliveryMethod,
-			items: order.items.map((item) => ({
+			items: order.items?.map((item) => ({
 				id: item.id,
 				quantity: item.quantity,
 				unitPrice: item.unitPrice,
 				discount: item.discount,
 				total: item.unitPrice * item.quantity - item.discount,
 				part: {
-					id: item.part.id,
-					name: item.part.name,
-					description: item.part.description,
-					price: item.part.price,
-					quantity: item.part.quantity,
-					condition: item.part.condition,
-					partNumber: item.part.partNumber,
-					vehicle: item.part.vehicle
+					id: item.part?.id,
+					name: item.part?.name,
+					description: item.part?.description,
+					price: item.part?.price,
+					quantity: item.part?.quantity,
+					condition: item.part?.condition,
+					partNumber: item.part?.partNumber,
+					vehicle: item.part?.vehicle
 						? {
 							id: item.part.vehicle.id,
 							make: item.part.vehicle.make,
@@ -585,20 +580,20 @@ export class OrdersService {
 							year: item.part.vehicle.year,
 						}
 						: undefined,
-					category: item.part.category
+					category: item.part?.category
 						? {
 							id: item.part.category.id,
 							name: item.part.category.name,
 						}
 						: undefined,
-					vehicleId: item.part.vehicle?.id,
-					categoryId: item.part.category?.id,
-					createdAt: item.part.createdAt,
-					updatedAt: item.part.updatedAt,
+					vehicleId: item.part?.vehicle?.id,
+					categoryId: item.part?.category?.id,
+					createdAt: item.part?.createdAt,
+					updatedAt: item.part?.updatedAt,
 				},
 				createdAt: item.createdAt,
 				updatedAt: item.updatedAt,
-			})),
+			})) || [],
 			createdAt: order.createdAt,
 			updatedAt: order.updatedAt,
 		};
