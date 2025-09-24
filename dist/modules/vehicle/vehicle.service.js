@@ -79,7 +79,7 @@ let VehicleService = VehicleService_1 = class VehicleService {
     }
     async findAll(query) {
         try {
-            const { page, limit, search, make, model, year, minYear, maxYear, isPartedOut } = query;
+            const { page, limit, search, make, model, year, minYear, maxYear, isPartedOut, } = query;
             const skip = (page - 1) * limit;
             const options = {
                 relations: ['images'],
@@ -316,7 +316,7 @@ let VehicleService = VehicleService_1 = class VehicleService {
                 .addSelect('AVG(vp.profitMargin)', 'avgProfitMargin')
                 .getRawOne();
             const profitableVehicles = await this.vehicleProfitRepository.count({
-                where: { profit: (0, typeorm_2.MoreThanOrEqual)(0) }
+                where: { profit: (0, typeorm_2.MoreThanOrEqual)(0) },
             });
             return {
                 totalVehicles,
@@ -328,7 +328,9 @@ let VehicleService = VehicleService_1 = class VehicleService {
                 totalProfit: parseFloat(profitStats.totalProfit || 0),
                 avgProfitMargin: parseFloat(profitStats.avgProfitMargin || 0),
                 profitableVehicles,
-                profitabilityRate: totalVehicles > 0 ? (profitableVehicles / totalVehicles) * 100 : 0
+                profitabilityRate: totalVehicles > 0
+                    ? (profitableVehicles / totalVehicles) * 100
+                    : 0,
             };
         }
         catch (error) {
@@ -340,7 +342,7 @@ let VehicleService = VehicleService_1 = class VehicleService {
         try {
             const profitRecord = await this.vehicleProfitRepository.findOne({
                 where: { vehicle: { id: vehicleId } },
-                relations: ['vehicle']
+                relations: ['vehicle'],
             });
             if (!profitRecord) {
                 return this.vehicleProfitRepository.create({
@@ -349,7 +351,7 @@ let VehicleService = VehicleService_1 = class VehicleService {
                     profit: 0,
                     profitMargin: 0,
                     isThresholdMet: false,
-                    vehicle: { id: vehicleId }
+                    vehicle: { id: vehicleId },
                 });
             }
             return profitRecord;
@@ -363,7 +365,7 @@ let VehicleService = VehicleService_1 = class VehicleService {
         try {
             return await this.vehicleProfitRepository.find({
                 relations: ['vehicle'],
-                order: { profit: 'DESC' }
+                order: { profit: 'DESC' },
             });
         }
         catch (error) {
@@ -377,7 +379,7 @@ let VehicleService = VehicleService_1 = class VehicleService {
                 where: { profitMargin: (0, typeorm_2.MoreThanOrEqual)(0) },
                 relations: ['vehicle'],
                 order: { profitMargin: 'DESC' },
-                take: limit
+                take: limit,
             });
         }
         catch (error) {

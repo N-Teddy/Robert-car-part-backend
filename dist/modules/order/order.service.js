@@ -41,12 +41,12 @@ let OrdersService = class OrdersService {
             let totalAmount = 0;
             const orderItems = [];
             const vehicleProfitMap = new Map();
-            const partIds = createOrderDto.items.map(item => item.partId);
+            const partIds = createOrderDto.items.map((item) => item.partId);
             const parts = await queryRunner.manager.find(part_entity_1.Part, {
                 where: { id: (0, typeorm_2.In)(partIds) },
                 relations: ['vehicle', 'category'],
             });
-            const partMap = new Map(parts.map(part => [part.id, part]));
+            const partMap = new Map(parts.map((part) => [part.id, part]));
             for (const itemDto of createOrderDto.items) {
                 const part = partMap.get(itemDto.partId);
                 if (!part) {
@@ -69,11 +69,14 @@ let OrdersService = class OrdersService {
                 await queryRunner.manager.update(part_entity_1.Part, { id: part.id }, { quantity: part.quantity - itemDto.quantity });
                 if (part.vehicle) {
                     const vehicleId = part.vehicle.id;
-                    const current = vehicleProfitMap.get(vehicleId) || { revenue: 0, cost: 0 };
+                    const current = vehicleProfitMap.get(vehicleId) || {
+                        revenue: 0,
+                        cost: 0,
+                    };
                     const partCost = part.price || 0;
                     vehicleProfitMap.set(vehicleId, {
                         revenue: current.revenue + itemTotal,
-                        cost: current.cost + (partCost * itemDto.quantity)
+                        cost: current.cost + partCost * itemDto.quantity,
                     });
                 }
             }
@@ -163,8 +166,10 @@ let OrdersService = class OrdersService {
         try {
             const order = await this.findOneEntity(id);
             const previousStatus = order.status;
-            const shouldUpdateProfits = (updateOrderDto.status === entity_enum_1.OrderStatusEnum.COMPLETED && previousStatus !== entity_enum_1.OrderStatusEnum.COMPLETED) ||
-                (previousStatus === entity_enum_1.OrderStatusEnum.COMPLETED && updateOrderDto.status !== entity_enum_1.OrderStatusEnum.COMPLETED);
+            const shouldUpdateProfits = (updateOrderDto.status === entity_enum_1.OrderStatusEnum.COMPLETED &&
+                previousStatus !== entity_enum_1.OrderStatusEnum.COMPLETED) ||
+                (previousStatus === entity_enum_1.OrderStatusEnum.COMPLETED &&
+                    updateOrderDto.status !== entity_enum_1.OrderStatusEnum.COMPLETED);
             const updatedOrder = await queryRunner.manager.save(order_entity_1.Order, {
                 ...order,
                 ...updateOrderDto,
@@ -175,24 +180,34 @@ let OrdersService = class OrdersService {
                 for (const item of order.items) {
                     const part = await queryRunner.manager.findOne(part_entity_1.Part, {
                         where: { id: item.part.id },
-                        relations: ['vehicle']
+                        relations: ['vehicle'],
                     });
                     if (part && part.vehicle) {
                         const vehicleId = part.vehicle.id;
-                        const current = vehicleProfitMap.get(vehicleId) || { revenue: 0, cost: 0 };
-                        const multiplier = updateOrderDto.status === entity_enum_1.OrderStatusEnum.COMPLETED ? 1 : -1;
+                        const current = vehicleProfitMap.get(vehicleId) || {
+                            revenue: 0,
+                            cost: 0,
+                        };
+                        const multiplier = updateOrderDto.status === entity_enum_1.OrderStatusEnum.COMPLETED
+                            ? 1
+                            : -1;
                         const partCost = part.price || 0;
                         vehicleProfitMap.set(vehicleId, {
-                            revenue: current.revenue + (multiplier * (item.unitPrice * item.quantity - item.discount)),
-                            cost: current.cost + (multiplier * (partCost * item.quantity))
+                            revenue: current.revenue +
+                                multiplier *
+                                    (item.unitPrice * item.quantity -
+                                        item.discount),
+                            cost: current.cost +
+                                multiplier * (partCost * item.quantity),
                         });
                     }
                 }
-                for (const [vehicleId, profitData] of vehicleProfitMap.entries()) {
+                for (const [vehicleId, profitData,] of vehicleProfitMap.entries()) {
                     await this.updateVehicleProfit(vehicleId, profitData.revenue, profitData.cost, queryRunner.manager);
                 }
             }
-            if (updateOrderDto.status && updateOrderDto.status !== previousStatus) {
+            if (updateOrderDto.status &&
+                updateOrderDto.status !== previousStatus) {
                 let notificationType;
                 let title;
                 let message;
@@ -236,19 +251,24 @@ let OrdersService = class OrdersService {
                 for (const item of order.items) {
                     const part = await queryRunner.manager.findOne(part_entity_1.Part, {
                         where: { id: item.part.id },
-                        relations: ['vehicle']
+                        relations: ['vehicle'],
                     });
                     if (part && part.vehicle) {
                         const vehicleId = part.vehicle.id;
-                        const current = vehicleProfitMap.get(vehicleId) || { revenue: 0, cost: 0 };
+                        const current = vehicleProfitMap.get(vehicleId) || {
+                            revenue: 0,
+                            cost: 0,
+                        };
                         const partCost = part.price || 0;
                         vehicleProfitMap.set(vehicleId, {
-                            revenue: current.revenue - (item.unitPrice * item.quantity - item.discount),
-                            cost: current.cost - (partCost * item.quantity)
+                            revenue: current.revenue -
+                                (item.unitPrice * item.quantity -
+                                    item.discount),
+                            cost: current.cost - partCost * item.quantity,
                         });
                     }
                 }
-                for (const [vehicleId, profitData] of vehicleProfitMap.entries()) {
+                for (const [vehicleId, profitData,] of vehicleProfitMap.entries()) {
                     await this.updateVehicleProfit(vehicleId, profitData.revenue, profitData.cost, queryRunner.manager);
                 }
             }
@@ -334,7 +354,7 @@ let OrdersService = class OrdersService {
     async updateVehicleProfit(vehicleId, revenue, cost, manager) {
         let vehicleProfit = await manager.findOne(vehicle_profit_entity_1.VehicleProfit, {
             where: { vehicle: { id: vehicleId } },
-            relations: ['vehicle']
+            relations: ['vehicle'],
         });
         if (!vehicleProfit) {
             vehicleProfit = this.vehicleProfitRepository.create({
@@ -343,12 +363,13 @@ let OrdersService = class OrdersService {
                 totalPartsCost: 0,
                 profit: 0,
                 profitMargin: 0,
-                isThresholdMet: false
+                isThresholdMet: false,
             });
         }
         vehicleProfit.totalPartsRevenue += revenue;
         vehicleProfit.totalPartsCost += cost;
-        vehicleProfit.profit = vehicleProfit.totalPartsRevenue - vehicleProfit.totalPartsCost;
+        vehicleProfit.profit =
+            vehicleProfit.totalPartsRevenue - vehicleProfit.totalPartsCost;
         if (vehicleProfit.totalPartsRevenue > 0) {
             vehicleProfit.profitMargin =
                 (vehicleProfit.profit / vehicleProfit.totalPartsRevenue) * 100;
@@ -357,7 +378,8 @@ let OrdersService = class OrdersService {
             vehicleProfit.profitMargin = 0;
         }
         const PROFIT_THRESHOLD = 30;
-        vehicleProfit.isThresholdMet = vehicleProfit.profitMargin >= PROFIT_THRESHOLD;
+        vehicleProfit.isThresholdMet =
+            vehicleProfit.profitMargin >= PROFIT_THRESHOLD;
         await manager.save(vehicleProfit);
     }
     async sendOrderNotification(type, title, message, order) {
