@@ -32,16 +32,22 @@ import { QrCode } from '../../entities/qr-code.entity';
 					fileSize:
 						configService.get<number>('MAX_FILE_SIZE') || 10485760, // 10MB default
 				},
+				// Use memory storage in production/serverless
+				storage: configService.get<string>('NODE_ENV') === 'production'
+					? undefined // Use memory storage
+					: undefined, // You can add disk storage for development if needed
 			}),
 			inject: [ConfigService],
 		}),
-		// Serve static files for local development
+		// Serve static files only in development
 		ServeStaticModule.forRootAsync({
 			imports: [ConfigModule],
 			useFactory: async (configService: ConfigService) => {
-				const isProduction =
-					configService.get<string>('NODE_ENV') === 'production';
-				if (!isProduction) {
+				const isProduction = configService.get<string>('NODE_ENV') === 'production';
+				const isServerless = !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+				// Only serve static files in development and non-serverless environments
+				if (!isProduction && !isServerless) {
 					return [
 						{
 							rootPath: join(process.cwd(), 'uploads'),
@@ -59,7 +65,27 @@ import { QrCode } from '../../entities/qr-code.entity';
 		}),
 	],
 	controllers: [UploadController],
-	providers: [UploadService, LocalStorageService, CloudinaryService],
+	providers: [
+		UploadService,
+		{
+			provide: 'STORAGE_SERVICE',
+			useFactory: (configService: ConfigService) => {
+				const isProduction = configService.get<string>('NODE_ENV') === 'production';
+				const isServerless = !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+				// Use CloudinaryService in production, LocalStorageService in development
+				if (isProduction || isServerless) {
+					return new CloudinaryService(configService);
+				} else {
+					return new LocalStorageService(configService);
+				}
+			},
+			inject: [ConfigService],
+		},
+		// Provide both services for dependency injection
+		LocalStorageService,
+		CloudinaryService,
+	],
 	exports: [UploadService],
 })
 export class UploadModule {}

@@ -52,7 +52,7 @@ let EmailService = EmailService_1 = class EmailService {
                 requireTLS: true,
                 tls: {
                     rejectUnauthorized: false,
-                    minVersion: 'TLSv1.2'
+                    minVersion: 'TLSv1.2',
                 },
                 auth: {
                     user: this.configService.get('email.user'),

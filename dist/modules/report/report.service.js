@@ -107,7 +107,9 @@ let ReportService = ReportService_1 = class ReportService {
     }
     async findOne(id) {
         try {
-            const report = await this.reportRepository.findOne({ where: { id } });
+            const report = await this.reportRepository.findOne({
+                where: { id },
+            });
             if (!report) {
                 throw new common_1.NotFoundException(`Report with ID ${id} not found`);
             }
@@ -123,7 +125,9 @@ let ReportService = ReportService_1 = class ReportService {
     }
     async remove(id) {
         try {
-            const report = await this.reportRepository.findOne({ where: { id } });
+            const report = await this.reportRepository.findOne({
+                where: { id },
+            });
             if (!report) {
                 throw new common_1.NotFoundException(`Report with ID ${id} not found`);
             }
@@ -179,7 +183,9 @@ let ReportService = ReportService_1 = class ReportService {
     }
     async generatePDF(reportId) {
         try {
-            const report = await this.reportRepository.findOne({ where: { id: reportId } });
+            const report = await this.reportRepository.findOne({
+                where: { id: reportId },
+            });
             if (!report) {
                 throw new common_1.NotFoundException(`Report with ID ${reportId} not found`);
             }
@@ -227,7 +233,10 @@ let ReportService = ReportService_1 = class ReportService {
         let startDate;
         let endDate = now;
         if (customStartDate && customEndDate) {
-            return { startDate: new Date(customStartDate), endDate: new Date(customEndDate) };
+            return {
+                startDate: new Date(customStartDate),
+                endDate: new Date(customEndDate),
+            };
         }
         switch (period) {
             case entity_enum_1.ReportPeriodEnum.DAILY:
@@ -274,14 +283,20 @@ let ReportService = ReportService_1 = class ReportService {
                 .createQueryBuilder('order')
                 .select('order.status', 'status')
                 .addSelect('COUNT(order.id)', 'count')
-                .where('order.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+                .where('order.createdAt BETWEEN :startDate AND :endDate', {
+                startDate,
+                endDate,
+            })
                 .groupBy('order.status')
                 .getRawMany();
             const ordersByMethod = await this.orderRepository
                 .createQueryBuilder('order')
                 .select('order.deliveryMethod', 'method')
                 .addSelect('COUNT(order.id)', 'count')
-                .where('order.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+                .where('order.createdAt BETWEEN :startDate AND :endDate', {
+                startDate,
+                endDate,
+            })
                 .groupBy('order.deliveryMethod')
                 .getRawMany();
             return {
@@ -291,15 +306,15 @@ let ReportService = ReportService_1 = class ReportService {
                     totalOrders,
                     averageOrderValue,
                 },
-                ordersByStatus: ordersByStatus.map(item => ({
+                ordersByStatus: ordersByStatus.map((item) => ({
                     status: item.status,
                     count: parseInt(item.count),
                 })),
-                ordersByMethod: ordersByMethod.map(item => ({
+                ordersByMethod: ordersByMethod.map((item) => ({
                     method: item.method,
                     count: parseInt(item.count),
                 })),
-                orders: orders.map(order => ({
+                orders: orders.map((order) => ({
                     id: order.id,
                     totalAmount: order.totalAmount,
                     status: order.status,
@@ -343,11 +358,11 @@ let ReportService = ReportService_1 = class ReportService {
                     outOfStockParts,
                     lowStockPercentage: totalParts > 0 ? (lowStockParts / totalParts) * 100 : 0,
                 },
-                partsByCondition: partsByCondition.map(item => ({
+                partsByCondition: partsByCondition.map((item) => ({
                     condition: item.condition,
                     count: parseInt(item.count),
                 })),
-                partsByVehicle: partsByVehicle.map(item => ({
+                partsByVehicle: partsByVehicle.map((item) => ({
                     make: item.make,
                     model: item.model,
                     count: parseInt(item.count),
@@ -370,14 +385,17 @@ let ReportService = ReportService_1 = class ReportService {
             const averageProfitMargin = vehicleProfits.length > 0
                 ? vehicleProfits.reduce((sum, vp) => sum + parseFloat(vp.profitMargin.toString()), 0) / vehicleProfits.length
                 : 0;
-            const profitableVehicles = vehicleProfits.filter(vp => vp.profit > 0).length;
-            const thresholdMetVehicles = vehicleProfits.filter(vp => vp.isThresholdMet).length;
+            const profitableVehicles = vehicleProfits.filter((vp) => vp.profit > 0).length;
+            const thresholdMetVehicles = vehicleProfits.filter((vp) => vp.isThresholdMet).length;
             const topPerformingVehicles = vehicleProfits
-                .filter(vp => vp.profit > 0)
-                .sort((a, b) => parseFloat(b.profit.toString()) - parseFloat(a.profit.toString()))
+                .filter((vp) => vp.profit > 0)
+                .sort((a, b) => parseFloat(b.profit.toString()) -
+                parseFloat(a.profit.toString()))
                 .slice(0, 10)
-                .map(vp => ({
-                vehicle: vp.vehicle ? `${vp.vehicle.make} ${vp.vehicle.model} (${vp.vehicle.year})` : 'Unknown',
+                .map((vp) => ({
+                vehicle: vp.vehicle
+                    ? `${vp.vehicle.make} ${vp.vehicle.model} (${vp.vehicle.year})`
+                    : 'Unknown',
                 revenue: vp.totalPartsRevenue,
                 cost: vp.totalPartsCost,
                 profit: vp.profit,
@@ -392,7 +410,9 @@ let ReportService = ReportService_1 = class ReportService {
                     averageProfitMargin,
                     profitableVehicles,
                     thresholdMetVehicles,
-                    profitabilityRate: vehicleProfits.length > 0 ? (profitableVehicles / vehicleProfits.length) * 100 : 0,
+                    profitabilityRate: vehicleProfits.length > 0
+                        ? (profitableVehicles / vehicleProfits.length) * 100
+                        : 0,
                 },
                 topPerformingVehicles,
                 totalVehicles: vehicleProfits.length,

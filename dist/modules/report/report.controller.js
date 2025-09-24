@@ -57,7 +57,11 @@ exports.ReportController = ReportController;
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Generate a new report' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Report generated successfully', type: report_dto_2.ReportResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Report generated successfully',
+        type: report_dto_2.ReportResponseDto,
+    }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [report_dto_1.GenerateReportDto]),
@@ -66,7 +70,11 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get all reports with optional filtering' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of reports', type: [report_dto_2.ReportResponseDto] }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'List of reports',
+        type: [report_dto_2.ReportResponseDto],
+    }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [report_dto_1.ReportQueryDto]),
@@ -75,7 +83,11 @@ __decorate([
 __decorate([
     (0, common_1.Get)('stats'),
     (0, swagger_1.ApiOperation)({ summary: 'Get report statistics' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Report statistics', type: report_dto_2.ReportStatsResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Report statistics',
+        type: report_dto_2.ReportStatsResponseDto,
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
@@ -83,7 +95,11 @@ __decorate([
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get a specific report by ID' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Report details', type: report_dto_2.ReportResponseDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Report details',
+        type: report_dto_2.ReportResponseDto,
+    }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

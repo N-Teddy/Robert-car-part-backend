@@ -133,7 +133,9 @@ __decorate([
     __metadata("design:type", String)
 ], VehicleProfitResponseDto.prototype, "id", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Total revenue from parts sales for this vehicle' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Total revenue from parts sales for this vehicle',
+    }),
     __metadata("design:type", Number)
 ], VehicleProfitResponseDto.prototype, "totalPartsRevenue", void 0);
 __decorate([
@@ -145,15 +147,21 @@ __decorate([
     __metadata("design:type", Number)
 ], VehicleProfitResponseDto.prototype, "profit", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Profit margin percentage (profit / revenue * 100)' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Profit margin percentage (profit / revenue * 100)',
+    }),
     __metadata("design:type", Number)
 ], VehicleProfitResponseDto.prototype, "profitMargin", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Whether the profit margin meets the threshold' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Whether the profit margin meets the threshold',
+    }),
     __metadata("design:type", Boolean)
 ], VehicleProfitResponseDto.prototype, "isThresholdMet", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Vehicle ID associated with this profit record' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Vehicle ID associated with this profit record',
+    }),
     __metadata("design:type", String)
 ], VehicleProfitResponseDto.prototype, "vehicleId", void 0);
 __decorate([
@@ -180,11 +188,15 @@ __decorate([
     __metadata("design:type", Number)
 ], VehicleProfitStatsResponseDto.prototype, "totalProfit", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Average profit margin percentage across all vehicles' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Average profit margin percentage across all vehicles',
+    }),
     __metadata("design:type", Number)
 ], VehicleProfitStatsResponseDto.prototype, "avgProfitMargin", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Number of vehicles that have generated profit' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Number of vehicles that have generated profit',
+    }),
     __metadata("design:type", Number)
 ], VehicleProfitStatsResponseDto.prototype, "profitableVehicles", void 0);
 __decorate([
@@ -200,7 +212,9 @@ __decorate([
     __metadata("design:type", Number)
 ], VehicleProfitStatsResponseDto.prototype, "activeVehicles", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Number of vehicles that have been parted out' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Number of vehicles that have been parted out',
+    }),
     __metadata("design:type", Number)
 ], VehicleProfitStatsResponseDto.prototype, "partedOutVehicles", void 0);
 __decorate([

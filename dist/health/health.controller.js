@@ -23,7 +23,10 @@ let HealthController = class HealthController {
     check() {
         return this.health.check([
             () => this.http.pingCheck('nestjs-docs', 'https://docs.nestjs.com'),
-            () => this.disk.checkStorage('storage', { path: '/', thresholdPercent: 0.5 }),
+            () => this.disk.checkStorage('storage', {
+                path: '/',
+                thresholdPercent: 0.5,
+            }),
             () => this.db.pingCheck('database'),
         ]);
     }

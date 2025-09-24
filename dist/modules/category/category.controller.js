@@ -63,7 +63,9 @@ __decorate([
 ], CategoryController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)('tree'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all categories as a tree structure with pagination' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Get all categories as a tree structure with pagination',
+    }),
     (0, swagger_1.ApiResponse)({ status: 200, type: category_dto_1.PaginatedCategoryTreeResponse }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),

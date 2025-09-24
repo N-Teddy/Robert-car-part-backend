@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuditActionEnum = exports.UserRoleEnum = exports.ReportPeriodEnum = exports.ReportTypeEnum = exports.DeliveryMethodEnum = exports.OrderStatusEnum = exports.ImageEnum = void 0;
 var ImageEnum;
 (function (ImageEnum) {
-    ImageEnum["USER_PROFILE"] = "USER PROFILE";
+    ImageEnum["USER_PROFILE"] = "USER_PROFILE";
     ImageEnum["VEHICLE"] = "VEHICLE";
     ImageEnum["PART"] = "PART";
     ImageEnum["QR_CODE"] = "QR_CODE";

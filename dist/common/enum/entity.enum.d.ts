@@ -1,5 +1,5 @@
 export declare enum ImageEnum {
-    USER_PROFILE = "USER PROFILE",
+    USER_PROFILE = "USER_PROFILE",
     VEHICLE = "VEHICLE",
     PART = "PART",
     QR_CODE = "QR_CODE",

@@ -31,7 +31,7 @@ let PDFService = PDFService_1 = class PDFService {
                     month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
-                    minute: '2-digit'
+                    minute: '2-digit',
                 });
             });
             handlebars.registerHelper('formatCurrency', (amount) => {
@@ -57,7 +57,7 @@ let PDFService = PDFService_1 = class PDFService {
                 const num = parseFloat(amount);
                 return num.toLocaleString('en-US', {
                     minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
+                    maximumFractionDigits: 2,
                 });
             });
             handlebars.registerHelper('formatPercentage', (value) => {
@@ -66,7 +66,7 @@ let PDFService = PDFService_1 = class PDFService {
                 const num = parseFloat(value);
                 return num.toLocaleString('en-US', {
                     minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
+                    maximumFractionDigits: 2,
                 });
             });
             handlebars.registerHelper('round', (value, decimals) => {
@@ -78,10 +78,10 @@ let PDFService = PDFService_1 = class PDFService {
             });
             handlebars.registerHelper('getStatusColor', (status) => {
                 const colors = {
-                    'COMPLETED': '#27ae60',
-                    'PENDING': '#f39c12',
-                    'CANCELLED': '#e74c3c',
-                    'PROCESSING': '#3498db'
+                    COMPLETED: '#27ae60',
+                    PENDING: '#f39c12',
+                    CANCELLED: '#e74c3c',
+                    PROCESSING: '#3498db',
                 };
                 return colors[status] || '#7f8c8d';
             });
@@ -101,11 +101,11 @@ let PDFService = PDFService_1 = class PDFService {
             const html = template(data);
             browser = await puppeteer.launch({
                 headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
+                args: ['--no-sandbox', '--disable-setuid-sandbox'],
             });
             const page = await browser.newPage();
             await page.setContent(html, {
-                waitUntil: 'networkidle0'
+                waitUntil: 'networkidle0',
             });
             const pdfBuffer = await page.pdf({
                 format: 'A4',
@@ -113,9 +113,9 @@ let PDFService = PDFService_1 = class PDFService {
                     top: '0.5in',
                     right: '0.5in',
                     bottom: '0.5in',
-                    left: '0.5in'
+                    left: '0.5in',
                 },
-                printBackground: true
+                printBackground: true,
             });
             return Buffer.from(pdfBuffer);
         }
@@ -134,7 +134,7 @@ let PDFService = PDFService_1 = class PDFService {
         try {
             browser = await puppeteer.launch({
                 headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
+                args: ['--no-sandbox', '--disable-setuid-sandbox'],
             });
             const page = await browser.newPage();
             await page.setContent(html, { waitUntil: 'networkidle0' });
@@ -144,9 +144,9 @@ let PDFService = PDFService_1 = class PDFService {
                     top: '0.5in',
                     right: '0.5in',
                     bottom: '0.5in',
-                    left: '0.5in'
+                    left: '0.5in',
                 },
-                printBackground: true
+                printBackground: true,
             });
             return Buffer.from(pdfBuffer);
         }

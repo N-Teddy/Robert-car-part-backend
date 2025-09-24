@@ -106,7 +106,7 @@ let PartService = PartService_1 = class PartService {
                 name: part.name,
                 partNumber: part.partNumber,
                 price: part.price,
-                createdAt: part.createdAt
+                createdAt: part.createdAt,
             });
             const qrCodeBuffer = await QRCode.toBuffer(qrData, {
                 width: 300,
@@ -140,7 +140,7 @@ let PartService = PartService_1 = class PartService {
     }
     async findAll(queryParams) {
         try {
-            const { page, limit, search, vehicleId, categoryId, minPrice, maxPrice, minQuantity, maxQuantity, condition } = queryParams;
+            const { page, limit, search, vehicleId, categoryId, minPrice, maxPrice, minQuantity, maxQuantity, condition, } = queryParams;
             console.log(limit);
             const skip = (page - 1) * limit;
             const query = this.partRepository
