@@ -11,341 +11,355 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var AuthService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
+const config_1 = require("@nestjs/config");
 const bcrypt = require("bcrypt");
 const uuid_1 = require("uuid");
 const user_entity_1 = require("../../entities/user.entity");
 const password_reset_token_entity_1 = require("../../entities/password-reset-token.entity");
-const audit_log_entity_1 = require("../../entities/audit-log.entity");
 const entity_enum_1 = require("../../common/enum/entity.enum");
 const notification_service_1 = require("../notification/notification.service");
-let AuthService = class AuthService {
-    constructor(userRepository, passwordResetTokenRepository, auditLogRepository, jwtService, notificationService) {
+const notification_enum_1 = require("../../common/enum/notification.enum");
+let AuthService = AuthService_1 = class AuthService {
+    constructor(userRepository, passwordResetTokenRepository, jwtService, configService, notificationService) {
         this.userRepository = userRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
-        this.auditLogRepository = auditLogRepository;
         this.jwtService = jwtService;
+        this.configService = configService;
         this.notificationService = notificationService;
+        this.logger = new common_1.Logger(AuthService_1.name);
+    }
+    async register(dto) {
+        try {
+            const existingUser = await this.userRepository.findOne({
+                where: { email: dto.email },
+            });
+            if (existingUser) {
+                throw new common_1.BadRequestException('User with this email already exists');
+            }
+            const hashedPassword = await bcrypt.hash(dto.password, this.configService.get('auth.saltRounds'));
+            const user = this.userRepository.create({
+                email: dto.email,
+                password: hashedPassword,
+                fullName: dto.fullName,
+                phoneNumber: dto.phoneNumber,
+                role: entity_enum_1.UserRoleEnum.UNKNOWN,
+                isActive: true,
+            });
+            const savedUser = await this.userRepository.save(user);
+            await this.notificationService.sendNotification({
+                type: notification_enum_1.NotificationEnum.WELCOME,
+                title: 'Welcome to Car Parts Shop',
+                message: `Welcome ${savedUser.fullName}! Your account has been created successfully. Please wait for an administrator to assign you a role.`,
+                audience: notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER,
+                userIds: [savedUser.id],
+                channel: notification_enum_1.NotificationChannelEnum.EMAIL,
+                emailTemplate: 'welcome-pending-role',
+                metadata: {
+                    userId: savedUser.id,
+                    userEmail: savedUser.email,
+                    userName: savedUser.fullName,
+                },
+            });
+            await this.notificationService.sendNotification({
+                type: notification_enum_1.NotificationEnum.SYSTEM_UPDATE,
+                title: 'New User Registration',
+                message: `A new user ${savedUser.fullName} (${savedUser.email}) has registered and needs role assignment.`,
+                audience: notification_enum_1.NotificationAudienceEnum.ADMIN,
+                channel: notification_enum_1.NotificationChannelEnum.BOTH,
+                emailTemplate: 'notify-admin-new-user',
+                metadata: {
+                    newUserId: savedUser.id,
+                    newUserEmail: savedUser.email,
+                    newUserName: savedUser.fullName,
+                    createdAt: savedUser.createdAt,
+                    phone: savedUser.phoneNumber,
+                },
+            });
+            const tokens = await this.generateTokens(savedUser);
+            return {
+                ...tokens,
+                user: {
+                    id: savedUser.id,
+                    email: savedUser.email,
+                    fullName: savedUser.fullName,
+                    role: savedUser.role,
+                    isActive: savedUser.isActive,
+                    phoneNumber: savedUser.phoneNumber,
+                },
+            };
+        }
+        catch (error) {
+            this.logger.error('Registration failed', error);
+            if (error instanceof common_1.BadRequestException) {
+                throw error;
+            }
+            throw new common_1.BadRequestException('Registration failed');
+        }
+    }
+    async login(dto) {
+        try {
+            const user = await this.userRepository.findOne({
+                where: { email: dto.email },
+            });
+            if (!user) {
+                throw new common_1.UnauthorizedException('Invalid credentials');
+            }
+            const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+            if (!isPasswordValid) {
+                throw new common_1.UnauthorizedException('Invalid credentials');
+            }
+            if (!user.isActive) {
+                throw new common_1.UnauthorizedException('Account is deactivated');
+            }
+            await this.userRepository.save(user);
+            const tokens = await this.generateTokens(user);
+            return {
+                ...tokens,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    fullName: user.fullName,
+                    role: user.role,
+                    isActive: user.isActive,
+                    phoneNumber: user.phoneNumber,
+                },
+            };
+        }
+        catch (error) {
+            this.logger.error('Login failed', error);
+            if (error instanceof common_1.UnauthorizedException) {
+                throw error;
+            }
+            throw new common_1.UnauthorizedException('Login failed');
+        }
+    }
+    async refreshToken(dto) {
+        try {
+            const payload = await this.jwtService.verifyAsync(dto.refreshToken, {
+                secret: this.configService.get('JWT_REFRESH_SECRET'),
+            });
+            const user = await this.userRepository.findOne({
+                where: { id: payload.sub },
+            });
+            if (!user || !user.isActive) {
+                throw new common_1.UnauthorizedException('Invalid refresh token');
+            }
+            const tokens = await this.generateTokens(user);
+            return {
+                ...tokens,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    fullName: user.fullName,
+                    role: user.role,
+                    isActive: user.isActive,
+                    phoneNumber: user.phoneNumber,
+                },
+            };
+        }
+        catch (error) {
+            this.logger.error('Token refresh failed', error);
+            throw new common_1.UnauthorizedException('Invalid refresh token');
+        }
+    }
+    async forgotPassword(dto) {
+        try {
+            const user = await this.userRepository.findOne({
+                where: { email: dto.email },
+            });
+            if (!user) {
+                return {
+                    message: 'If the email exists, a password reset link has been sent',
+                    success: true,
+                };
+            }
+            const resetToken = (0, uuid_1.v4)();
+            const hashedToken = await bcrypt.hash(resetToken, 10);
+            await this.passwordResetTokenRepository.delete({
+                user: { id: user.id },
+            });
+            const passwordResetToken = this.passwordResetTokenRepository.create({
+                token: hashedToken,
+                user: { id: user.id },
+                expiresAt: new Date(Date.now() + 3600000),
+            });
+            await this.passwordResetTokenRepository.save(passwordResetToken);
+            await this.notificationService.sendNotification({
+                type: notification_enum_1.NotificationEnum.PASSWORD_RESET,
+                title: 'Password Reset Request',
+                message: 'You have requested to reset your password. Click the link below to reset it.',
+                audience: notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER,
+                userIds: [user.id],
+                channel: notification_enum_1.NotificationChannelEnum.EMAIL,
+                emailTemplate: 'password-reset',
+                metadata: {
+                    name: user.fullName,
+                    resetLink: `${this.configService.get('FRONTEND_URL')}/reset-password?token=${resetToken}`,
+                },
+            });
+            return {
+                message: 'If the email exists, a password reset link has been sent',
+                success: true,
+            };
+        }
+        catch (error) {
+            this.logger.error('Forgot password failed', error);
+            throw new common_1.BadRequestException('Failed to process password reset request');
+        }
+    }
+    async resetPassword(dto) {
+        try {
+            const tokens = await this.passwordResetTokenRepository.find({
+                relations: ['user'],
+                where: {
+                    expiresAt: (0, typeorm_2.MoreThan)(new Date()),
+                    isUsed: false,
+                },
+            });
+            if (!tokens.length) {
+                throw new common_1.BadRequestException('Invalid or expired reset token');
+            }
+            let passwordResetToken = null;
+            for (const tokenRecord of tokens) {
+                const isValid = await bcrypt.compare(dto.token, tokenRecord.token);
+                if (isValid) {
+                    passwordResetToken = tokenRecord;
+                    break;
+                }
+            }
+            if (!passwordResetToken) {
+                throw new common_1.BadRequestException('Invalid or expired reset token');
+            }
+            const hashedPassword = await bcrypt.hash(dto.newPassword, this.configService.get('auth.saltRounds'));
+            await this.userRepository.update(passwordResetToken.user.id, {
+                password: hashedPassword,
+            });
+            passwordResetToken.isUsed = true;
+            await this.passwordResetTokenRepository.save(passwordResetToken);
+            await this.notificationService.sendNotification({
+                type: notification_enum_1.NotificationEnum.PASSWORD_CHANGED,
+                title: 'Password Changed Successfully',
+                message: 'Your password has been changed successfully.',
+                audience: notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER,
+                userIds: [passwordResetToken.user.id],
+                channel: notification_enum_1.NotificationChannelEnum.EMAIL,
+                emailTemplate: 'password-changed-confirm',
+            });
+            return {
+                message: 'Password reset successfully',
+                success: true,
+            };
+        }
+        catch (error) {
+            this.logger.error('Password reset failed', error);
+            if (error instanceof common_1.BadRequestException) {
+                throw error;
+            }
+            throw new common_1.BadRequestException('Failed to reset password');
+        }
+    }
+    async changePassword(userId, dto) {
+        try {
+            const user = await this.userRepository.findOne({
+                where: { id: userId },
+            });
+            if (!user) {
+                throw new common_1.NotFoundException('User not found');
+            }
+            const isPasswordValid = await bcrypt.compare(dto.currentPassword, user.password);
+            if (!isPasswordValid) {
+                throw new common_1.BadRequestException('Current password is incorrect');
+            }
+            const hashedPassword = await bcrypt.hash(dto.newPassword, this.configService.get('auth.saltRounds'));
+            await this.userRepository.update(userId, {
+                password: hashedPassword,
+            });
+            await this.notificationService.sendNotification({
+                type: notification_enum_1.NotificationEnum.PASSWORD_CHANGED,
+                title: 'Password Changed',
+                message: 'Your password has been changed successfully.',
+                audience: notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER,
+                userIds: [userId],
+                channel: notification_enum_1.NotificationChannelEnum.WEBSOCKET,
+            });
+            return {
+                message: 'Password changed successfully',
+                success: true,
+            };
+        }
+        catch (error) {
+            this.logger.error('Change password failed', error);
+            if (error instanceof common_1.BadRequestException ||
+                error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            throw new common_1.BadRequestException('Failed to change password');
+        }
     }
     async validateUser(email, password) {
         try {
             const user = await this.userRepository.findOne({
                 where: { email },
-                relations: ['profileImage'],
             });
             if (user && (await bcrypt.compare(password, user.password))) {
-                const { password, ...result } = user;
-                return result;
+                return user;
             }
             return null;
         }
-        catch (err) {
-            throw new common_1.InternalServerErrorException('Failed to validate user');
-        }
-    }
-    async login(loginDto) {
-        try {
-            const { email, password } = loginDto;
-            const user = await this.userRepository.findOne({
-                where: { email },
-                relations: ['profileImage'],
-            });
-            if (!user) {
-                throw new common_1.UnauthorizedException('Invalid credentials');
-            }
-            const isPasswordValid = await bcrypt.compare(password, user.password);
-            if (!isPasswordValid) {
-                throw new common_1.UnauthorizedException('Invalid credentials');
-            }
-            await this.createAuditLog(user.id, entity_enum_1.AuditActionEnum.LOGIN, 'User logged in');
-            const payload = {
-                sub: user.id,
-                email: user.email,
-                role: user.role,
-                fullName: user.fullName,
-            };
-            const accessToken = this.jwtService.sign(payload);
-            const refreshToken = this.jwtService.sign(payload, {
-                secret: process.env.JWT_REFRESH_SECRET,
-                expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
-            });
-            return {
-                id: user.id,
-                email: user.email,
-                fullName: user.fullName,
-                phoneNumber: user.phoneNumber,
-                role: user.role,
-                isFirstLogin: user.isFirstLogin,
-                profileImage: user.profileImage,
-                accessToken,
-                refreshToken,
-            };
-        }
-        catch (err) {
-            if (err instanceof common_1.UnauthorizedException || err instanceof common_1.BadRequestException || err instanceof common_1.NotFoundException) {
-                throw err;
-            }
-            throw new common_1.InternalServerErrorException('Failed to login');
-        }
-    }
-    async register(registerDto) {
-        try {
-            const { email, password, fullName, phoneNumber } = registerDto;
-            const existingUser = await this.userRepository.findOne({
-                where: { email },
-            });
-            if (existingUser) {
-                throw new common_1.BadRequestException('User with this email already exists');
-            }
-            const saltRounds = 12;
-            const hashedPassword = await bcrypt.hash(password, saltRounds);
-            const user = this.userRepository.create({
-                email,
-                password: hashedPassword,
-                fullName,
-                phoneNumber,
-                role: entity_enum_1.UserRoleEnum.UNKNOWN,
-                isFirstLogin: true,
-            });
-            const savedUser = await this.userRepository.save(user);
-            await this.createAuditLog(savedUser.id, entity_enum_1.AuditActionEnum.CREATE, 'User registered');
-            await this.notificationService.notifyAdminsOnNewUser(savedUser);
-            await this.notificationService.sendWelcomePendingRoleEmail(savedUser.email, savedUser.fullName);
-            const payload = {
-                sub: savedUser.id,
-                email: savedUser.email,
-                role: savedUser.role,
-                fullName: savedUser.fullName,
-            };
-            const accessToken = this.jwtService.sign(payload);
-            const refreshToken = this.jwtService.sign(payload, {
-                secret: process.env.JWT_REFRESH_SECRET,
-                expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
-            });
-            return {
-                id: savedUser.id,
-                email: savedUser.email,
-                fullName: savedUser.fullName,
-                phoneNumber: savedUser.phoneNumber,
-                role: savedUser.role,
-                isFirstLogin: savedUser.isFirstLogin,
-                accessToken,
-                refreshToken,
-            };
-        }
-        catch (err) {
-            if (err instanceof common_1.UnauthorizedException || err instanceof common_1.BadRequestException || err instanceof common_1.NotFoundException) {
-                throw err;
-            }
-            throw new common_1.InternalServerErrorException('Failed to register');
-        }
-    }
-    async forgotPassword(forgotPasswordDto) {
-        try {
-            const { email } = forgotPasswordDto;
-            const user = await this.userRepository.findOne({
-                where: { email },
-            });
-            if (!user) {
-                return { message: 'If the email exists, a password reset link has been sent.' };
-            }
-            const resetToken = (0, uuid_1.v4)();
-            const expiresAt = new Date();
-            expiresAt.setHours(expiresAt.getHours() + 1);
-            let resetTokenEntity = await this.passwordResetTokenRepository.findOne({
-                where: { user: { id: user.id } },
-            });
-            if (resetTokenEntity) {
-                resetTokenEntity.token = resetToken;
-                resetTokenEntity.expiresAt = expiresAt;
-            }
-            else {
-                resetTokenEntity = this.passwordResetTokenRepository.create({
-                    user,
-                    token: resetToken,
-                    expiresAt,
-                });
-            }
-            await this.passwordResetTokenRepository.save(resetTokenEntity);
-            const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-            await this.notificationService.sendPasswordResetEmail(user.email, resetLink);
-            return { message: 'If the email exists, a password reset link has been sent.' };
-        }
-        catch (err) {
-            throw new common_1.InternalServerErrorException('Failed to process forgot password');
-        }
-    }
-    async resetPassword(resetPasswordDto) {
-        try {
-            const { token, newPassword } = resetPasswordDto;
-            const resetTokenEntity = await this.passwordResetTokenRepository.findOne({
-                where: { token },
-                relations: ['user'],
-            });
-            if (!resetTokenEntity) {
-                throw new common_1.BadRequestException('Invalid reset token');
-            }
-            if (resetTokenEntity.expiresAt < new Date()) {
-                throw new common_1.BadRequestException('Reset token has expired');
-            }
-            const saltRounds = 12;
-            const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-            const user = resetTokenEntity.user;
-            user.password = hashedPassword;
-            user.isFirstLogin = false;
-            await this.userRepository.save(user);
-            await this.passwordResetTokenRepository.remove(resetTokenEntity);
-            await this.createAuditLog(user.id, entity_enum_1.AuditActionEnum.UPDATE, 'Password reset');
-            await this.notificationService.sendPasswordResetConfirmationEmail(user.email);
-            return { message: 'Password has been reset successfully' };
-        }
-        catch (err) {
-            if (err instanceof common_1.BadRequestException) {
-                throw err;
-            }
-            throw new common_1.InternalServerErrorException('Failed to reset password');
-        }
-    }
-    async changePassword(userId, changePasswordDto) {
-        try {
-            const { currentPassword, newPassword } = changePasswordDto;
-            const user = await this.userRepository.findOne({
-                where: { id: userId },
-            });
-            if (!user) {
-                throw new common_1.NotFoundException('User not found');
-            }
-            const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
-            if (!isCurrentPasswordValid) {
-                throw new common_1.BadRequestException('Current password is incorrect');
-            }
-            const saltRounds = 12;
-            const hashedPassword = await bcrypt.hash(newPassword, user.password);
-            user.password = hashedPassword;
-            user.isFirstLogin = false;
-            await this.userRepository.save(user);
-            await this.createAuditLog(userId, entity_enum_1.AuditActionEnum.UPDATE, 'Password changed');
-            await this.notificationService.sendPasswordChangeConfirmationEmail(user.email);
-            return { message: 'Password changed successfully' };
-        }
-        catch (err) {
-            if (err instanceof common_1.BadRequestException || err instanceof common_1.NotFoundException) {
-                throw err;
-            }
-            throw new common_1.InternalServerErrorException('Failed to change password');
-        }
-    }
-    async refreshToken(userId) {
-        try {
-            const user = await this.userRepository.findOne({
-                where: { id: userId },
-                relations: ['profileImage'],
-            });
-            if (!user) {
-                throw new common_1.UnauthorizedException('User not found');
-            }
-            const payload = {
-                sub: user.id,
-                email: user.email,
-                role: user.role,
-                fullName: user.fullName,
-            };
-            const accessToken = this.jwtService.sign(payload);
-            const refreshToken = this.jwtService.sign(payload, {
-                secret: process.env.JWT_REFRESH_SECRET,
-                expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
-            });
-            return {
-                accessToken,
-                refreshToken,
-            };
-        }
-        catch (err) {
-            if (err instanceof common_1.UnauthorizedException) {
-                throw err;
-            }
-            throw new common_1.InternalServerErrorException('Failed to refresh token');
+        catch (error) {
+            this.logger.error('User validation failed', error);
+            return null;
         }
     }
     async logout(userId) {
         try {
-            await this.createAuditLog(userId, entity_enum_1.AuditActionEnum.LOGOUT, 'User logged out');
-            return { message: 'Logged out successfully' };
+            return {
+                message: 'Logged out successfully',
+                success: true,
+            };
         }
-        catch (err) {
-            throw new common_1.InternalServerErrorException('Failed to logout');
-        }
-    }
-    async getProfile(userId) {
-        try {
-            const user = await this.userRepository.findOne({
-                where: { id: userId },
-                relations: ['profileImage'],
-            });
-            if (!user) {
-                throw new common_1.NotFoundException('User not found');
-            }
-            const { password, ...result } = user;
-            return result;
-        }
-        catch (err) {
-            if (err instanceof common_1.NotFoundException) {
-                throw err;
-            }
-            throw new common_1.InternalServerErrorException('Failed to get profile');
+        catch (error) {
+            this.logger.error('Logout failed', error);
+            throw new common_1.BadRequestException('Failed to logout');
         }
     }
-    async assignRole(targetUserId, role) {
-        try {
-            if (!Object.values(entity_enum_1.UserRoleEnum).includes(role) || role === entity_enum_1.UserRoleEnum.UNKNOWN) {
-                throw new common_1.BadRequestException('Invalid role');
-            }
-            const user = await this.userRepository.findOne({ where: { id: targetUserId } });
-            if (!user) {
-                throw new common_1.NotFoundException('User not found');
-            }
-            user.role = role;
-            user.isFirstLogin = false;
-            await this.userRepository.save(user);
-            await this.createAuditLog(targetUserId, entity_enum_1.AuditActionEnum.UPDATE, `Role assigned: ${role}`);
-            await this.notificationService.sendRoleAssignedEmail(user.email, role);
-            return { message: 'Role updated successfully' };
-        }
-        catch (err) {
-            if (err instanceof common_1.BadRequestException || err instanceof common_1.NotFoundException) {
-                throw err;
-            }
-            throw new common_1.InternalServerErrorException('Failed to assign role');
-        }
-    }
-    async createAuditLog(userId, action, description) {
-        const auditLog = this.auditLogRepository.create({
-            user: { id: userId },
-            action,
-            entity: 'User',
-            details: { description },
-            route: '/api/auth',
-            userId,
-            timestamp: new Date(),
-        });
-        await this.auditLogRepository.save(auditLog);
+    async generateTokens(user) {
+        const payload = {
+            sub: user.id,
+            email: user.email,
+            role: user.role,
+        };
+        const [accessToken, refreshToken] = await Promise.all([
+            this.jwtService.signAsync(payload),
+            this.jwtService.signAsync(payload, {
+                secret: this.configService.get('JWT_REFRESH_SECRET'),
+                expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN'),
+            }),
+        ]);
+        return {
+            accessToken,
+            refreshToken,
+            expiresIn: 86400,
+            tokenType: 'Bearer',
+        };
     }
 };
 exports.AuthService = AuthService;
-exports.AuthService = AuthService = __decorate([
+exports.AuthService = AuthService = AuthService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __param(1, (0, typeorm_1.InjectRepository)(password_reset_token_entity_1.PasswordResetToken)),
-    __param(2, (0, typeorm_1.InjectRepository)(audit_log_entity_1.AuditLog)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
-        typeorm_2.Repository,
         jwt_1.JwtService,
+        config_1.ConfigService,
         notification_service_1.NotificationService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

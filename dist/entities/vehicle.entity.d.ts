@@ -12,6 +12,7 @@ export declare class Vehicle extends BaseEntity {
     purchaseDate: Date;
     auctionName?: string;
     isPartedOut: boolean;
+    isActive: boolean;
     parts: Part[];
     profitRecords: VehicleProfit[];
     images: Image[];

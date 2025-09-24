@@ -1,57 +1,231 @@
 <!-- templates/email/layout.hbs -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>{{title}}</title>
     <style>
+        /* Reset styles for email clients */
+        body,
+        table,
+        td,
+        p,
+        a,
+        li,
+        blockquote {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            color: #222;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f8fafc;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            background-color: #f8fafc;
+            padding: 20px 0;
         }
 
         .container {
             max-width: 600px;
             margin: 0 auto;
-            padding: 16px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
         }
 
-        .card {
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 24px;
+        /* Header with brand colors */
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        .logo {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0;
+            text-decoration: none;
+        }
+
+        .logo::before {
+            content: "🔧";
+            margin-right: 8px;
+        }
+
+        .tagline {
+            color: #e0e7ff;
+            font-size: 14px;
+            margin: 5px 0 0 0;
+        }
+
+        /* Content area */
+        .content {
+            padding: 40px;
+        }
+
+        .content h1,
+        .content h2 {
+            color: #1e293b;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .content h2 {
+            font-size: 24px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .content p {
+            margin-bottom: 16px;
+            color: #475569;
+            font-size: 16px;
+        }
+
+        /* Button styles */
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
         }
 
         .button {
             display: inline-block;
-            padding: 10px 16px;
-            background: #2563eb;
-            color: #fff !important;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: #ffffff !important;
             text-decoration: none;
-            border-radius: 6px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
         }
 
-        .muted {
-            color: #666;
-            font-size: 12px;
+        .button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
         }
 
+        .button-secondary {
+            background: #6b7280;
+            color: #ffffff !important;
+        }
+
+        /* Status indicator */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #fef3c7;
+            color: #92400e;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 10px 0;
+        }
+
+        /* Info box */
+        .info-box {
+            background-color: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #0c4a6e;
+        }
+
+        /* Footer */
         .footer {
-            margin-top: 24px;
-            border-top: 1px solid #eee;
-            padding-top: 12px;
+            background-color: #f8fafc;
+            padding: 30px 40px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .footer p {
+            margin: 8px 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .social-links {
+            margin: 20px 0;
+        }
+
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #64748b;
+            text-decoration: none;
+        }
+
+        /* Responsive design */
+        @media only screen and (max-width: 600px) {
+            .container {
+                margin: 0 10px;
+                border-radius: 8px;
+            }
+
+            .header,
+            .content,
+            .footer {
+                padding: 20px !important;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            .content h2 {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="card">
-            {{{body}}}
+    <div class="email-wrapper">
+        <div class="container">
+            <div class="header">
+                <h1 class="logo">Car Parts Shop</h1>
+                <p class="tagline">Quality Parts, Reliable Service</p>
+            </div>
+
+            <div class="content">
+                {{{body}}}
+            </div>
+
             <div class="footer">
-                <p class="muted">This is an automated message from Car Parts Shop.</p>
+                <p><strong>Car Parts Shop</strong></p>
+                <p>123 Auto Street, Car City, CC 12345</p>
+                <p>📞 (555) 123-4567 | 📧 support@carpartsshop.com</p>
+
+                <div class="social-links">
+                    <a href="#">Facebook</a> |
+                    <a href="#">Twitter</a> |
+                    <a href="#">Instagram</a>
+                </div>
+
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 20px;">
+                    This is an automated message. Please do not reply to this email.<br>
+                    If you have questions, contact us at support@carpartsshop.com
+                </p>
             </div>
         </div>
     </div>

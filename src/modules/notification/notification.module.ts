@@ -1,15 +1,42 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { NotificationController } from './notification.controller';
+import { NotificationService } from './notification.service';
+import { NotificationGateway } from './notification.gateway';
+import { EmailService } from './email.service';
 import { Notification } from '../../entities/notification.entity';
 import { User } from '../../entities/user.entity';
-import { NotificationService } from './notification.service';
-import { NotificationController } from './notification.controller';
+import { Vehicle } from '../../entities/vehicle.entity';
+import { Part } from '../../entities/part.entity';
+import { Category } from '../../entities/category.entity';
+import { QrCode } from '../../entities/qr-code.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Notification, User]), ConfigModule],
-    controllers: [NotificationController],
-    providers: [NotificationService],
-    exports: [NotificationService],
+	imports: [
+		ConfigModule,
+		TypeOrmModule.forFeature([
+			Notification,
+			User,
+			Vehicle,
+			Part,
+			Category,
+			QrCode,
+		]),
+		JwtModule.registerAsync({
+			imports: [ConfigModule],
+			useFactory: async (configService: ConfigService) => ({
+				secret: configService.get<string>('jwt.secret'),
+				signOptions: {
+					expiresIn: configService.get<string>('jwt.expiresIn'),
+				},
+			}),
+			inject: [ConfigService],
+		}),
+	],
+	controllers: [NotificationController],
+	providers: [NotificationService, NotificationGateway, EmailService],
+	exports: [NotificationService, NotificationGateway],
 })
-export class NotificationModule { }
+export class NotificationModule {}

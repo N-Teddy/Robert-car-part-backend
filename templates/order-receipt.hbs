@@ -1,0 +1,270 @@
+<!-- templates/order-receipt.hbs -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Order Receipt - #{{order.id}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4A90E2; /* A professional blue */
+            --secondary-color: #F5F7FA; /* A light, soft background */
+            --text-color: #4A4A4A; /* A dark gray for text */
+            --light-text-color: #9B9B9B; /* For less important text */
+            --border-color: #EAEAEA;
+            --white-color: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: var(--secondary-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .receipt-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: var(--white-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 40px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header .company-info h1 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .header .company-info p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: var(--light-text-color);
+        }
+
+        .header .receipt-title {
+            text-align: right;
+        }
+
+        .receipt-title h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .receipt-title p {
+            margin: 5px 0 0;
+            font-size: 14px;
+        }
+
+        .details-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .customer-info, .order-info {
+            flex: 1;
+        }
+
+        h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .info-block p {
+            margin: 0 0 8px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .info-block p strong {
+            font-weight: 500;
+            display: inline-block;
+            width: 120px; /* Aligns the values */
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        thead tr {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+        }
+
+        th {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: var(--secondary-color);
+        }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        .part-details {
+            font-weight: 500;
+        }
+        .part-details span {
+            display: block;
+            font-size: 12px;
+            color: var(--light-text-color);
+            font-weight: 400;
+        }
+
+        tfoot td {
+            border-top: 2px solid var(--primary-color);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .total-label {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--primary-color);
+        }
+
+        .notes {
+            background-color: var(--secondary-color);
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--light-text-color);
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-container">
+        <div class="header">
+            <div class="company-info">
+                <!-- You can add a logo here if you have one -->
+                <!-- <img src="your-logo-url.png" alt="Company Logo" style="max-width: 150px; margin-bottom: 10px;"> -->
+                <h1>{{company.name}}</h1>
+                <p>{{company.address}}</p>
+                <p>{{company.phone}} | {{company.email}}</p>
+            </div>
+            <div class="receipt-title">
+                <h2>Order Receipt</h2>
+                <p><strong>Order ID:</strong> #{{order.id}}</p>
+            </div>
+        </div>
+
+        <div class="details-grid">
+            <div class="customer-info info-block">
+                <h3>Billed To</h3>
+                <p><strong>Name:</strong> {{order.customerName}}</p>
+                <p><strong>Phone:</strong> {{order.customerPhone}}</p>
+                <p><strong>Email:</strong> {{order.customerEmail}}</p>
+            </div>
+            <div class="order-info info-block">
+                <h3>Order Details</h3>
+                <p><strong>Order Date:</strong> {{order.createdAt}}</p>
+                <p><strong>Status:</strong> {{order.status}}</p>
+                <p><strong>Delivery:</strong> {{order.deliveryMethod}}</p>
+            </div>
+        </div>
+
+        <h3>Order Items</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Part</th>
+                    <th class="text-center">Quantity</th>
+                    <th class="text-right">Unit Price</th>
+                    <th class="text-right">Discount</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each order.items}}
+                <tr>
+                    <td>
+                        <div class="part-details">
+                            {{this.part.name}}
+                            <span>{{this.part.partNumber}} - {{this.part.description}}</span>
+                        </div>
+                    </td>
+                    <td class="text-center">{{this.quantity}}</td>
+                    <td class="text-right">${{this.unitPrice}}</td>
+                    <td class="text-right">${{this.discount}}</td>
+                    <td class="text-right">${{this.total}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" class="text-right total-label">Total Amount:</td>
+                    <td class="text-right">${{order.totalAmount}}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        {{#if order.notes}}
+        <div class="notes">
+            <h3>Notes</h3>
+            <p>{{order.notes}}</p>
+        </div>
+        {{/if}}
+
+        <div class="footer">
+            <p>Thank you for your business!</p>
+            <p>{{company.website}}</p>
+            <p>Receipt generated on: {{generatedAt}}</p>
+        </div>
+    </div>
+</body>
+</html>

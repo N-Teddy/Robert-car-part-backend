@@ -1,5 +1,42 @@
-{{!< layout}} <h2 style="margin-top:0">Welcome to Car Parts Shop</h2>
-    <p>Hello {{name}},</p>
-    <p>Your account has been created and is pending role assignment by an administrator. You will be notified once your
-        role is assigned.</p>
-    <p>Meanwhile, you can log in and view your profile to see your current status.</p>
+{{!< layout}} <h2>{{title}} 🎉</h2>
+
+    <p>Hello <strong>{{metadata.userName}}</strong>,</p>
+
+    <p>Thank you for joining Car Parts Shop! We're excited to have you as part of our community of automotive
+        enthusiasts.</p>
+
+    <div class="info-box">
+        <p><strong>Account Status:</strong> <span class="status-badge">⏳ Pending Role Assignment</span></p>
+    </div>
+
+    <p>Your account has been successfully created and is currently pending role assignment by our administrator team.
+        Here's what happens next:</p>
+
+    <ul style="color: #475569; padding-left: 20px;">
+        <li>Our team will review your account within 24 hours</li>
+        <li>You'll receive an email notification once your role is assigned</li>
+        <li>You can then access all features based on your assigned permissions</li>
+    </ul>
+
+    <div class="button-container">
+        <a href="{{loginUrl}}" class="button">View My Profile</a>
+    </div>
+
+    <p>In the meantime, you can log in to:</p>
+    <ul style="color: #475569; padding-left: 20px;">
+        <li>Complete your profile information</li>
+        <li>Check your current account status</li>
+    </ul>
+
+    <div class="info-box">
+        <p><strong>Need Help?</strong> Our support team is here to assist you. Contact us at <a
+                href="mailto:support@carpartsshop.com" style="color: #0ea5e9;">support@carpartsshop.com</a> or call
+            (555) 123-4567.</p>
+    </div>
+
+    <p>Welcome aboard!</p>
+
+    <p style="margin-top: 30px;">
+        Best regards,<br>
+        <strong>The Car Parts Shop Team</strong>
+    </p>

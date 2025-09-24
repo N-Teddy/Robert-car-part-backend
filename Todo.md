@@ -1,0 +1,3 @@
+- notification on vehicle
+- image on vehicle
+- notifications optimization

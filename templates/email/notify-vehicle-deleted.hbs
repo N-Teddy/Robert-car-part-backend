@@ -1,0 +1,27 @@
+<div class="notification-content">
+    <h2>🗑️ Vehicle Removed from Inventory</h2>
+
+    <div class="vehicle-details">
+        <h3>{{vehicle.make}} {{vehicle.model}} ({{vehicle.year}})</h3>
+
+        <div class="vehicle-info">
+            <p><strong>VIN:</strong> {{vehicle.vin}</p>
+            <p><strong>Removed:</strong> {{formatDate vehicle.deletedAt}}</p>
+        </div>
+    </div>
+
+    <div class="user-info">
+        <p><strong>Removed by:</strong> {{deletedBy.fullName}} ({{deletedBy.email}})</p>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{adminUrl}}" class="btn btn-primary">View Vehicle Inventory</a>
+    </div>
+
+    <div class="footer">
+        <p>This notification was sent to all administrators and managers.</p>
+        <p>You can review the current vehicle inventory through the admin panel.</p>
+        <p><strong>Note:</strong> This action cannot be undone. The vehicle and all associated data have been
+            permanently removed.</p>
+    </div>
+</div>

@@ -1,15 +1,9 @@
 export declare enum ImageEnum {
     USER_PROFILE = "USER PROFILE",
     VEHICLE = "VEHICLE",
-    PART = "PART"
-}
-export declare enum NotificationEnum {
-    ORDER_CREATED = "ORDER CREATED",
-    ORDER_UPDATED = "ORDER UPDATED",
-    LOW_STOCK = "LOW STOCK",
-    PROFIT_ALERT = "PROFIT ALERT",
-    PART_REQUEST = "PART REQUEST",
-    SYSTEM_ALERT = "SYSTEM ALERT"
+    PART = "PART",
+    QR_CODE = "QR_CODE",
+    CATEGORY = "CATEGORY"
 }
 export declare enum OrderStatusEnum {
     PENDING = "PENDING",
@@ -24,7 +18,8 @@ export declare enum DeliveryMethodEnum {
 export declare enum ReportTypeEnum {
     SALES = "SALES",
     INVENTORY = "INVENTORY",
-    PROFIT = "PROFIT"
+    PROFIT = "PROFIT",
+    ALL = "ALL"
 }
 export declare enum ReportPeriodEnum {
     DAILY = "DAILY",
@@ -38,6 +33,7 @@ export declare enum UserRoleEnum {
     MANAGER = "MANAGER",
     DEV = "DEV",
     SALES = "SALES",
+    STAFF = "STAFF",
     CUSTOMER = "CUSTOMER",
     UNKNOWN = "UNKNOWN"
 }
@@ -46,10 +42,7 @@ export declare enum AuditActionEnum {
     UPDATE = "UPDATE",
     DELETE = "DELETE",
     LOGIN = "LOGIN",
-    LOGOUT = "LOGOUT"
-}
-export declare enum NotificationAudienceEnum {
-    ALL = "ALL",
-    ALL_EXCEPT_UNKNOWN = "ALL_EXCEPT_UNKNOWN",
-    ADMINS = "ADMINS"
+    LOGOUT = "LOGOUT",
+    REGISTER = "REGISTER",
+    OTHER = "OTHER"
 }

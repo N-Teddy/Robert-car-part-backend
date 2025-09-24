@@ -1,0 +1,61 @@
+export declare enum NotificationChannel {
+    EMAIL = "email",
+    IN_APP = "in_app"
+}
+export declare enum NotificationPriority {
+    CRITICAL = "critical",
+    HIGH = "high",
+    MEDIUM = "medium",
+    LOW = "low"
+}
+export declare enum NotificationStatus {
+    PENDING = "pending",
+    SENT = "sent",
+    DELIVERED = "delivered",
+    FAILED = "failed",
+    RETRY = "retry",
+    READ = "read"
+}
+export declare enum NotificationEnum {
+    SYSTEM_MAINTENANCE = "SYSTEM_MAINTENANCE",
+    SYSTEM_UPDATE = "SYSTEM_UPDATE",
+    WELCOME = "WELCOME",
+    PASSWORD_RESET = "PASSWORD_RESET",
+    PASSWORD_CHANGED = "PASSWORD_CHANGED",
+    ACCOUNT_VERIFIED = "ACCOUNT_VERIFIED",
+    ROLE_ASSIGNED = "ROLE_ASSIGNED",
+    PROFILE_UPDATED = "PROFILE_UPDATED",
+    USER_UPDATED = "USER_UPDATED",
+    USER_DELETED = "USER_DELETED",
+    VEHICLE_CREATED = "VEHICLE_CREATED",
+    VEHICLE_UPDATED = "VEHICLE_UPDATED",
+    VEHICLE_DELETED = "VEHICLE_DELETED",
+    VEHICLE_PARTED_OUT = "VEHICLE_PARTED_OUT",
+    PART_CREATED = "PART_CREATED",
+    PART_UPDATED = "PART_UPDATED",
+    PART_DELETED = "PART_DELETED",
+    PART_SOLD = "PART_SOLD",
+    PART_LOW_STOCK = "PART_LOW_STOCK",
+    ORDER_CREATED = "ORDER_CREATED",
+    ORDER_UPDATED = "ORDER_UPDATED",
+    ORDER_COMPLETED = "ORDER_COMPLETED",
+    ORDER_CANCELLED = "ORDER_CANCELLED",
+    REPORT_GENERATED = "REPORT_GENERATED",
+    REPORT_READY = "REPORT_READY",
+    CATEGORY_CREATED = "CATEGORY_CREATED",
+    CATEGORY_UPDATED = "CATEGORY_UPDATED",
+    CATEGORY_DELETED = "CATEGORY_DELETED",
+    REORDER_CATEGORIES = "REORDER_CATEGORIES"
+}
+export declare enum NotificationAudienceEnum {
+    ALL = "ALL",
+    ADMIN = "ADMIN",
+    MANAGER = "MANAGER",
+    STAFF = "STAFF",
+    SPECIFIC_USER = "SPECIFIC_USER"
+}
+export declare enum NotificationChannelEnum {
+    EMAIL = "EMAIL",
+    WEBSOCKET = "WEBSOCKET",
+    BOTH = "BOTH"
+}

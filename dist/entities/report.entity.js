@@ -17,11 +17,19 @@ let Report = class Report extends base_entity_1.BaseEntity {
 };
 exports.Report = Report;
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: entity_enum_1.ReportTypeEnum, default: entity_enum_1.ReportTypeEnum.SALES }),
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: entity_enum_1.ReportTypeEnum,
+        default: entity_enum_1.ReportTypeEnum.SALES,
+    }),
     __metadata("design:type", String)
 ], Report.prototype, "type", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: entity_enum_1.ReportPeriodEnum, default: entity_enum_1.ReportPeriodEnum.DAILY }),
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: entity_enum_1.ReportPeriodEnum,
+        default: entity_enum_1.ReportPeriodEnum.DAILY,
+    }),
     __metadata("design:type", String)
 ], Report.prototype, "period", void 0);
 __decorate([

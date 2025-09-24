@@ -11,6 +11,7 @@ export declare class User extends BaseEntity {
     phoneNumber: string;
     role: UserRoleEnum;
     isFirstLogin: boolean;
+    isActive: boolean;
     profileImage?: Image;
     resetTokens: PasswordResetToken[];
     notifications: Notification[];

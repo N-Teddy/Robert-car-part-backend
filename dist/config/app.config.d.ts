@@ -1,5 +1,6 @@
 declare const _default: (() => {
     port: number;
+    url: string;
     corsOrigin: string[];
     rateLimit: {
         windowMs: number;
@@ -7,6 +8,7 @@ declare const _default: (() => {
     };
 }) & import("@nestjs/config").ConfigFactoryKeyHost<{
     port: number;
+    url: string;
     corsOrigin: string[];
     rateLimit: {
         windowMs: number;

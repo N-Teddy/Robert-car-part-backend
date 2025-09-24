@@ -1,21 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotificationAudienceEnum = exports.AuditActionEnum = exports.UserRoleEnum = exports.ReportPeriodEnum = exports.ReportTypeEnum = exports.DeliveryMethodEnum = exports.OrderStatusEnum = exports.NotificationEnum = exports.ImageEnum = void 0;
+exports.AuditActionEnum = exports.UserRoleEnum = exports.ReportPeriodEnum = exports.ReportTypeEnum = exports.DeliveryMethodEnum = exports.OrderStatusEnum = exports.ImageEnum = void 0;
 var ImageEnum;
 (function (ImageEnum) {
     ImageEnum["USER_PROFILE"] = "USER PROFILE";
     ImageEnum["VEHICLE"] = "VEHICLE";
     ImageEnum["PART"] = "PART";
+    ImageEnum["QR_CODE"] = "QR_CODE";
+    ImageEnum["CATEGORY"] = "CATEGORY";
 })(ImageEnum || (exports.ImageEnum = ImageEnum = {}));
-var NotificationEnum;
-(function (NotificationEnum) {
-    NotificationEnum["ORDER_CREATED"] = "ORDER CREATED";
-    NotificationEnum["ORDER_UPDATED"] = "ORDER UPDATED";
-    NotificationEnum["LOW_STOCK"] = "LOW STOCK";
-    NotificationEnum["PROFIT_ALERT"] = "PROFIT ALERT";
-    NotificationEnum["PART_REQUEST"] = "PART REQUEST";
-    NotificationEnum["SYSTEM_ALERT"] = "SYSTEM ALERT";
-})(NotificationEnum || (exports.NotificationEnum = NotificationEnum = {}));
 var OrderStatusEnum;
 (function (OrderStatusEnum) {
     OrderStatusEnum["PENDING"] = "PENDING";
@@ -33,6 +26,7 @@ var ReportTypeEnum;
     ReportTypeEnum["SALES"] = "SALES";
     ReportTypeEnum["INVENTORY"] = "INVENTORY";
     ReportTypeEnum["PROFIT"] = "PROFIT";
+    ReportTypeEnum["ALL"] = "ALL";
 })(ReportTypeEnum || (exports.ReportTypeEnum = ReportTypeEnum = {}));
 var ReportPeriodEnum;
 (function (ReportPeriodEnum) {
@@ -48,6 +42,7 @@ var UserRoleEnum;
     UserRoleEnum["MANAGER"] = "MANAGER";
     UserRoleEnum["DEV"] = "DEV";
     UserRoleEnum["SALES"] = "SALES";
+    UserRoleEnum["STAFF"] = "STAFF";
     UserRoleEnum["CUSTOMER"] = "CUSTOMER";
     UserRoleEnum["UNKNOWN"] = "UNKNOWN";
 })(UserRoleEnum || (exports.UserRoleEnum = UserRoleEnum = {}));
@@ -58,11 +53,7 @@ var AuditActionEnum;
     AuditActionEnum["DELETE"] = "DELETE";
     AuditActionEnum["LOGIN"] = "LOGIN";
     AuditActionEnum["LOGOUT"] = "LOGOUT";
+    AuditActionEnum["REGISTER"] = "REGISTER";
+    AuditActionEnum["OTHER"] = "OTHER";
 })(AuditActionEnum || (exports.AuditActionEnum = AuditActionEnum = {}));
-var NotificationAudienceEnum;
-(function (NotificationAudienceEnum) {
-    NotificationAudienceEnum["ALL"] = "ALL";
-    NotificationAudienceEnum["ALL_EXCEPT_UNKNOWN"] = "ALL_EXCEPT_UNKNOWN";
-    NotificationAudienceEnum["ADMINS"] = "ADMINS";
-})(NotificationAudienceEnum || (exports.NotificationAudienceEnum = NotificationAudienceEnum = {}));
 //# sourceMappingURL=entity.enum.js.map

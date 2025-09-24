@@ -1,5 +1,5 @@
 import { OrderItem } from './order-item.entity';
-import { DeliveryMethodEnum, OrderStatusEnum } from 'src/common/enum/entity.enum';
+import { DeliveryMethodEnum, OrderStatusEnum } from '../common/enum/entity.enum';
 import { BaseEntity } from './base.entity';
 export declare class Order extends BaseEntity {
     status: OrderStatusEnum;

@@ -1,0 +1,35 @@
+import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
+import { Image } from '../../entities/image.entity';
+import { User } from '../../entities/user.entity';
+import { Vehicle } from '../../entities/vehicle.entity';
+import { Part } from '../../entities/part.entity';
+import { Category } from '../../entities/category.entity';
+import { QrCode } from '../../entities/qr-code.entity';
+import { LocalStorageService } from './local-storage.service';
+import { CloudinaryService } from './cloudinary.service';
+import { ImageEnum } from '../../common/enum/entity.enum';
+import { UploadedImageResponseDto, MultipleUploadResponseDto } from '../../dto/response/upload.dto';
+export declare class UploadService {
+    private readonly imageRepository;
+    private readonly userRepository;
+    private readonly vehicleRepository;
+    private readonly partRepository;
+    private readonly categoryRepository;
+    private readonly qrCodeRepository;
+    private readonly localStorageService;
+    private readonly cloudinaryService;
+    private readonly configService;
+    private readonly logger;
+    private readonly isProduction;
+    constructor(imageRepository: Repository<Image>, userRepository: Repository<User>, vehicleRepository: Repository<Vehicle>, partRepository: Repository<Part>, categoryRepository: Repository<Category>, qrCodeRepository: Repository<QrCode>, localStorageService: LocalStorageService, cloudinaryService: CloudinaryService, configService: ConfigService);
+    private getStorageService;
+    private validateEntity;
+    uploadSingleImage(file: Express.Multer.File, entityType: ImageEnum, entityId: string, userId: string): Promise<UploadedImageResponseDto>;
+    uploadMultipleImages(files: Express.Multer.File[], entityType: ImageEnum, entityId: string, userId: string): Promise<MultipleUploadResponseDto>;
+    getImageById(id: string): Promise<UploadedImageResponseDto>;
+    deleteImage(id: string): Promise<void>;
+    getImagesByEntity(entityType: ImageEnum, entityId: string): Promise<UploadedImageResponseDto[]>;
+    private mapToResponseDto;
+    private getEntityIdFromImage;
+}

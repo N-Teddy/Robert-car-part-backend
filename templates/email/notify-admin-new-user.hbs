@@ -1,19 +1,110 @@
 <!-- templates/email/notify-admin-new-user.hbs -->
-<h2>New User Registration</h2>
+<h2>{{title}}</h2>
 
-<p>A new user has registered and is awaiting role assignment:</p>
+<p>Hello {{userName}},</p>
 
-<div style="background: #f8f9fa; padding: 16px; border-radius: 6px; margin: 16px 0;">
-    <p><strong>Name:</strong> {{user.fullName}}</p>
-    <p><strong>Email:</strong> {{user.email}}</p>
-    <p><strong>User ID:</strong> {{user.id}}</p>
-    <p><strong>Registered:</strong> {{formatDate user.createdAt}}</p>
+<p>A new user has registered on Car Parts Shop and requires role assignment to complete their account setup.</p>
+
+<!-- User Information Card -->
+<div class="user-info-card"
+    style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: 1px solid #cbd5e1; border-radius: 12px; padding: 24px; margin: 24px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <h3
+        style="margin-top: 0; color: #1e293b; font-size: 18px; border-bottom: 2px solid #3b82f6; padding-bottom: 8px; margin-bottom: 16px;">
+        👤 User Details
+    </h3>
+
+    <div style="display: grid; gap: 12px;">
+        <div style="display: flex; align-items: center;">
+            <span style="font-weight: 600; color: #475569; min-width: 100px;">Name:</span>
+            <span style="color: #1e293b; font-size: 16px;">{{metadata.newUserName}}</span>
+        </div>
+
+        <div style="display: flex; align-items: center;">
+            <span style="font-weight: 600; color: #475569; min-width: 100px;">Email:</span>
+            <a href="mailto:{{metadata.newUserEmail}}" style="color: #2563eb; text-decoration: none;">{{metadata.newUserEmail}}</a>
+        </div>
+
+        <div style="display: flex; align-items: center;">
+            <span style="font-weight: 600; color: #475569; min-width: 100px;">User ID:</span>
+            <code
+                style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #64748b;">{{metadata.newUserId}}</code>
+        </div>
+
+        <div style="display: flex; align-items: center;">
+            <span style="font-weight: 600; color: #475569; min-width: 100px;">Registered:</span>
+            <span style="color: #1e293b;">{{formatDate metadata.createdAt}}</span>
+        </div>
+
+        {{#if user.phone}}
+        <div style="display: flex; align-items: center;">
+            <span style="font-weight: 600; color: #475569; min-width: 100px;">Phone:</span>
+            <span style="color: #1e293b;">{{metadata.phone}}</span>
+        </div>
+        {{/if}}
+    </div>
 </div>
 
-<p>Please assign an appropriate role to this user in the admin panel.</p>
+<!-- Priority Indicator -->
+<div class="priority-notice"
+    style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+    <p style="margin: 0; color: #92400e;">
+        <strong>⚡ Action Required:</strong> This user is waiting for role assignment to access the platform.
+    </p>
+</div>
 
-<a href="{{adminPanelUrl}}" class="button">Go to Admin Panel</a>
+<!-- Quick Actions -->
+<div class="action-section" style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 24px 0;">
+    <h4 style="margin-top: 0; color: #1e40af;">🚀 Quick Actions</h4>
 
-<p style="margin-top: 16px;">
-    <small>You can also copy this link: <br>{{adminPanelUrl}}</small>
+    <div class="button-container" style="text-align: center; margin: 20px 0;">
+        <a href="{{adminPanelUrl}}/users/{{user.id}}" class="button"
+            style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 0 8px 8px 0; box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);">
+            👤 View User Profile
+        </a>
+
+        <a href="{{adminPanelUrl}}/users" class="button"
+            style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 0 8px 8px 0; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);">
+            ⚙️ Manage All Users
+        </a>
+    </div>
+</div>
+
+<!-- Reminder -->
+<div class="reminder"
+    style="border-left: 4px solid #3b82f6; background: #eff6ff; padding: 16px; margin: 24px 0; border-radius: 0 8px 8px 0;">
+    <p style="margin: 0; color: #1e40af;">
+        <strong>📝 Reminder:</strong> New users cannot access most platform features until a role is assigned.
+        Please process this request promptly to ensure a smooth user experience.
+    </p>
+</div>
+
+
+<p style="margin-top: 30px; color: #64748b;">
+    Best regards,<br>
+    <strong>Car Parts Shop System</strong>
 </p>
+
+<!-- Mobile Responsive Styles -->
+<style>
+    @media only screen and (max-width: 600px) {
+        .user-info-card div {
+            display: block !important;
+        }
+
+        .user-info-card span {
+            display: block !important;
+            margin-bottom: 4px;
+        }
+
+        .button-container a {
+            display: block !important;
+            margin: 8px 0 !important;
+            text-align: center;
+        }
+
+        .stats div {
+            flex-direction: column !important;
+            gap: 8px;
+        }
+    }
+</style>

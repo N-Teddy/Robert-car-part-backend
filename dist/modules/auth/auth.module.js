@@ -15,36 +15,34 @@ const config_1 = require("@nestjs/config");
 const auth_controller_1 = require("./auth.controller");
 const auth_service_1 = require("./auth.service");
 const jwt_strategy_1 = require("./strategies/jwt.strategy");
-const local_strategy_1 = require("./strategies/local.strategy");
 const user_entity_1 = require("../../entities/user.entity");
-const password_reset_token_entity_1 = require("../../entities/password-reset-token.entity");
-const audit_log_entity_1 = require("../../entities/audit-log.entity");
 const notification_module_1 = require("../notification/notification.module");
+const auditlog_module_1 = require("../auditLog/auditlog.module");
+const password_reset_token_entity_1 = require("../../entities/password-reset-token.entity");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
 exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, password_reset_token_entity_1.PasswordResetToken, audit_log_entity_1.AuditLog]),
-            passport_1.PassportModule,
+            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, password_reset_token_entity_1.PasswordResetToken]),
+            passport_1.PassportModule.register({ defaultStrategy: 'jwt' }),
             jwt_1.JwtModule.registerAsync({
                 imports: [config_1.ConfigModule],
-                inject: [config_1.ConfigService],
-                useFactory: (configService) => ({
+                useFactory: async (configService) => ({
                     secret: configService.get('jwt.secret'),
                     signOptions: {
                         expiresIn: configService.get('jwt.expiresIn'),
-                        issuer: configService.get('jwt.issuer'),
-                        audience: configService.get('jwt.audience'),
                     },
                 }),
+                inject: [config_1.ConfigService],
             }),
             notification_module_1.NotificationModule,
+            auditlog_module_1.AuditLogModule,
         ],
         controllers: [auth_controller_1.AuthController],
-        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, local_strategy_1.LocalStrategy],
-        exports: [auth_service_1.AuthService, jwt_1.JwtModule],
+        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy],
+        exports: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, passport_1.PassportModule],
     })
 ], AuthModule);
 //# sourceMappingURL=auth.module.js.map

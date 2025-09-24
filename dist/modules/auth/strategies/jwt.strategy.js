@@ -25,9 +25,7 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         super({
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            secretOrKey: configService.get('jwt.secret'),
-            issuer: configService.get('jwt.issuer'),
-            audience: configService.get('jwt.audience'),
+            secretOrKey: configService.get('JWT_SECRET'),
         });
         this.configService = configService;
         this.userRepository = userRepository;
@@ -35,10 +33,9 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
     async validate(payload) {
         const user = await this.userRepository.findOne({
             where: { id: payload.sub },
-            relations: ['profileImage'],
         });
-        if (!user) {
-            throw new common_1.UnauthorizedException('User not found');
+        if (!user || !user.isActive) {
+            throw new common_1.UnauthorizedException('User not found or inactive');
         }
         return {
             id: user.id,

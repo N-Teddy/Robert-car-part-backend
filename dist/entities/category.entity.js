@@ -13,11 +13,13 @@ exports.Category = void 0;
 const typeorm_1 = require("typeorm");
 const part_entity_1 = require("./part.entity");
 const base_entity_1 = require("./base.entity");
+const image_entity_1 = require("./image.entity");
 let Category = class Category extends base_entity_1.BaseEntity {
 };
 exports.Category = Category;
 __decorate([
     (0, typeorm_1.Column)(),
+    (0, typeorm_1.Index)(),
     __metadata("design:type", String)
 ], Category.prototype, "name", void 0);
 __decorate([
@@ -33,11 +35,24 @@ __decorate([
     __metadata("design:type", Category)
 ], Category.prototype, "parent", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => part_entity_1.Part, (part) => part.category),
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], Category.prototype, "parentId", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => part_entity_1.Part, (part) => part.category, { onDelete: 'CASCADE' }),
     __metadata("design:type", Array)
 ], Category.prototype, "parts", void 0);
+__decorate([
+    (0, typeorm_1.OneToOne)(() => image_entity_1.Image, (image) => image.category, {
+        nullable: true,
+        onDelete: 'SET NULL',
+        cascade: true,
+    }),
+    (0, typeorm_1.JoinColumn)(),
+    __metadata("design:type", image_entity_1.Image)
+], Category.prototype, "image", void 0);
 exports.Category = Category = __decorate([
     (0, typeorm_1.Entity)('categories'),
-    (0, typeorm_1.Tree)('nested-set')
+    (0, typeorm_1.Tree)('materialized-path')
 ], Category);
 //# sourceMappingURL=category.entity.js.map

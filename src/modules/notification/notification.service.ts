@@ -1,243 +1,468 @@
-import { Injectable, Logger, NotFoundException, ForbiddenException, InternalServerErrorException } from '@nestjs/common';
+import {
+	Injectable,
+	Logger,
+	BadRequestException,
+	NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as Handlebars from 'handlebars';
-
 import { Notification } from '../../entities/notification.entity';
 import { User } from '../../entities/user.entity';
-import { NotificationEnum, UserRoleEnum, NotificationAudienceEnum } from '../../common/enum/entity.enum';
+import { EmailService } from './email.service';
+import { NotificationGateway } from './notification.gateway';
+import {
+	CreateNotificationDto,
+	SendNotificationDto,
+	BatchSendNotificationDto,
+	MarkAsReadDto,
+	NotificationFilterDto,
+} from '../../dto/request/notification.dto';
+import {
+	NotificationResponseDto,
+	SendNotificationResultDto,
+	BatchSendResultDto,
+} from '../../dto/response/notification.dto';
+import {
+	NotificationEnum,
+	NotificationAudienceEnum,
+	NotificationChannelEnum,
+} from '../../common/enum/notification.enum';
+import { UserRoleEnum } from '../../common/enum/entity.enum';
 
 @Injectable()
 export class NotificationService {
-    private readonly logger = new Logger(NotificationService.name);
-    private transporter: nodemailer.Transporter;
+	private readonly logger = new Logger(NotificationService.name);
 
-    constructor(
-        @InjectRepository(Notification)
-        private readonly notificationRepository: Repository<Notification>,
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
-        private readonly configService: ConfigService,
-    ) {
-        this.transporter = nodemailer.createTransport({
-            host: this.configService.get<string>('email.host'),
-            port: this.configService.get<number>('email.port'),
-            secure: this.configService.get<boolean>('email.secure'),
-            auth: this.configService.get<boolean>('email.secure')
-                ? {
-                    user: this.configService.get<string>('email.user'),
-                    pass: this.configService.get<string>('email.pass'),
-                }
-                : undefined,
-        });
+	constructor(
+		@InjectRepository(Notification)
+		private readonly notificationRepository: Repository<Notification>,
+		@InjectRepository(User)
+		private readonly userRepository: Repository<User>,
+		private readonly emailService: EmailService,
+		private readonly notificationGateway: NotificationGateway
+	) {}
 
-        // Register Handlebars helpers to format dates in Handlebars:
-        Handlebars.registerHelper('formatDate', (date: Date) => {
-            return new Intl.DateTimeFormat('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }).format(new Date(date));
-        });
-    }
+	// Create a notification without sending
+	async createNotification(
+		dto: CreateNotificationDto
+	): Promise<NotificationResponseDto> {
+		const notification = this.notificationRepository.create({
+			type: dto.type,
+			title: dto.title,
+			message: dto.message,
+			metadata: dto.metadata,
+			user: dto.userId ? { id: dto.userId } : null,
+			createdBy: dto.userId,
+		});
 
-    private async getAudienceRecipients(audience: NotificationAudienceEnum) {
-        switch (audience) {
-            case NotificationAudienceEnum.ADMINS:
-                return this.userRepository.find({ where: { role: In([UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV]) } });
-            case NotificationAudienceEnum.ALL_EXCEPT_UNKNOWN:
-                return this.userRepository.find({ where: { role: In([UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV, UserRoleEnum.SALES, UserRoleEnum.CUSTOMER]) } });
-            case NotificationAudienceEnum.ALL:
-            default:
-                return this.userRepository.find();
-        }
-    }
+		const saved = await this.notificationRepository.save(notification);
+		return this.mapToResponseDto(saved);
+	}
 
-    async notifyAdminsOnNewUser(user: User) {
-        try {
-            const audience = NotificationAudienceEnum.ADMINS;
-            const recipients = await this.getAudienceRecipients(audience);
+	// Send notification to specific audience
+	async sendNotification(
+		dto: SendNotificationDto
+	): Promise<SendNotificationResultDto> {
+		const recipients = await this.getRecipients(dto.audience, dto.userIds);
 
-            if (recipients.length === 0) {
-                this.logger.warn('No recipients found for notification.');
-                return { notified: 0 };
-            }
+		if (recipients.length === 0) {
+			throw new BadRequestException(
+				'No recipients found for the specified audience'
+			);
+		}
 
-            const title = 'New User Registration - Role Assignment Required';
-            const adminPanelUrl = `${this.configService.get<string>('app.frontendUrl')}/admin/users`;
+		const result: SendNotificationResultDto = {
+			success: true,
+			totalRecipients: recipients.length,
+			emailsSent: 0,
+			emailsFailed: 0,
+			websocketsSent: 0,
+			notificationIds: [],
+			errors: [],
+		};
 
-            // Create a single broadcast notification (no user_id)
-            const notification = this.notificationRepository.create({
-                type: NotificationEnum.SYSTEM_ALERT,
-                title,
-                message: `${user.fullName || user.email} registered and is awaiting role assignment.`,
-                audience,
-                metadata: {
-                    newUserId: user.id,
-                    email: user.email,
-                    fullName: user.fullName,
-                    adminPanelUrl
-                },
-            });
-            const savedNotification = await this.notificationRepository.save(notification);
+		// Create notifications for each recipient
+		const notifications: Notification[] = [];
+		for (const user of recipients) {
+			const notification = this.notificationRepository.create({
+				type: dto.type,
+				title: dto.title,
+				message: dto.message,
+				metadata: dto.metadata,
+				user: { id: user.id },
+				emailSent: false,
+			});
+			notifications.push(notification);
+		}
 
-            // Send emails to all recipients
-            await Promise.all(
-                recipients.map(async (recipient) => {
-                    try {
-                        const html = this.renderTemplate('notify-admin-new-user', {
-                            user: {
-                                id: user.id,
-                                email: user.email,
-                                fullName: user.fullName || 'Not provided',
-                                createdAt: user.createdAt
-                            },
-                            adminPanelUrl,
-                            title: 'New User Registration'
-                        });
+		const savedNotifications =
+			await this.notificationRepository.save(notifications);
+		result.notificationIds = savedNotifications.map((n) => n.id);
 
-                        await this.sendEmail({
-                            to: recipient.email,
-                            subject: title,
-                            html,
-                        });
-                    } catch (err) {
-                        this.logger.error(`Failed to email ${recipient.email}: ${err.message}`);
-                    }
-                }),
-            );
+		// Send via WebSocket if enabled
+		if (
+			dto.channel === NotificationChannelEnum.WEBSOCKET ||
+			dto.channel === NotificationChannelEnum.BOTH
+		) {
+			for (const notification of savedNotifications) {
+				try {
+					const notificationData =
+						this.mapToResponseDto(notification);
+					this.notificationGateway.sendToUser(
+						notification.user!.id,
+						notificationData
+					);
+					result.websocketsSent++;
+				} catch (error) {
+					this.logger.error(
+						`Failed to send WebSocket notification to user ${notification.user!.id}:`,
+						error
+					);
+					result.errors?.push(
+						`WebSocket failed for user ${notification.user!.id}`
+					);
+				}
+			}
+		}
 
-            // Mark the broadcast notification as emailed
-            savedNotification.emailSent = true;
-            await this.notificationRepository.save(savedNotification);
+		// Send via Email if enabled
+		if (
+			dto.channel === NotificationChannelEnum.EMAIL ||
+			dto.channel === NotificationChannelEnum.BOTH
+		) {
+			const template =
+				dto.emailTemplate ||
+				this.emailService.getTemplateForNotificationType(dto.type);
 
-            return { notified: recipients.length };
-        } catch (err) {
-            this.logger.error('Failed to notify admins on new user', err?.stack || String(err));
-            throw new InternalServerErrorException('Failed to send notifications');
-        }
-    }
+			for (const notification of savedNotifications) {
+				const user = recipients.find(
+					(r) => r.id === notification.user!.id
+				);
+				if (!user?.email) continue;
 
-    async getUserNotifications(userId: string) {
-        try {
-            // Fetch notifications that target the user's role via audience OR are specific to the user
-            const user = await this.userRepository.findOne({ where: { id: userId } });
-            if (!user) return [];
-            const visibleAudiences = [NotificationAudienceEnum.ALL, NotificationAudienceEnum.ALL_EXCEPT_UNKNOWN];
-            if ([UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV].includes(user.role)) {
-                visibleAudiences.push(NotificationAudienceEnum.ADMINS);
-            }
-            return await this.notificationRepository.find({
-                where: [
-                    { audience: In(visibleAudiences) as any },
-                    { user: { id: userId } as any },
-                ] as any,
-                order: { createdAt: 'DESC' as any },
-            });
-        } catch (err) {
-            throw new InternalServerErrorException('Failed to fetch notifications');
-        }
-    }
+				const emailContext = {
+					title: dto.title,
+					message: dto.message,
+					userName: `${user.fullName}`.trim() || user.email,
+					userEmail: user.email,
+					metadata: dto.metadata,
+					notificationId: notification.id,
+					actionUrl: this.getActionUrl(dto.type, dto.metadata),
+				};
 
-    async getUnreadCount(userId: string) {
-        try {
-            const notifications = await this.getUserNotifications(userId);
-            const count = notifications.filter((n) => !n.isRead).length;
-            return { count };
-        } catch (err) {
-            throw new InternalServerErrorException('Failed to count unread notifications');
-        }
-    }
+				const emailSent = await this.emailService.sendEmail({
+					to: user.email,
+					subject: dto.title,
+					template,
+					context: emailContext,
+				});
 
-    async markAsRead(notificationId: string, userId: string) {
-        try {
-            const notification = await this.notificationRepository.findOne({
-                where: { id: notificationId },
-                relations: ['user'],
-                select: {
-                    id: true,
-                    isRead: true,
-                    user: { id: true } as any,
-                } as any,
-            });
-            if (!notification) {
-                throw new NotFoundException('Notification not found');
-            }
-            // Broadcast notifications have no user; allow any recipient to mark as read client-side if desired.
-            if (notification.user && notification.user.id !== userId) {
-                throw new ForbiddenException('Cannot modify others\' notifications');
-            }
-            if (!notification.isRead) {
-                await this.notificationRepository.update({ id: notification.id }, { isRead: true });
-            }
-            return { message: 'Notification marked as read' };
-        } catch (err) {
-            if (err instanceof NotFoundException || err instanceof ForbiddenException) {
-                throw err;
-            }
-            // throw new InternalServerErrorException('Failed to mark notification as read');
-            throw err
-        }
-    }
+				if (emailSent) {
+					result.emailsSent++;
+					// Update notification to mark email as sent
+					await this.notificationRepository.update(notification.id, {
+						emailSent: true,
+					});
+				} else {
+					result.emailsFailed++;
+					result.errors?.push(`Email failed for user ${user.email}`);
+				}
+			}
+		}
 
-    async sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
-        const fromName = this.configService.get<string>('email.defaultFromName');
-        const fromEmail = this.configService.get<string>('email.defaultFromEmail');
+		result.success =
+			result.emailsFailed === 0 &&
+			(!result.errors || result.errors.length === 0);
+		return result;
+	}
 
-        const info = await this.transporter.sendMail({
-            from: `${fromName} <${fromEmail}>`,
-            to,
-            subject,
-            html,
-        });
+	// Batch send notifications
+	async batchSendNotifications(
+		dto: BatchSendNotificationDto
+	): Promise<BatchSendResultDto> {
+		const results: SendNotificationResultDto[] = [];
+		let successfulBatches = 0;
+		let failedBatches = 0;
 
-        this.logger.log(`Email sent: ${info.messageId}`);
-        return info;
-    }
+		for (const notification of dto.notifications) {
+			try {
+				const result = await this.sendNotification(notification);
+				results.push(result);
+				if (result.success) {
+					successfulBatches++;
+				} else {
+					failedBatches++;
+				}
+			} catch (error) {
+				this.logger.error('Failed to send batch notification:', error);
+				failedBatches++;
+				results.push({
+					success: false,
+					totalRecipients: 0,
+					emailsSent: 0,
+					emailsFailed: 0,
+					websocketsSent: 0,
+					notificationIds: [],
+					errors: [error.message],
+				});
+			}
+		}
 
-    private renderTemplate(templateName: string, context: any) {
-        const templateDir = this.configService.get<string>('email.templateDir') || 'templates/email';
-        const layoutPath = path.resolve(templateDir, 'layout.hbs');
-        const templatePath = path.resolve(templateDir, `${templateName}.hbs`);
+		return {
+			totalBatches: dto.notifications.length,
+			successfulBatches,
+			failedBatches,
+			results,
+		};
+	}
 
-        const layoutSrc = fs.readFileSync(layoutPath, 'utf8');
-        const templateSrc = fs.readFileSync(templatePath, 'utf8');
+	// Mark notifications as read
+	async markAsRead(dto: MarkAsReadDto, userId: string): Promise<void> {
+		const notifications = await this.notificationRepository.find({
+			where: {
+				id: In(dto.notificationIds),
+				user: { id: userId },
+			},
+		});
 
-        // Support partial-like layout injection
-        const layout = Handlebars.compile(layoutSrc);
-        const content = Handlebars.compile(templateSrc)(context);
+		if (notifications.length === 0) {
+			throw new BadRequestException(
+				'No notifications found to mark as read'
+			);
+		}
 
-        return layout({ title: context.title || 'Car Parts Shop', body: content });
-    }
+		await this.notificationRepository.update(
+			{ id: In(notifications.map((n) => n.id)) },
+			{ isRead: true }
+		);
 
-    async sendPasswordResetEmail(to: string, resetLink: string) {
-        const html = this.renderTemplate('password-reset', { resetLink });
-        return this.sendEmail({ to, subject: 'Password Reset Request', html });
-    }
+		// Notify via WebSocket
+		for (const notification of notifications) {
+			this.notificationGateway.sendToUser(userId, {
+				event: 'notificationRead',
+				notificationId: notification.id,
+			});
+		}
+	}
 
-    async sendWelcomePendingRoleEmail(to: string, fullName?: string) {
-        const html = this.renderTemplate('welcome-pending-role', { name: fullName || 'there' });
-        return this.sendEmail({ to, subject: 'Welcome - Pending Role Assignment', html });
-    }
+	// Get notifications with filters
+	async getNotifications(filter: NotificationFilterDto): Promise<any> {
+		const { page = 1, limit = 20, ...restFilter } = filter;
+		const skip = (page - 1) * limit;
 
-    async sendPasswordResetConfirmationEmail(to: string) {
-        const html = this.renderTemplate('password-reset-confirm', {});
-        return this.sendEmail({ to, subject: 'Your password has been reset', html });
-    }
+		const query = this.notificationRepository
+			.createQueryBuilder('notification')
+			.leftJoinAndSelect('notification.user', 'user');
 
-    async sendPasswordChangeConfirmationEmail(to: string) {
-        const html = this.renderTemplate('password-change-confirm', {});
-        return this.sendEmail({ to, subject: 'Your password has been changed', html });
-    }
+		// Apply filters
+		if (restFilter.type) {
+			query.andWhere('notification.type = :type', {
+				type: restFilter.type,
+			});
+		}
 
-    async sendRoleAssignedEmail(to: string, role: string) {
-        const html = this.renderTemplate('role-assigned', { role });
-        return this.sendEmail({ to, subject: 'Your role has been updated', html });
-    }
+		if (restFilter.isRead !== undefined) {
+			query.andWhere('notification.isRead = :isRead', {
+				isRead: restFilter.isRead,
+			});
+		}
+
+		if (restFilter.userId) {
+			query.andWhere('notification.user.id = :userId', {
+				userId: restFilter.userId,
+			});
+		}
+
+		if (restFilter.search) {
+			query.andWhere(
+				'(notification.title ILIKE :search OR notification.message ILIKE :search)',
+				{ search: `%${restFilter.search}%` }
+			);
+		}
+
+		// Get total count for pagination
+		const total = await query.getCount();
+
+		// Apply pagination
+		query.orderBy('notification.createdAt', 'DESC').skip(skip).take(limit);
+
+		const notifications = await query.getMany();
+
+		// Calculate pagination metadata
+		const totalPages = Math.ceil(total / limit);
+		const hasNext = page < totalPages;
+		const hasPrev = page > 1;
+
+		// Return in the format expected by the interceptor
+		return {
+			items: notifications.map((n) => this.mapToResponseDto(n)),
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext,
+			hasPrev,
+		};
+	}
+
+	// Get unread count for a user
+	async getUnreadCount(userId: string): Promise<number> {
+		return this.notificationRepository.count({
+			where: {
+				user: { id: userId },
+				isRead: false,
+			},
+		});
+	}
+
+	// Delete old notifications (cleanup job)
+	async deleteOldNotifications(daysToKeep: number = 30): Promise<number> {
+		const cutoffDate = new Date();
+		cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+
+		const result = await this.notificationRepository
+			.createQueryBuilder()
+			.delete()
+			.where('createdAt < :cutoffDate', { cutoffDate })
+			.andWhere('isRead = :isRead', { isRead: true })
+			.execute();
+
+		this.logger.log(`Deleted ${result.affected} old notifications`);
+		return result.affected || 0;
+	}
+
+	// Get notification by ID with permission check
+	async getNotificationById(
+		id: string,
+		userId: string
+	): Promise<NotificationResponseDto> {
+		const notification = await this.notificationRepository.findOne({
+			where: { id },
+			relations: ['user'],
+		});
+
+		if (!notification) {
+			throw new NotFoundException(`Notification with ID ${id} not found`);
+		}
+
+		// Check if user has permission to view this notification
+		if (notification.user && notification.user.id !== userId) {
+			// Check if user is admin or manager
+			const user = await this.userRepository.findOne({
+				where: { id: userId },
+			});
+			if (
+				!user ||
+				(user.role !== UserRoleEnum.ADMIN &&
+					user.role !== UserRoleEnum.MANAGER)
+			) {
+				throw new BadRequestException(
+					'You do not have permission to view this notification'
+				);
+			}
+		}
+
+		return this.mapToResponseDto(notification);
+	}
+
+	// Private helper methods
+	private async getRecipients(
+		audience: NotificationAudienceEnum,
+		userIds?: string[]
+	): Promise<User[]> {
+		let query = this.userRepository.createQueryBuilder('user');
+
+		switch (audience) {
+			case NotificationAudienceEnum.ALL:
+				// All active users
+				query = query.where('user.isActive = :isActive', {
+					isActive: true,
+				});
+				break;
+
+			case NotificationAudienceEnum.ADMIN:
+				// DEV, MANAGER, ADMIN
+				query = query.where('user.role IN (:...roles)', {
+					roles: [
+						UserRoleEnum.DEV,
+						UserRoleEnum.MANAGER,
+						UserRoleEnum.ADMIN,
+					],
+				});
+				break;
+
+			case NotificationAudienceEnum.MANAGER:
+				// MANAGER and above
+				query = query.where('user.role IN (:...roles)', {
+					roles: [UserRoleEnum.MANAGER, UserRoleEnum.ADMIN],
+				});
+				break;
+
+			case NotificationAudienceEnum.STAFF:
+				// STAFF and above
+				query = query.where('user.role IN (:...roles)', {
+					roles: [
+						UserRoleEnum.STAFF,
+						UserRoleEnum.MANAGER,
+						UserRoleEnum.ADMIN,
+					],
+				});
+				break;
+
+			case NotificationAudienceEnum.SPECIFIC_USER:
+				if (!userIds || userIds.length === 0) {
+					throw new BadRequestException(
+						'User IDs required for SPECIFIC_USER audience'
+					);
+				}
+				query = query.where('user.id IN (:...userIds)', { userIds });
+				break;
+		}
+
+		return query.getMany();
+	}
+
+	private getActionUrl(
+		type: NotificationEnum,
+		metadata?: Record<string, any>
+	): string {
+		const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+		switch (type) {
+			case NotificationEnum.PASSWORD_RESET:
+				return `${baseUrl}/reset-password?token=${metadata?.resetToken}`;
+			case NotificationEnum.ACCOUNT_VERIFIED:
+				return `${baseUrl}/login`;
+			case NotificationEnum.VEHICLE_CREATED:
+			case NotificationEnum.VEHICLE_UPDATED:
+				return `${baseUrl}/vehicles/${metadata?.vehicleId}`;
+			case NotificationEnum.PART_CREATED:
+			case NotificationEnum.PART_UPDATED:
+				return `${baseUrl}/parts/${metadata?.partId}`;
+			case NotificationEnum.ORDER_CREATED:
+			case NotificationEnum.ORDER_UPDATED:
+				return `${baseUrl}/orders/${metadata?.orderId}`;
+			case NotificationEnum.REPORT_READY:
+				return `${baseUrl}/reports/${metadata?.reportId}`;
+			default:
+				return `${baseUrl}/notifications`;
+		}
+	}
+
+	private mapToResponseDto(
+		notification: Notification
+	): NotificationResponseDto {
+		return {
+			id: notification.id,
+			type: notification.type,
+			title: notification.title,
+			message: notification.message,
+			isRead: notification.isRead,
+			metadata: notification.metadata,
+			userId: notification.user?.id,
+			emailSent: notification.emailSent,
+			createdAt: notification.createdAt,
+			updatedAt: notification.updatedAt,
+		};
+	}
 }

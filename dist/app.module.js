@@ -15,8 +15,6 @@ const core_1 = require("@nestjs/core");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const supabase_service_1 = require("./common/services/supabase.service");
-const auth_module_1 = require("./modules/auth/auth.module");
-const notification_module_1 = require("./modules/notification/notification.module");
 const user_entity_1 = require("./entities/user.entity");
 const password_reset_token_entity_1 = require("./entities/password-reset-token.entity");
 const vehicle_entity_1 = require("./entities/vehicle.entity");
@@ -34,6 +32,22 @@ const app_config_1 = require("./config/app.config");
 const supabase_config_1 = require("./config/supabase.config");
 const jwt_config_1 = require("./config/jwt.config");
 const email_config_1 = require("./config/email.config");
+const response_interceptor_1 = require("./common/interceptor/response.interceptor");
+const auditLog_interceptor_1 = require("./common/interceptor/auditLog.interceptor");
+const auditlog_module_1 = require("./modules/auditLog/auditlog.module");
+const upload_module_1 = require("./modules/upload/upload.module");
+const qr_code_entity_1 = require("./entities/qr-code.entity");
+const notification_module_1 = require("./modules/notification/notification.module");
+const auth_module_1 = require("./modules/auth/auth.module");
+const user_module_1 = require("./modules/user/user.module");
+const seed_module_1 = require("./seed/seed.module");
+const auth_config_1 = require("./config/auth.config");
+const category_module_1 = require("./modules/category/category.module");
+const vehicle_module_1 = require("./modules/vehicle/vehicle.module");
+const part_module_1 = require("./modules/part/part.module");
+const order_module_1 = require("./modules/order/order.module");
+const report_module_1 = require("./modules/report/report.module");
+const health_module_1 = require("./health/health.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -43,13 +57,30 @@ exports.AppModule = AppModule = __decorate([
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
                 envFilePath: '.env',
-                load: [database_config_1.default, app_config_1.default, supabase_config_1.default, jwt_config_1.default, email_config_1.default],
+                load: [
+                    database_config_1.default,
+                    app_config_1.default,
+                    supabase_config_1.default,
+                    jwt_config_1.default,
+                    email_config_1.default,
+                    auth_config_1.default,
+                ],
             }),
+            auditlog_module_1.AuditLogModule,
+            upload_module_1.UploadModule,
+            notification_module_1.NotificationModule,
+            auth_module_1.AuthModule,
+            user_module_1.UserModule,
+            seed_module_1.SeedModule,
+            category_module_1.CategoryModule,
+            vehicle_module_1.VehicleModule,
+            part_module_1.PartModule,
+            order_module_1.OrdersModule,
+            report_module_1.ReportModule,
             typeorm_1.TypeOrmModule.forRootAsync({
-                imports: [config_1.ConfigModule],
                 inject: [config_1.ConfigService],
                 useFactory: (configService) => {
-                    const isProduction = process.env.NODE_ENV === 'production';
+                    const isProduction = process.env.NODE_ENV === 'development';
                     let connectionOptions;
                     if (isProduction) {
                         const supabaseDbUrl = configService.get('supabase.databaseUrl');
@@ -62,8 +93,22 @@ exports.AppModule = AppModule = __decorate([
                             ssl: {
                                 rejectUnauthorized: false,
                             },
-                            synchronize: false,
-                            entities: [user_entity_1.User, password_reset_token_entity_1.PasswordResetToken, vehicle_entity_1.Vehicle, vehicle_profit_entity_1.VehicleProfit, part_entity_1.Part, category_entity_1.Category, order_entity_1.Order, order_item_entity_1.OrderItem, report_entity_1.Report, notification_entity_1.Notification, image_entity_1.Image, audit_log_entity_1.AuditLog],
+                            synchronize: true,
+                            entities: [
+                                user_entity_1.User,
+                                password_reset_token_entity_1.PasswordResetToken,
+                                vehicle_entity_1.Vehicle,
+                                vehicle_profit_entity_1.VehicleProfit,
+                                part_entity_1.Part,
+                                category_entity_1.Category,
+                                order_entity_1.Order,
+                                order_item_entity_1.OrderItem,
+                                report_entity_1.Report,
+                                notification_entity_1.Notification,
+                                image_entity_1.Image,
+                                audit_log_entity_1.AuditLog,
+                                qr_code_entity_1.QrCode,
+                            ],
                         };
                     }
                     else {
@@ -75,7 +120,21 @@ exports.AppModule = AppModule = __decorate([
                             username: db.username,
                             password: db.password,
                             database: db.database,
-                            entities: [user_entity_1.User, password_reset_token_entity_1.PasswordResetToken, vehicle_entity_1.Vehicle, vehicle_profit_entity_1.VehicleProfit, part_entity_1.Part, category_entity_1.Category, order_entity_1.Order, order_item_entity_1.OrderItem, report_entity_1.Report, notification_entity_1.Notification, image_entity_1.Image, audit_log_entity_1.AuditLog],
+                            entities: [
+                                user_entity_1.User,
+                                password_reset_token_entity_1.PasswordResetToken,
+                                vehicle_entity_1.Vehicle,
+                                vehicle_profit_entity_1.VehicleProfit,
+                                part_entity_1.Part,
+                                category_entity_1.Category,
+                                order_entity_1.Order,
+                                order_item_entity_1.OrderItem,
+                                report_entity_1.Report,
+                                notification_entity_1.Notification,
+                                image_entity_1.Image,
+                                audit_log_entity_1.AuditLog,
+                                qr_code_entity_1.QrCode,
+                            ],
                             synchronize: true,
                             ssl: false,
                             extra: {
@@ -99,8 +158,7 @@ exports.AppModule = AppModule = __decorate([
                     ];
                 },
             }),
-            auth_module_1.AuthModule,
-            notification_module_1.NotificationModule,
+            health_module_1.HealthModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
@@ -109,6 +167,14 @@ exports.AppModule = AppModule = __decorate([
             {
                 provide: core_1.APP_GUARD,
                 useClass: throttler_1.ThrottlerGuard,
+            },
+            {
+                provide: core_1.APP_INTERCEPTOR,
+                useClass: response_interceptor_1.ResponseInterceptor,
+            },
+            {
+                provide: core_1.APP_INTERCEPTOR,
+                useClass: auditLog_interceptor_1.AuditLogInterceptor,
             },
         ],
     })

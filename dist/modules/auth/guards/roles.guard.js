@@ -12,20 +12,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RolesGuard = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
+const entity_enum_1 = require("../../../common/enum/entity.enum");
+const roles_decorator_1 = require("../../../common/decorator/roles.decorator");
 let RolesGuard = class RolesGuard {
     constructor(reflector) {
         this.reflector = reflector;
     }
     canActivate(context) {
-        const requiredRoles = this.reflector.getAllAndOverride('roles', [
-            context.getHandler(),
-            context.getClass(),
-        ]);
+        const requiredRoles = this.reflector.getAllAndOverride(roles_decorator_1.ROLES_KEY, [context.getHandler(), context.getClass()]);
         if (!requiredRoles) {
             return true;
         }
         const { user } = context.switchToHttp().getRequest();
-        return requiredRoles.some((role) => user.role === role);
+        if (!user) {
+            throw new common_1.ForbiddenException('User not found in request');
+        }
+        if (user.role === entity_enum_1.UserRoleEnum.UNKNOWN) {
+            throw new common_1.ForbiddenException('Your account is pending role assignment. Please contact an administrator.');
+        }
+        const hasRole = requiredRoles.some((role) => user.role === role);
+        if (!hasRole) {
+            throw new common_1.ForbiddenException(`This resource requires one of the following roles: ${requiredRoles.join(', ')}`);
+        }
+        return true;
     }
 };
 exports.RolesGuard = RolesGuard;

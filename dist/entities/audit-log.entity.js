@@ -38,13 +38,17 @@ __decorate([
     __metadata("design:type", String)
 ], AuditLog.prototype, "route", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], AuditLog.prototype, "userId", void 0);
-__decorate([
     (0, typeorm_1.Column)({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' }),
     __metadata("design:type", Date)
 ], AuditLog.prototype, "timestamp", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "ipAddress", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], AuditLog.prototype, "userAgent", void 0);
 exports.AuditLog = AuditLog = __decorate([
     (0, typeorm_1.Entity)('audit_logs')
 ], AuditLog);

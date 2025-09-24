@@ -17,207 +17,323 @@ exports.NotificationService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const config_1 = require("@nestjs/config");
-const nodemailer = require("nodemailer");
-const fs = require("fs");
-const path = require("path");
-const Handlebars = require("handlebars");
 const notification_entity_1 = require("../../entities/notification.entity");
 const user_entity_1 = require("../../entities/user.entity");
+const email_service_1 = require("./email.service");
+const notification_gateway_1 = require("./notification.gateway");
+const notification_enum_1 = require("../../common/enum/notification.enum");
 const entity_enum_1 = require("../../common/enum/entity.enum");
 let NotificationService = NotificationService_1 = class NotificationService {
-    constructor(notificationRepository, userRepository, configService) {
+    constructor(notificationRepository, userRepository, emailService, notificationGateway) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
-        this.configService = configService;
+        this.emailService = emailService;
+        this.notificationGateway = notificationGateway;
         this.logger = new common_1.Logger(NotificationService_1.name);
-        this.transporter = nodemailer.createTransport({
-            host: this.configService.get('email.host'),
-            port: this.configService.get('email.port'),
-            secure: this.configService.get('email.secure'),
-            auth: this.configService.get('email.secure')
-                ? {
-                    user: this.configService.get('email.user'),
-                    pass: this.configService.get('email.pass'),
-                }
-                : undefined,
-        });
-        Handlebars.registerHelper('formatDate', (date) => {
-            return new Intl.DateTimeFormat('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }).format(new Date(date));
-        });
     }
-    async getAudienceRecipients(audience) {
-        switch (audience) {
-            case entity_enum_1.NotificationAudienceEnum.ADMINS:
-                return this.userRepository.find({ where: { role: (0, typeorm_2.In)([entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV]) } });
-            case entity_enum_1.NotificationAudienceEnum.ALL_EXCEPT_UNKNOWN:
-                return this.userRepository.find({ where: { role: (0, typeorm_2.In)([entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV, entity_enum_1.UserRoleEnum.SALES, entity_enum_1.UserRoleEnum.CUSTOMER]) } });
-            case entity_enum_1.NotificationAudienceEnum.ALL:
-            default:
-                return this.userRepository.find();
+    async createNotification(dto) {
+        const notification = this.notificationRepository.create({
+            type: dto.type,
+            title: dto.title,
+            message: dto.message,
+            metadata: dto.metadata,
+            user: dto.userId ? { id: dto.userId } : null,
+            createdBy: dto.userId,
+        });
+        const saved = await this.notificationRepository.save(notification);
+        return this.mapToResponseDto(saved);
+    }
+    async sendNotification(dto) {
+        const recipients = await this.getRecipients(dto.audience, dto.userIds);
+        if (recipients.length === 0) {
+            throw new common_1.BadRequestException('No recipients found for the specified audience');
         }
-    }
-    async notifyAdminsOnNewUser(user) {
-        try {
-            const audience = entity_enum_1.NotificationAudienceEnum.ADMINS;
-            const recipients = await this.getAudienceRecipients(audience);
-            if (recipients.length === 0) {
-                this.logger.warn('No recipients found for notification.');
-                return { notified: 0 };
-            }
-            const title = 'New User Registration - Role Assignment Required';
-            const adminPanelUrl = `${this.configService.get('app.frontendUrl')}/admin/users`;
+        const result = {
+            success: true,
+            totalRecipients: recipients.length,
+            emailsSent: 0,
+            emailsFailed: 0,
+            websocketsSent: 0,
+            notificationIds: [],
+            errors: [],
+        };
+        const notifications = [];
+        for (const user of recipients) {
             const notification = this.notificationRepository.create({
-                type: entity_enum_1.NotificationEnum.SYSTEM_ALERT,
-                title,
-                message: `${user.fullName || user.email} registered and is awaiting role assignment.`,
-                audience,
-                metadata: {
-                    newUserId: user.id,
-                    email: user.email,
-                    fullName: user.fullName,
-                    adminPanelUrl
-                },
+                type: dto.type,
+                title: dto.title,
+                message: dto.message,
+                metadata: dto.metadata,
+                user: { id: user.id },
+                emailSent: false,
             });
-            const savedNotification = await this.notificationRepository.save(notification);
-            await Promise.all(recipients.map(async (recipient) => {
-                try {
-                    const html = this.renderTemplate('notify-admin-new-user', {
-                        user: {
-                            id: user.id,
-                            email: user.email,
-                            fullName: user.fullName || 'Not provided',
-                            createdAt: user.createdAt
-                        },
-                        adminPanelUrl,
-                        title: 'New User Registration'
-                    });
-                    await this.sendEmail({
-                        to: recipient.email,
-                        subject: title,
-                        html,
-                    });
-                }
-                catch (err) {
-                    this.logger.error(`Failed to email ${recipient.email}: ${err.message}`);
-                }
-            }));
-            savedNotification.emailSent = true;
-            await this.notificationRepository.save(savedNotification);
-            return { notified: recipients.length };
+            notifications.push(notification);
         }
-        catch (err) {
-            this.logger.error('Failed to notify admins on new user', err?.stack || String(err));
-            throw new common_1.InternalServerErrorException('Failed to send notifications');
+        const savedNotifications = await this.notificationRepository.save(notifications);
+        result.notificationIds = savedNotifications.map((n) => n.id);
+        if (dto.channel === notification_enum_1.NotificationChannelEnum.WEBSOCKET ||
+            dto.channel === notification_enum_1.NotificationChannelEnum.BOTH) {
+            for (const notification of savedNotifications) {
+                try {
+                    const notificationData = this.mapToResponseDto(notification);
+                    this.notificationGateway.sendToUser(notification.user.id, notificationData);
+                    result.websocketsSent++;
+                }
+                catch (error) {
+                    this.logger.error(`Failed to send WebSocket notification to user ${notification.user.id}:`, error);
+                    result.errors?.push(`WebSocket failed for user ${notification.user.id}`);
+                }
+            }
+        }
+        if (dto.channel === notification_enum_1.NotificationChannelEnum.EMAIL ||
+            dto.channel === notification_enum_1.NotificationChannelEnum.BOTH) {
+            const template = dto.emailTemplate ||
+                this.emailService.getTemplateForNotificationType(dto.type);
+            for (const notification of savedNotifications) {
+                const user = recipients.find((r) => r.id === notification.user.id);
+                if (!user?.email)
+                    continue;
+                const emailContext = {
+                    title: dto.title,
+                    message: dto.message,
+                    userName: `${user.fullName}`.trim() || user.email,
+                    userEmail: user.email,
+                    metadata: dto.metadata,
+                    notificationId: notification.id,
+                    actionUrl: this.getActionUrl(dto.type, dto.metadata),
+                };
+                const emailSent = await this.emailService.sendEmail({
+                    to: user.email,
+                    subject: dto.title,
+                    template,
+                    context: emailContext,
+                });
+                if (emailSent) {
+                    result.emailsSent++;
+                    await this.notificationRepository.update(notification.id, {
+                        emailSent: true,
+                    });
+                }
+                else {
+                    result.emailsFailed++;
+                    result.errors?.push(`Email failed for user ${user.email}`);
+                }
+            }
+        }
+        result.success =
+            result.emailsFailed === 0 &&
+                (!result.errors || result.errors.length === 0);
+        return result;
+    }
+    async batchSendNotifications(dto) {
+        const results = [];
+        let successfulBatches = 0;
+        let failedBatches = 0;
+        for (const notification of dto.notifications) {
+            try {
+                const result = await this.sendNotification(notification);
+                results.push(result);
+                if (result.success) {
+                    successfulBatches++;
+                }
+                else {
+                    failedBatches++;
+                }
+            }
+            catch (error) {
+                this.logger.error('Failed to send batch notification:', error);
+                failedBatches++;
+                results.push({
+                    success: false,
+                    totalRecipients: 0,
+                    emailsSent: 0,
+                    emailsFailed: 0,
+                    websocketsSent: 0,
+                    notificationIds: [],
+                    errors: [error.message],
+                });
+            }
+        }
+        return {
+            totalBatches: dto.notifications.length,
+            successfulBatches,
+            failedBatches,
+            results,
+        };
+    }
+    async markAsRead(dto, userId) {
+        const notifications = await this.notificationRepository.find({
+            where: {
+                id: (0, typeorm_2.In)(dto.notificationIds),
+                user: { id: userId },
+            },
+        });
+        if (notifications.length === 0) {
+            throw new common_1.BadRequestException('No notifications found to mark as read');
+        }
+        await this.notificationRepository.update({ id: (0, typeorm_2.In)(notifications.map((n) => n.id)) }, { isRead: true });
+        for (const notification of notifications) {
+            this.notificationGateway.sendToUser(userId, {
+                event: 'notificationRead',
+                notificationId: notification.id,
+            });
         }
     }
-    async getUserNotifications(userId) {
-        try {
-            const user = await this.userRepository.findOne({ where: { id: userId } });
-            if (!user)
-                return [];
-            const visibleAudiences = [entity_enum_1.NotificationAudienceEnum.ALL, entity_enum_1.NotificationAudienceEnum.ALL_EXCEPT_UNKNOWN];
-            if ([entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV].includes(user.role)) {
-                visibleAudiences.push(entity_enum_1.NotificationAudienceEnum.ADMINS);
-            }
-            return await this.notificationRepository.find({
-                where: [
-                    { audience: (0, typeorm_2.In)(visibleAudiences) },
-                    { user: { id: userId } },
-                ],
-                order: { createdAt: 'DESC' },
+    async getNotifications(filter) {
+        const { page = 1, limit = 20, ...restFilter } = filter;
+        const skip = (page - 1) * limit;
+        const query = this.notificationRepository
+            .createQueryBuilder('notification')
+            .leftJoinAndSelect('notification.user', 'user');
+        if (restFilter.type) {
+            query.andWhere('notification.type = :type', {
+                type: restFilter.type,
             });
         }
-        catch (err) {
-            throw new common_1.InternalServerErrorException('Failed to fetch notifications');
+        if (restFilter.isRead !== undefined) {
+            query.andWhere('notification.isRead = :isRead', {
+                isRead: restFilter.isRead,
+            });
         }
+        if (restFilter.userId) {
+            query.andWhere('notification.user.id = :userId', {
+                userId: restFilter.userId,
+            });
+        }
+        if (restFilter.search) {
+            query.andWhere('(notification.title ILIKE :search OR notification.message ILIKE :search)', { search: `%${restFilter.search}%` });
+        }
+        const total = await query.getCount();
+        query.orderBy('notification.createdAt', 'DESC').skip(skip).take(limit);
+        const notifications = await query.getMany();
+        const totalPages = Math.ceil(total / limit);
+        const hasNext = page < totalPages;
+        const hasPrev = page > 1;
+        return {
+            items: notifications.map((n) => this.mapToResponseDto(n)),
+            total,
+            page,
+            limit,
+            totalPages,
+            hasNext,
+            hasPrev,
+        };
     }
     async getUnreadCount(userId) {
-        try {
-            const notifications = await this.getUserNotifications(userId);
-            const count = notifications.filter((n) => !n.isRead).length;
-            return { count };
-        }
-        catch (err) {
-            throw new common_1.InternalServerErrorException('Failed to count unread notifications');
-        }
-    }
-    async markAsRead(notificationId, userId) {
-        try {
-            const notification = await this.notificationRepository.findOne({
-                where: { id: notificationId },
-                relations: ['user'],
-                select: {
-                    id: true,
-                    isRead: true,
-                    user: { id: true },
-                },
-            });
-            if (!notification) {
-                throw new common_1.NotFoundException('Notification not found');
-            }
-            if (notification.user && notification.user.id !== userId) {
-                throw new common_1.ForbiddenException('Cannot modify others\' notifications');
-            }
-            if (!notification.isRead) {
-                await this.notificationRepository.update({ id: notification.id }, { isRead: true });
-            }
-            return { message: 'Notification marked as read' };
-        }
-        catch (err) {
-            if (err instanceof common_1.NotFoundException || err instanceof common_1.ForbiddenException) {
-                throw err;
-            }
-            throw err;
-        }
-    }
-    async sendEmail({ to, subject, html }) {
-        const fromName = this.configService.get('email.defaultFromName');
-        const fromEmail = this.configService.get('email.defaultFromEmail');
-        const info = await this.transporter.sendMail({
-            from: `${fromName} <${fromEmail}>`,
-            to,
-            subject,
-            html,
+        return this.notificationRepository.count({
+            where: {
+                user: { id: userId },
+                isRead: false,
+            },
         });
-        this.logger.log(`Email sent: ${info.messageId}`);
-        return info;
     }
-    renderTemplate(templateName, context) {
-        const templateDir = this.configService.get('email.templateDir') || 'templates/email';
-        const layoutPath = path.resolve(templateDir, 'layout.hbs');
-        const templatePath = path.resolve(templateDir, `${templateName}.hbs`);
-        const layoutSrc = fs.readFileSync(layoutPath, 'utf8');
-        const templateSrc = fs.readFileSync(templatePath, 'utf8');
-        const layout = Handlebars.compile(layoutSrc);
-        const content = Handlebars.compile(templateSrc)(context);
-        return layout({ title: context.title || 'Car Parts Shop', body: content });
+    async deleteOldNotifications(daysToKeep = 30) {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+        const result = await this.notificationRepository
+            .createQueryBuilder()
+            .delete()
+            .where('createdAt < :cutoffDate', { cutoffDate })
+            .andWhere('isRead = :isRead', { isRead: true })
+            .execute();
+        this.logger.log(`Deleted ${result.affected} old notifications`);
+        return result.affected || 0;
     }
-    async sendPasswordResetEmail(to, resetLink) {
-        const html = this.renderTemplate('password-reset', { resetLink });
-        return this.sendEmail({ to, subject: 'Password Reset Request', html });
+    async getNotificationById(id, userId) {
+        const notification = await this.notificationRepository.findOne({
+            where: { id },
+            relations: ['user'],
+        });
+        if (!notification) {
+            throw new common_1.NotFoundException(`Notification with ID ${id} not found`);
+        }
+        if (notification.user && notification.user.id !== userId) {
+            const user = await this.userRepository.findOne({
+                where: { id: userId },
+            });
+            if (!user ||
+                (user.role !== entity_enum_1.UserRoleEnum.ADMIN &&
+                    user.role !== entity_enum_1.UserRoleEnum.MANAGER)) {
+                throw new common_1.BadRequestException('You do not have permission to view this notification');
+            }
+        }
+        return this.mapToResponseDto(notification);
     }
-    async sendWelcomePendingRoleEmail(to, fullName) {
-        const html = this.renderTemplate('welcome-pending-role', { name: fullName || 'there' });
-        return this.sendEmail({ to, subject: 'Welcome - Pending Role Assignment', html });
+    async getRecipients(audience, userIds) {
+        let query = this.userRepository.createQueryBuilder('user');
+        switch (audience) {
+            case notification_enum_1.NotificationAudienceEnum.ALL:
+                query = query.where('user.isActive = :isActive', {
+                    isActive: true,
+                });
+                break;
+            case notification_enum_1.NotificationAudienceEnum.ADMIN:
+                query = query.where('user.role IN (:...roles)', {
+                    roles: [
+                        entity_enum_1.UserRoleEnum.DEV,
+                        entity_enum_1.UserRoleEnum.MANAGER,
+                        entity_enum_1.UserRoleEnum.ADMIN,
+                    ],
+                });
+                break;
+            case notification_enum_1.NotificationAudienceEnum.MANAGER:
+                query = query.where('user.role IN (:...roles)', {
+                    roles: [entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.ADMIN],
+                });
+                break;
+            case notification_enum_1.NotificationAudienceEnum.STAFF:
+                query = query.where('user.role IN (:...roles)', {
+                    roles: [
+                        entity_enum_1.UserRoleEnum.STAFF,
+                        entity_enum_1.UserRoleEnum.MANAGER,
+                        entity_enum_1.UserRoleEnum.ADMIN,
+                    ],
+                });
+                break;
+            case notification_enum_1.NotificationAudienceEnum.SPECIFIC_USER:
+                if (!userIds || userIds.length === 0) {
+                    throw new common_1.BadRequestException('User IDs required for SPECIFIC_USER audience');
+                }
+                query = query.where('user.id IN (:...userIds)', { userIds });
+                break;
+        }
+        return query.getMany();
     }
-    async sendPasswordResetConfirmationEmail(to) {
-        const html = this.renderTemplate('password-reset-confirm', {});
-        return this.sendEmail({ to, subject: 'Your password has been reset', html });
+    getActionUrl(type, metadata) {
+        const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        switch (type) {
+            case notification_enum_1.NotificationEnum.PASSWORD_RESET:
+                return `${baseUrl}/reset-password?token=${metadata?.resetToken}`;
+            case notification_enum_1.NotificationEnum.ACCOUNT_VERIFIED:
+                return `${baseUrl}/login`;
+            case notification_enum_1.NotificationEnum.VEHICLE_CREATED:
+            case notification_enum_1.NotificationEnum.VEHICLE_UPDATED:
+                return `${baseUrl}/vehicles/${metadata?.vehicleId}`;
+            case notification_enum_1.NotificationEnum.PART_CREATED:
+            case notification_enum_1.NotificationEnum.PART_UPDATED:
+                return `${baseUrl}/parts/${metadata?.partId}`;
+            case notification_enum_1.NotificationEnum.ORDER_CREATED:
+            case notification_enum_1.NotificationEnum.ORDER_UPDATED:
+                return `${baseUrl}/orders/${metadata?.orderId}`;
+            case notification_enum_1.NotificationEnum.REPORT_READY:
+                return `${baseUrl}/reports/${metadata?.reportId}`;
+            default:
+                return `${baseUrl}/notifications`;
+        }
     }
-    async sendPasswordChangeConfirmationEmail(to) {
-        const html = this.renderTemplate('password-change-confirm', {});
-        return this.sendEmail({ to, subject: 'Your password has been changed', html });
-    }
-    async sendRoleAssignedEmail(to, role) {
-        const html = this.renderTemplate('role-assigned', { role });
-        return this.sendEmail({ to, subject: 'Your role has been updated', html });
+    mapToResponseDto(notification) {
+        return {
+            id: notification.id,
+            type: notification.type,
+            title: notification.title,
+            message: notification.message,
+            isRead: notification.isRead,
+            metadata: notification.metadata,
+            userId: notification.user?.id,
+            emailSent: notification.emailSent,
+            createdAt: notification.createdAt,
+            updatedAt: notification.updatedAt,
+        };
     }
 };
 exports.NotificationService = NotificationService;
@@ -227,6 +343,7 @@ exports.NotificationService = NotificationService = NotificationService_1 = __de
     __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
-        config_1.ConfigService])
+        email_service_1.EmailService,
+        notification_gateway_1.NotificationGateway])
 ], NotificationService);
 //# sourceMappingURL=notification.service.js.map

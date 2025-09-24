@@ -5,18 +5,18 @@ import { BaseEntity } from './base.entity';
 
 @Entity('order_items')
 export class OrderItem extends BaseEntity {
-    @Column('int')
-    quantity: number;
+	@Column('int')
+	quantity: number;
 
-    @Column('decimal', { precision: 10, scale: 2 })
-    unitPrice: number;
+	@Column('decimal', { precision: 10, scale: 2 })
+	unitPrice: number;
 
-    @Column('decimal', { precision: 10, scale: 2, default: 0 })
-    discount: number;
+	@Column('decimal', { precision: 10, scale: 2, default: 0 })
+	discount: number;
 
-    @ManyToOne(() => Order, (order) => order.items)
-    order: Order;
+	@ManyToOne(() => Order, (order) => order.items, { onDelete: 'CASCADE' })
+	order: Order;
 
-    @ManyToOne(() => Part, (part) => part.orderItems)
-    part: Part;
+	@ManyToOne(() => Part, (part) => part.orderItems)
+	part: Part;
 }

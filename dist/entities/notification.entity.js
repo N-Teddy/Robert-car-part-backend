@@ -11,14 +11,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Notification = void 0;
 const typeorm_1 = require("typeorm");
-const user_entity_1 = require("./user.entity");
-const entity_enum_1 = require("../common/enum/entity.enum");
 const base_entity_1 = require("./base.entity");
+const user_entity_1 = require("./user.entity");
+const notification_enum_1 = require("../common/enum/notification.enum");
 let Notification = class Notification extends base_entity_1.BaseEntity {
 };
 exports.Notification = Notification;
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: entity_enum_1.NotificationEnum }),
+    (0, typeorm_1.Column)({ type: 'enum', enum: notification_enum_1.NotificationEnum }),
     __metadata("design:type", String)
 ], Notification.prototype, "type", void 0);
 __decorate([
@@ -38,18 +38,16 @@ __decorate([
     __metadata("design:type", Object)
 ], Notification.prototype, "metadata", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.notifications, { nullable: true }),
-    (0, typeorm_1.JoinColumn)({ name: 'user_id' }),
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.notifications, {
+        nullable: true,
+        onDelete: 'CASCADE',
+    }),
     __metadata("design:type", user_entity_1.User)
 ], Notification.prototype, "user", void 0);
 __decorate([
     (0, typeorm_1.Column)({ default: false, name: 'email_sent' }),
     __metadata("design:type", Boolean)
 ], Notification.prototype, "emailSent", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: entity_enum_1.NotificationAudienceEnum, default: entity_enum_1.NotificationAudienceEnum.ADMINS }),
-    __metadata("design:type", String)
-], Notification.prototype, "audience", void 0);
 exports.Notification = Notification = __decorate([
     (0, typeorm_1.Entity)('notifications')
 ], Notification);

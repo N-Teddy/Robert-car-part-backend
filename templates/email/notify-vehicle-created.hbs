@@ -1,0 +1,30 @@
+<div class="notification-content">
+    <h2>🚗 New Vehicle Added to Inventory</h2>
+
+    <div class="vehicle-details">
+        <h3>{{vehicle.make}} {{vehicle.model}} ({{vehicle.year}})</h3>
+
+        <div class="vehicle-info">
+            <p><strong>VIN:</strong> {{vehicle.vin}}</p>
+            <p><strong>Purchase Price:</strong> ${{vehicle.purchasePrice}}</p>
+            <p><strong>Description:</strong> {{vehicle.description}}</p>
+            {{#if vehicle.auctionName}}
+            <p><strong>Auction:</strong> {{vehicle.auctionName}}</p>
+            {{/if}}
+            <p><strong>Added:</strong> {{formatDate vehicle.createdAt}}</p>
+        </div>
+    </div>
+
+    <div class="user-info">
+        <p><strong>Added by:</strong> {{createdBy.fullName}} ({{createdBy.email}})</p>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{vehicleUrl}}" class="btn btn-primary">View Vehicle Details</a>
+    </div>
+
+    <div class="footer">
+        <p>This notification was sent to all administrators and managers.</p>
+        <p>You can manage vehicle inventory through the admin panel.</p>
+    </div>
+</div>

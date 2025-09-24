@@ -9,20 +9,47 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
+const jwt_1 = require("@nestjs/jwt");
 const config_1 = require("@nestjs/config");
+const notification_controller_1 = require("./notification.controller");
+const notification_service_1 = require("./notification.service");
+const notification_gateway_1 = require("./notification.gateway");
+const email_service_1 = require("./email.service");
 const notification_entity_1 = require("../../entities/notification.entity");
 const user_entity_1 = require("../../entities/user.entity");
-const notification_service_1 = require("./notification.service");
-const notification_controller_1 = require("./notification.controller");
+const vehicle_entity_1 = require("../../entities/vehicle.entity");
+const part_entity_1 = require("../../entities/part.entity");
+const category_entity_1 = require("../../entities/category.entity");
+const qr_code_entity_1 = require("../../entities/qr-code.entity");
 let NotificationModule = class NotificationModule {
 };
 exports.NotificationModule = NotificationModule;
 exports.NotificationModule = NotificationModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([notification_entity_1.Notification, user_entity_1.User]), config_1.ConfigModule],
+        imports: [
+            config_1.ConfigModule,
+            typeorm_1.TypeOrmModule.forFeature([
+                notification_entity_1.Notification,
+                user_entity_1.User,
+                vehicle_entity_1.Vehicle,
+                part_entity_1.Part,
+                category_entity_1.Category,
+                qr_code_entity_1.QrCode,
+            ]),
+            jwt_1.JwtModule.registerAsync({
+                imports: [config_1.ConfigModule],
+                useFactory: async (configService) => ({
+                    secret: configService.get('jwt.secret'),
+                    signOptions: {
+                        expiresIn: configService.get('jwt.expiresIn'),
+                    },
+                }),
+                inject: [config_1.ConfigService],
+            }),
+        ],
         controllers: [notification_controller_1.NotificationController],
-        providers: [notification_service_1.NotificationService],
-        exports: [notification_service_1.NotificationService],
+        providers: [notification_service_1.NotificationService, notification_gateway_1.NotificationGateway, email_service_1.EmailService],
+        exports: [notification_service_1.NotificationService, notification_gateway_1.NotificationGateway],
     })
 ], NotificationModule);
 //# sourceMappingURL=notification.module.js.map
