@@ -109,7 +109,9 @@ export class VehicleProfitResponseDto {
 	@ApiProperty()
 	id: string;
 
-	@ApiProperty({ description: 'Total revenue from parts sales for this vehicle' })
+	@ApiProperty({
+		description: 'Total revenue from parts sales for this vehicle',
+	})
 	totalPartsRevenue: number;
 
 	@ApiProperty({ description: 'Total cost of parts sold for this vehicle' })
@@ -118,13 +120,19 @@ export class VehicleProfitResponseDto {
 	@ApiProperty({ description: 'Profit (revenue - cost)' })
 	profit: number;
 
-	@ApiProperty({ description: 'Profit margin percentage (profit / revenue * 100)' })
+	@ApiProperty({
+		description: 'Profit margin percentage (profit / revenue * 100)',
+	})
 	profitMargin: number;
 
-	@ApiProperty({ description: 'Whether the profit margin meets the threshold' })
+	@ApiProperty({
+		description: 'Whether the profit margin meets the threshold',
+	})
 	isThresholdMet: boolean;
 
-	@ApiProperty({ description: 'Vehicle ID associated with this profit record' })
+	@ApiProperty({
+		description: 'Vehicle ID associated with this profit record',
+	})
 	vehicleId: string;
 
 	@ApiProperty()
@@ -158,10 +166,14 @@ export class VehicleProfitStatsResponseDto {
 	@ApiProperty({ description: 'Total profit across all vehicles' })
 	totalProfit: number;
 
-	@ApiProperty({ description: 'Average profit margin percentage across all vehicles' })
+	@ApiProperty({
+		description: 'Average profit margin percentage across all vehicles',
+	})
 	avgProfitMargin: number;
 
-	@ApiProperty({ description: 'Number of vehicles that have generated profit' })
+	@ApiProperty({
+		description: 'Number of vehicles that have generated profit',
+	})
 	profitableVehicles: number;
 
 	@ApiProperty({ description: 'Percentage of vehicles that are profitable' })
@@ -173,7 +185,9 @@ export class VehicleProfitStatsResponseDto {
 	@ApiProperty({ description: 'Number of active vehicles' })
 	activeVehicles: number;
 
-	@ApiProperty({ description: 'Number of vehicles that have been parted out' })
+	@ApiProperty({
+		description: 'Number of vehicles that have been parted out',
+	})
 	partedOutVehicles: number;
 
 	@ApiProperty({ description: 'Number of vehicles purchased this year' })

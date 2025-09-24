@@ -41,7 +41,7 @@ import { Roles } from 'src/common/decorator/roles.decorator';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UserController {
-	constructor(private readonly userService: UserService) { }
+	constructor(private readonly userService: UserService) {}
 
 	@Get('profile')
 	@ApiOperation({ summary: 'Get current user profile' })

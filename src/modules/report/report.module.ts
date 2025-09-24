@@ -11,11 +11,11 @@ import { Vehicle } from 'src/entities/vehicle.entity';
 import { PDFService } from 'src/common/services/pdf.service';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([Report, Order, Part, VehicleProfit, Vehicle]),
-    ],
-    controllers: [ReportController],
-    providers: [ReportService, PDFService],
-    exports: [ReportService, PDFService],
+	imports: [
+		TypeOrmModule.forFeature([Report, Order, Part, VehicleProfit, Vehicle]),
+	],
+	controllers: [ReportController],
+	providers: [ReportService, PDFService],
+	exports: [ReportService, PDFService],
 })
-export class ReportModule { }
+export class ReportModule {}

@@ -47,7 +47,7 @@ export class CategoryController {
 	@UseInterceptors(FileInterceptor('image'))
 	@ApiConsumes('multipart/form-data')
 	@ApiOperation({ summary: 'Create a new category' })
-		@ApiResponse({ status: 200, type: CategoryResponseDto})
+	@ApiResponse({ status: 200, type: CategoryResponseDto })
 	async create(
 		@Body() dto: CreateCategoryDto,
 		@UploadedFile() image?: Express.Multer.File,
@@ -57,12 +57,18 @@ export class CategoryController {
 	}
 
 	@Get('tree')
-	@ApiOperation({ summary: 'Get all categories as a tree structure with pagination' })
+	@ApiOperation({
+		summary: 'Get all categories as a tree structure with pagination',
+	})
 	@ApiResponse({ status: 200, type: PaginatedCategoryTreeResponse })
 	async findTree(
 		@Query() queryDto: CategoryTreeQueryDto
 	): Promise<PaginatedCategoryTreeResponse> {
-		return this.categoryService.findTree(queryDto.page, queryDto.limit, queryDto.search);
+		return this.categoryService.findTree(
+			queryDto.page,
+			queryDto.limit,
+			queryDto.search
+		);
 	}
 
 	@Get(':id/children')
@@ -75,16 +81,20 @@ export class CategoryController {
 
 	@Get()
 	@ApiOperation({ summary: 'Get paginated list of categories' })
-	@ApiResponse({ status: 200, type: PaginatedCategoryResponse})
+	@ApiResponse({ status: 200, type: PaginatedCategoryResponse })
 	async findAll(
 		@Query() queryDto: CategoryQueryDto
 	): Promise<PaginatedCategoryResponse> {
-		return this.categoryService.findAll(queryDto.page, queryDto.limit, queryDto.search);
+		return this.categoryService.findAll(
+			queryDto.page,
+			queryDto.limit,
+			queryDto.search
+		);
 	}
 
 	@Get(':id')
 	@ApiOperation({ summary: 'Get a specific category' })
-		@ApiResponse({ status: 200, type: CategoryResponseDto })
+	@ApiResponse({ status: 200, type: CategoryResponseDto })
 	async findOne(@Param('id') id: string): Promise<CategoryResponseDto> {
 		return this.categoryService.findOne(id);
 	}
@@ -93,7 +103,7 @@ export class CategoryController {
 	@UseInterceptors(FileInterceptor('image'))
 	@ApiConsumes('multipart/form-data')
 	@ApiOperation({ summary: 'Update a category' })
-		@ApiResponse({ status: 200, type: CategoryResponseDto })
+	@ApiResponse({ status: 200, type: CategoryResponseDto })
 	async update(
 		@Param('id') id: string,
 		@Body() dto: UpdateCategoryDto,

@@ -45,7 +45,7 @@ export class AuthService {
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService,
 		private readonly notificationService: NotificationService
-	) { }
+	) {}
 
 	async register(dto: RegisterDto): Promise<AuthResponseDto> {
 		try {

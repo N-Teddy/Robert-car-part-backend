@@ -172,7 +172,10 @@ export class VehicleQueryDto {
 	@IsNumber()
 	maxYear?: number;
 
-	@ApiPropertyOptional({ description: 'Filter by parted out status', example: true })
+	@ApiPropertyOptional({
+		description: 'Filter by parted out status',
+		example: true,
+	})
 	@Type(() => Boolean)
 	@IsOptional()
 	@IsBoolean()

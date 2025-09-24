@@ -10,13 +10,19 @@ export class PDFService {
 	private readonly logger = new Logger(PDFService.name);
 	private templates: Map<string, HandlebarsTemplateDelegate> = new Map();
 
-	async compileTemplate(templateName: string): Promise<HandlebarsTemplateDelegate> {
+	async compileTemplate(
+		templateName: string
+	): Promise<HandlebarsTemplateDelegate> {
 		if (this.templates.has(templateName)) {
 			return this.templates.get(templateName);
 		}
 
 		try {
-			const templatePath = path.join(process.cwd(), 'templates', `${templateName}.hbs`);
+			const templatePath = path.join(
+				process.cwd(),
+				'templates',
+				`${templateName}.hbs`
+			);
 			const templateContent = await fs.readFile(templatePath, 'utf-8');
 
 			// Register Handlebars helpers
@@ -26,7 +32,7 @@ export class PDFService {
 					month: 'long',
 					day: 'numeric',
 					hour: '2-digit',
-					minute: '2-digit'
+					minute: '2-digit',
 				});
 			});
 
@@ -58,7 +64,7 @@ export class PDFService {
 				const num = parseFloat(amount);
 				return num.toLocaleString('en-US', {
 					minimumFractionDigits: 2,
-					maximumFractionDigits: 2
+					maximumFractionDigits: 2,
 				});
 			});
 
@@ -68,24 +74,27 @@ export class PDFService {
 				const num = parseFloat(value);
 				return num.toLocaleString('en-US', {
 					minimumFractionDigits: 2,
-					maximumFractionDigits: 2
+					maximumFractionDigits: 2,
 				});
 			});
 
 			// Rounding numbers
-			handlebars.registerHelper('round', (value: any, decimals: number) => {
-				if (value === null || value === undefined) return '0';
-				const num = parseFloat(value);
-				const precision = decimals || 0;
-				return num.toFixed(precision);
-			});
+			handlebars.registerHelper(
+				'round',
+				(value: any, decimals: number) => {
+					if (value === null || value === undefined) return '0';
+					const num = parseFloat(value);
+					const precision = decimals || 0;
+					return num.toFixed(precision);
+				}
+			);
 
 			handlebars.registerHelper('getStatusColor', (status: string) => {
 				const colors: { [key: string]: string } = {
-					'COMPLETED': '#27ae60',
-					'PENDING': '#f39c12',
-					'CANCELLED': '#e74c3c',
-					'PROCESSING': '#3498db'
+					COMPLETED: '#27ae60',
+					PENDING: '#f39c12',
+					CANCELLED: '#e74c3c',
+					PROCESSING: '#3498db',
 				};
 				return colors[status] || '#7f8c8d';
 			});
@@ -94,7 +103,10 @@ export class PDFService {
 			this.templates.set(templateName, template);
 			return template;
 		} catch (error) {
-			this.logger.error(`Failed to compile template: ${templateName}`, error);
+			this.logger.error(
+				`Failed to compile template: ${templateName}`,
+				error
+			);
 			throw new Error(`Failed to compile template: ${templateName}`);
 		}
 	}
@@ -109,14 +121,14 @@ export class PDFService {
 			// Launch Puppeteer - use boolean instead of string for headless
 			browser = await puppeteer.launch({
 				headless: true, // Changed from 'new' to true
-				args: ['--no-sandbox', '--disable-setuid-sandbox']
+				args: ['--no-sandbox', '--disable-setuid-sandbox'],
 			});
 
 			const page = await browser.newPage();
 
 			// Set the HTML content
 			await page.setContent(html, {
-				waitUntil: 'networkidle0'
+				waitUntil: 'networkidle0',
 			});
 
 			// Generate PDF - explicitly convert to Buffer
@@ -126,16 +138,18 @@ export class PDFService {
 					top: '0.5in',
 					right: '0.5in',
 					bottom: '0.5in',
-					left: '0.5in'
+					left: '0.5in',
 				},
-				printBackground: true
+				printBackground: true,
 			});
 
 			// Convert Uint8Array to Buffer
 			return Buffer.from(pdfBuffer);
 		} catch (error) {
 			this.logger.error('Failed to generate PDF', error);
-			throw new Error(`Failed to generate PDF: ${(error as Error).message}`);
+			throw new Error(
+				`Failed to generate PDF: ${(error as Error).message}`
+			);
 		} finally {
 			if (browser) {
 				await browser.close();
@@ -150,7 +164,7 @@ export class PDFService {
 		try {
 			browser = await puppeteer.launch({
 				headless: true, // Changed from 'new' to true
-				args: ['--no-sandbox', '--disable-setuid-sandbox']
+				args: ['--no-sandbox', '--disable-setuid-sandbox'],
 			});
 
 			const page = await browser.newPage();
@@ -162,16 +176,18 @@ export class PDFService {
 					top: '0.5in',
 					right: '0.5in',
 					bottom: '0.5in',
-					left: '0.5in'
+					left: '0.5in',
 				},
-				printBackground: true
+				printBackground: true,
 			});
 
 			// Convert Uint8Array to Buffer
 			return Buffer.from(pdfBuffer);
 		} catch (error) {
 			this.logger.error('Failed to generate PDF from HTML', error);
-			throw new Error(`Failed to generate PDF from HTML: ${(error as Error).message}`);
+			throw new Error(
+				`Failed to generate PDF from HTML: ${(error as Error).message}`
+			);
 		} finally {
 			if (browser) {
 				await browser.close();

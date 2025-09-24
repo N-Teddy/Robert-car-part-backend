@@ -253,7 +253,8 @@ export class CategoryService {
 			}
 
 			// Load full descendants tree
-			const childrenTree = await this.categoryRepo.findDescendantsTree(parent);
+			const childrenTree =
+				await this.categoryRepo.findDescendantsTree(parent);
 
 			// Fetch all categories with images
 			const categoriesWithImages = await this.categoryRepo.find({
@@ -276,8 +277,8 @@ export class CategoryService {
 					children:
 						category.children && category.children.length > 0
 							? category.children.map((child) =>
-								addImagesToTree(child)
-							)
+									addImagesToTree(child)
+								)
 							: [],
 				};
 			};
@@ -300,7 +301,6 @@ export class CategoryService {
 			);
 		}
 	}
-
 
 	// Paginated flat list with search
 	async findAll(

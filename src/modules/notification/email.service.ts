@@ -54,12 +54,17 @@ export class EmailService {
 		} else {
 			// Use real SMTP in production
 			this.transporter = nodemailer.createTransport({
-				host: this.configService.get<string>('SMTP_HOST'),
-				port: this.configService.get<number>('SMTP_PORT'),
-				secure: this.configService.get<boolean>('SMTP_SECURE'),
+				host: this.configService.get<string>('email.host'),
+				port: this.configService.get<number>('email.port'),
+				secure: this.configService.get<boolean>('email.secure'),
+				requireTLS: true,
+				tls: {
+					rejectUnauthorized: false,
+					minVersion: 'TLSv1.2', // Force TLSv1.2 or higher
+				},
 				auth: {
-					user: this.configService.get<string>('SMTP_USER'),
-					pass: this.configService.get<string>('SMTP_PASS'),
+					user: this.configService.get<string>('email.user'),
+					pass: this.configService.get<string>('email.pass'),
 				},
 			});
 			this.logger.log('Email service configured for production');

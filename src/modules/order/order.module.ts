@@ -20,4 +20,4 @@ import { VehicleProfit } from 'src/entities/vehicle-profit.entity';
 	providers: [OrdersService, PDFService],
 	exports: [OrdersService, PDFService],
 })
-export class OrdersModule { }
+export class OrdersModule {}

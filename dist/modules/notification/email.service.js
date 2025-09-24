@@ -46,12 +46,17 @@ let EmailService = EmailService_1 = class EmailService {
         }
         else {
             this.transporter = nodemailer.createTransport({
-                host: this.configService.get('SMTP_HOST'),
-                port: this.configService.get('SMTP_PORT'),
-                secure: this.configService.get('SMTP_SECURE'),
+                host: this.configService.get('email.host'),
+                port: this.configService.get('email.port'),
+                secure: this.configService.get('email.secure'),
+                requireTLS: true,
+                tls: {
+                    rejectUnauthorized: false,
+                    minVersion: 'TLSv1.2'
+                },
                 auth: {
-                    user: this.configService.get('SMTP_USER'),
-                    pass: this.configService.get('SMTP_PASS'),
+                    user: this.configService.get('email.user'),
+                    pass: this.configService.get('email.pass'),
                 },
             });
             this.logger.log('Email service configured for production');

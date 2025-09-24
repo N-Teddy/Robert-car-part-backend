@@ -24,7 +24,11 @@ import {
 } from '../../common/enum/notification.enum';
 import * as QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
-import { CreatePartDto, PartsQueryDto, UpdatePartDto } from 'src/dto/request/part.dto';
+import {
+	CreatePartDto,
+	PartsQueryDto,
+	UpdatePartDto,
+} from 'src/dto/request/part.dto';
 import { Readable } from 'stream';
 
 @Injectable()
@@ -143,7 +147,7 @@ export class PartService {
 				name: part.name,
 				partNumber: part.partNumber,
 				price: part.price,
-				createdAt: part.createdAt
+				createdAt: part.createdAt,
 			});
 
 			// Generate QR code as buffer
@@ -193,7 +197,7 @@ export class PartService {
 		}
 	}
 
-	async findAll( queryParams: PartsQueryDto ): Promise<{
+	async findAll(queryParams: PartsQueryDto): Promise<{
 		data: PartResponseDto[];
 		total: number;
 		page: number;
@@ -203,8 +207,19 @@ export class PartService {
 		hasPrev: boolean;
 	}> {
 		try {
-			const { page, limit, search, vehicleId, categoryId, minPrice, maxPrice, minQuantity, maxQuantity, condition } = queryParams;
-			console.log(limit)
+			const {
+				page,
+				limit,
+				search,
+				vehicleId,
+				categoryId,
+				minPrice,
+				maxPrice,
+				minQuantity,
+				maxQuantity,
+				condition,
+			} = queryParams;
+			console.log(limit);
 			const skip = (page - 1) * limit;
 			const query = this.partRepository
 				.createQueryBuilder('part')
@@ -354,8 +369,8 @@ export class PartService {
 			Object.entries(dto).forEach(([key, value]) => {
 				if (
 					value !== undefined && // ignore undefined
-					value !== null &&      // ignore null
-					value !== ''           // ignore empty string
+					value !== null && // ignore null
+					value !== '' // ignore empty string
 				) {
 					(part as any)[key] = value;
 				}
@@ -422,7 +437,6 @@ export class PartService {
 			throw new InternalServerErrorException('Failed to update part');
 		}
 	}
-
 
 	async remove(id: string, userId: string): Promise<{ success: true }> {
 		const queryRunner =

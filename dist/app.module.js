@@ -80,7 +80,7 @@ exports.AppModule = AppModule = __decorate([
             typeorm_1.TypeOrmModule.forRootAsync({
                 inject: [config_1.ConfigService],
                 useFactory: (configService) => {
-                    const isProduction = process.env.NODE_ENV === 'production';
+                    const isProduction = process.env.NODE_ENV === 'development';
                     let connectionOptions;
                     if (isProduction) {
                         const supabaseDbUrl = configService.get('supabase.databaseUrl');

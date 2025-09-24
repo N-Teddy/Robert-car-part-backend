@@ -26,7 +26,11 @@ import { PartService } from './part.service';
 import { PartResponseDto } from '../../dto/response/part.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { CreatePartDto, PartsQueryDto, UpdatePartDto } from 'src/dto/request/part.dto';
+import {
+	CreatePartDto,
+	PartsQueryDto,
+	UpdatePartDto,
+} from 'src/dto/request/part.dto';
 
 @ApiTags('Parts')
 @ApiBearerAuth()
@@ -49,9 +53,7 @@ export class PartController {
 
 	@Get()
 	@ApiOperation({ summary: 'Get paginated list of parts with filters' })
-	async findAll(
-		@Query() queryDto: PartsQueryDto
-	) {
+	async findAll(@Query() queryDto: PartsQueryDto) {
 		return this.partService.findAll(queryDto);
 	}
 

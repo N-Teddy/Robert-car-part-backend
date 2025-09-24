@@ -5,7 +5,13 @@ import {
 	BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThanOrEqual, MoreThanOrEqual, In } from 'typeorm';
+import {
+	Repository,
+	Between,
+	LessThanOrEqual,
+	MoreThanOrEqual,
+	In,
+} from 'typeorm';
 import {
 	NotificationAudienceEnum,
 	NotificationChannelEnum,
@@ -41,40 +47,52 @@ export class OrdersService {
 		private vehicleProfitRepository: Repository<VehicleProfit>,
 		private notificationsService: NotificationService,
 		private pdfService: PDFService
-	) { }
+	) {}
 
-	async create(createOrderDto: CreateOrderDto, userId: string): Promise<OrderResponseDto> {
-		const queryRunner = this.orderRepository.manager.connection.createQueryRunner();
+	async create(
+		createOrderDto: CreateOrderDto,
+		userId: string
+	): Promise<OrderResponseDto> {
+		const queryRunner =
+			this.orderRepository.manager.connection.createQueryRunner();
 		await queryRunner.connect();
 		await queryRunner.startTransaction();
 
 		try {
 			let totalAmount = 0;
 			const orderItems: OrderItem[] = [];
-			const vehicleProfitMap = new Map<string, { revenue: number; cost: number }>();
+			const vehicleProfitMap = new Map<
+				string,
+				{ revenue: number; cost: number }
+			>();
 
 			// Load all parts in a single query for better performance
-			const partIds = createOrderDto.items.map(item => item.partId);
+			const partIds = createOrderDto.items.map((item) => item.partId);
 			const parts = await queryRunner.manager.find(Part, {
 				where: { id: In(partIds) },
 				relations: ['vehicle', 'category'], // Only load needed relations
 			});
 
-			const partMap = new Map(parts.map(part => [part.id, part]));
+			const partMap = new Map(parts.map((part) => [part.id, part]));
 
 			for (const itemDto of createOrderDto.items) {
 				const part = partMap.get(itemDto.partId);
 
 				if (!part) {
-					throw new NotFoundException(`Part with ID ${itemDto.partId} not found`);
+					throw new NotFoundException(
+						`Part with ID ${itemDto.partId} not found`
+					);
 				}
 
 				if (part.quantity < itemDto.quantity) {
-					throw new BadRequestException(`Insufficient stock for part ${part.name}`);
+					throw new BadRequestException(
+						`Insufficient stock for part ${part.name}`
+					);
 				}
 
 				const unitPrice = itemDto.unitPrice || part.price;
-				const itemTotal = unitPrice * itemDto.quantity - (itemDto.discount || 0);
+				const itemTotal =
+					unitPrice * itemDto.quantity - (itemDto.discount || 0);
 				totalAmount += itemTotal;
 
 				// Create order item
@@ -98,12 +116,15 @@ export class OrdersService {
 				// Track profit by vehicle
 				if (part.vehicle) {
 					const vehicleId = part.vehicle.id;
-					const current = vehicleProfitMap.get(vehicleId) || { revenue: 0, cost: 0 };
+					const current = vehicleProfitMap.get(vehicleId) || {
+						revenue: 0,
+						cost: 0,
+					};
 					const partCost = part.price || 0;
 
 					vehicleProfitMap.set(vehicleId, {
 						revenue: current.revenue + itemTotal,
-						cost: current.cost + (partCost * itemDto.quantity)
+						cost: current.cost + partCost * itemDto.quantity,
 					});
 				}
 			}
@@ -242,8 +263,10 @@ export class OrdersService {
 
 			// If status is changing to/from COMPLETED, we need to update vehicle profits
 			const shouldUpdateProfits =
-				(updateOrderDto.status === OrderStatusEnum.COMPLETED && previousStatus !== OrderStatusEnum.COMPLETED) ||
-				(previousStatus === OrderStatusEnum.COMPLETED && updateOrderDto.status !== OrderStatusEnum.COMPLETED);
+				(updateOrderDto.status === OrderStatusEnum.COMPLETED &&
+					previousStatus !== OrderStatusEnum.COMPLETED) ||
+				(previousStatus === OrderStatusEnum.COMPLETED &&
+					updateOrderDto.status !== OrderStatusEnum.COMPLETED);
 
 			const updatedOrder = await queryRunner.manager.save(Order, {
 				...order,
@@ -253,33 +276,51 @@ export class OrdersService {
 
 			// Update vehicle profits if needed
 			if (shouldUpdateProfits) {
-				const vehicleProfitMap = new Map<string, { revenue: number; cost: number }>();
+				const vehicleProfitMap = new Map<
+					string,
+					{ revenue: number; cost: number }
+				>();
 
 				for (const item of order.items) {
 					const part = await queryRunner.manager.findOne(Part, {
 						where: { id: item.part.id },
-						relations: ['vehicle']
+						relations: ['vehicle'],
 					});
 
 					if (part && part.vehicle) {
 						const vehicleId = part.vehicle.id;
-						const current = vehicleProfitMap.get(vehicleId) || { revenue: 0, cost: 0 };
+						const current = vehicleProfitMap.get(vehicleId) || {
+							revenue: 0,
+							cost: 0,
+						};
 
 						// Calculate the multiplier based on status change direction
-						const multiplier = updateOrderDto.status === OrderStatusEnum.COMPLETED ? 1 : -1;
+						const multiplier =
+							updateOrderDto.status === OrderStatusEnum.COMPLETED
+								? 1
+								: -1;
 
 						// Calculate part cost (assuming part.cost is the purchase cost)
 						const partCost = part.price || 0;
 
 						vehicleProfitMap.set(vehicleId, {
-							revenue: current.revenue + (multiplier * (item.unitPrice * item.quantity - item.discount)),
-							cost: current.cost + (multiplier * (partCost * item.quantity))
+							revenue:
+								current.revenue +
+								multiplier *
+									(item.unitPrice * item.quantity -
+										item.discount),
+							cost:
+								current.cost +
+								multiplier * (partCost * item.quantity),
 						});
 					}
 				}
 
 				// Update vehicle profit records
-				for (const [vehicleId, profitData] of vehicleProfitMap.entries()) {
+				for (const [
+					vehicleId,
+					profitData,
+				] of vehicleProfitMap.entries()) {
 					await this.updateVehicleProfit(
 						vehicleId,
 						profitData.revenue,
@@ -290,7 +331,10 @@ export class OrdersService {
 			}
 
 			// Send notification if status changed (to admins only)
-			if (updateOrderDto.status && updateOrderDto.status !== previousStatus) {
+			if (
+				updateOrderDto.status &&
+				updateOrderDto.status !== previousStatus
+			) {
 				let notificationType: NotificationEnum;
 				let title: string;
 				let message: string;
@@ -342,30 +386,42 @@ export class OrdersService {
 
 			// If order was completed, we need to subtract from vehicle profits
 			if (order.status === OrderStatusEnum.COMPLETED) {
-				const vehicleProfitMap = new Map<string, { revenue: number; cost: number }>();
+				const vehicleProfitMap = new Map<
+					string,
+					{ revenue: number; cost: number }
+				>();
 
 				for (const item of order.items) {
 					const part = await queryRunner.manager.findOne(Part, {
 						where: { id: item.part.id },
-						relations: ['vehicle']
+						relations: ['vehicle'],
 					});
 
 					if (part && part.vehicle) {
 						const vehicleId = part.vehicle.id;
-						const current = vehicleProfitMap.get(vehicleId) || { revenue: 0, cost: 0 };
+						const current = vehicleProfitMap.get(vehicleId) || {
+							revenue: 0,
+							cost: 0,
+						};
 
 						// Calculate part cost (assuming part.cost is the purchase cost)
 						const partCost = part.price || 0;
 
 						vehicleProfitMap.set(vehicleId, {
-							revenue: current.revenue - (item.unitPrice * item.quantity - item.discount),
-							cost: current.cost - (partCost * item.quantity)
+							revenue:
+								current.revenue -
+								(item.unitPrice * item.quantity -
+									item.discount),
+							cost: current.cost - partCost * item.quantity,
 						});
 					}
 				}
 
 				// Update vehicle profit records
-				for (const [vehicleId, profitData] of vehicleProfitMap.entries()) {
+				for (const [
+					vehicleId,
+					profitData,
+				] of vehicleProfitMap.entries()) {
 					await this.updateVehicleProfit(
 						vehicleId,
 						profitData.revenue,
@@ -488,7 +544,7 @@ export class OrdersService {
 		// Find or create vehicle profit record
 		let vehicleProfit = await manager.findOne(VehicleProfit, {
 			where: { vehicle: { id: vehicleId } },
-			relations: ['vehicle']
+			relations: ['vehicle'],
 		});
 
 		if (!vehicleProfit) {
@@ -498,14 +554,15 @@ export class OrdersService {
 				totalPartsCost: 0,
 				profit: 0,
 				profitMargin: 0,
-				isThresholdMet: false
+				isThresholdMet: false,
 			});
 		}
 
 		// Update profit data
 		vehicleProfit.totalPartsRevenue += revenue;
 		vehicleProfit.totalPartsCost += cost;
-		vehicleProfit.profit = vehicleProfit.totalPartsRevenue - vehicleProfit.totalPartsCost;
+		vehicleProfit.profit =
+			vehicleProfit.totalPartsRevenue - vehicleProfit.totalPartsCost;
 
 		// Calculate profit margin (avoid division by zero)
 		if (vehicleProfit.totalPartsRevenue > 0) {
@@ -517,11 +574,11 @@ export class OrdersService {
 
 		// Check if profit threshold is met (example: at least 30% margin)
 		const PROFIT_THRESHOLD = 30;
-		vehicleProfit.isThresholdMet = vehicleProfit.profitMargin >= PROFIT_THRESHOLD;
+		vehicleProfit.isThresholdMet =
+			vehicleProfit.profitMargin >= PROFIT_THRESHOLD;
 
 		await manager.save(vehicleProfit);
 	}
-
 
 	private async sendOrderNotification(
 		type: NotificationEnum,
@@ -558,42 +615,43 @@ export class OrdersService {
 			customerEmail: order.customerEmail,
 			notes: order.notes,
 			deliveryMethod: order.deliveryMethod,
-			items: order.items?.map((item) => ({
-				id: item.id,
-				quantity: item.quantity,
-				unitPrice: item.unitPrice,
-				discount: item.discount,
-				total: item.unitPrice * item.quantity - item.discount,
-				part: {
-					id: item.part?.id,
-					name: item.part?.name,
-					description: item.part?.description,
-					price: item.part?.price,
-					quantity: item.part?.quantity,
-					condition: item.part?.condition,
-					partNumber: item.part?.partNumber,
-					vehicle: item.part?.vehicle
-						? {
-							id: item.part.vehicle.id,
-							make: item.part.vehicle.make,
-							model: item.part.vehicle.model,
-							year: item.part.vehicle.year,
-						}
-						: undefined,
-					category: item.part?.category
-						? {
-							id: item.part.category.id,
-							name: item.part.category.name,
-						}
-						: undefined,
-					vehicleId: item.part?.vehicle?.id,
-					categoryId: item.part?.category?.id,
-					createdAt: item.part?.createdAt,
-					updatedAt: item.part?.updatedAt,
-				},
-				createdAt: item.createdAt,
-				updatedAt: item.updatedAt,
-			})) || [],
+			items:
+				order.items?.map((item) => ({
+					id: item.id,
+					quantity: item.quantity,
+					unitPrice: item.unitPrice,
+					discount: item.discount,
+					total: item.unitPrice * item.quantity - item.discount,
+					part: {
+						id: item.part?.id,
+						name: item.part?.name,
+						description: item.part?.description,
+						price: item.part?.price,
+						quantity: item.part?.quantity,
+						condition: item.part?.condition,
+						partNumber: item.part?.partNumber,
+						vehicle: item.part?.vehicle
+							? {
+									id: item.part.vehicle.id,
+									make: item.part.vehicle.make,
+									model: item.part.vehicle.model,
+									year: item.part.vehicle.year,
+								}
+							: undefined,
+						category: item.part?.category
+							? {
+									id: item.part.category.id,
+									name: item.part.category.name,
+								}
+							: undefined,
+						vehicleId: item.part?.vehicle?.id,
+						categoryId: item.part?.category?.id,
+						createdAt: item.part?.createdAt,
+						updatedAt: item.part?.updatedAt,
+					},
+					createdAt: item.createdAt,
+					updatedAt: item.updatedAt,
+				})) || [],
 			createdAt: order.createdAt,
 			updatedAt: order.updatedAt,
 		};

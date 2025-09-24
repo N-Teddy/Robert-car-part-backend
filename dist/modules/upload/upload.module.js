@@ -49,7 +49,7 @@ exports.UploadModule = UploadModule = __decorate([
             serve_static_1.ServeStaticModule.forRootAsync({
                 imports: [config_1.ConfigModule],
                 useFactory: async (configService) => {
-                    const isProduction = configService.get('NODE_ENV') === 'production';
+                    const isProduction = configService.get('NODE_ENV') === 'development';
                     if (!isProduction) {
                         return [
                             {
