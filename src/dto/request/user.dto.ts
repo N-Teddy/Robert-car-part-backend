@@ -15,6 +15,13 @@ import { UserRoleEnum } from '../../common/enum/entity.enum';
 import { Type } from 'class-transformer';
 
 export class UpdateProfileDto {
+	@ApiProperty({
+		type: 'string',
+		format: 'binary',
+		description: 'User image file (optional)',
+	})
+	image?: any;
+
 	@ApiPropertyOptional({ example: 'John Doe Updated' })
 	@IsOptional()
 	@IsString()
@@ -47,6 +54,13 @@ export class AssignRoleDto {
 }
 
 export class UpdateUserDto {
+	@ApiProperty({
+		type: 'string',
+		format: 'binary',
+		description: 'Category image file (optional)',
+	})
+	image?: any;
+
 	@ApiPropertyOptional({ example: 'John Doe' })
 	@IsOptional()
 	@IsString()
