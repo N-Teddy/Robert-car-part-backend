@@ -52,7 +52,8 @@ export class OrdersController {
 		UserRoleEnum.CUSTOMER,
 		UserRoleEnum.STAFF,
 		UserRoleEnum.SALES,
-		UserRoleEnum.ADMIN
+		UserRoleEnum.ADMIN,
+		UserRoleEnum.DEV
 	)
 	async create(
 		@Body() createOrderDto: CreateOrderDto,
@@ -68,7 +69,8 @@ export class OrdersController {
 		UserRoleEnum.STAFF,
 		UserRoleEnum.SALES,
 		UserRoleEnum.MANAGER,
-		UserRoleEnum.ADMIN
+		UserRoleEnum.ADMIN,
+		UserRoleEnum.DEV
 	)
 	async findAll(
 		@Query() query: OrderQueryDto
@@ -91,7 +93,7 @@ export class OrdersController {
 	@Get('stats')
 	@ApiOperation({ summary: 'Get order statistics' })
 	@ApiResponse({ status: 200, type: OrderStatsResponseDto })
-	@Roles(UserRoleEnum.MANAGER, UserRoleEnum.ADMIN)
+	@Roles(UserRoleEnum.MANAGER, UserRoleEnum.ADMIN, UserRoleEnum.DEV)
 	async getStats(): Promise<OrderStatsResponseDto> {
 		return this.ordersService.getStats();
 	}
@@ -104,7 +106,8 @@ export class OrdersController {
 		UserRoleEnum.STAFF,
 		UserRoleEnum.SALES,
 		UserRoleEnum.MANAGER,
-		UserRoleEnum.ADMIN
+		UserRoleEnum.ADMIN,
+		UserRoleEnum.DEV,
 	)
 	async findOne(@Param('id') id: string): Promise<OrderResponseDto> {
 		return this.ordersService.findOne(id);
@@ -118,7 +121,8 @@ export class OrdersController {
 		UserRoleEnum.STAFF,
 		UserRoleEnum.SALES,
 		UserRoleEnum.MANAGER,
-		UserRoleEnum.ADMIN
+		UserRoleEnum.ADMIN,
+		UserRoleEnum.DEV
 	)
 	async update(
 		@Param('id') id: string,
@@ -131,7 +135,7 @@ export class OrdersController {
 	@Delete(':id')
 	@ApiOperation({ summary: 'Delete an order' })
 	@ApiParam({ name: 'id', description: 'Order ID' })
-	@Roles(UserRoleEnum.MANAGER, UserRoleEnum.ADMIN)
+	@Roles(UserRoleEnum.MANAGER, UserRoleEnum.ADMIN, UserRoleEnum.DEV)
 	async remove(@Param('id') id: string): Promise<{ message: string }> {
 		await this.ordersService.remove(id);
 		return { message: 'Order deleted successfully' };
@@ -145,7 +149,8 @@ export class OrdersController {
 		UserRoleEnum.STAFF,
 		UserRoleEnum.SALES,
 		UserRoleEnum.MANAGER,
-		UserRoleEnum.ADMIN
+		UserRoleEnum.ADMIN,
+		UserRoleEnum.DEV
 	)
 	async generateReceipt(
 		@Param('id') id: string,

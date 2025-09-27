@@ -84,7 +84,7 @@ __decorate([
 ], UserController.prototype, "assignRole", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV),
     (0, swagger_1.ApiOperation)({ summary: 'Get all users with filters' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: user_dto_2.UsersListResponseDto }),
     __param(0, (0, common_1.Query)()),
@@ -103,7 +103,7 @@ __decorate([
 ], UserController.prototype, "getUsersWithoutRole", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV),
     (0, swagger_1.ApiOperation)({ summary: 'Get user by ID' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: user_dto_2.UserResponseDto }),
     __param(0, (0, common_1.Param)('id')),
@@ -113,7 +113,7 @@ __decorate([
 ], UserController.prototype, "getUserById", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV),
     (0, swagger_1.ApiOperation)({ summary: 'Update user by ID' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: user_dto_2.UserResponseDto }),
     __param(0, (0, common_1.Request)()),
@@ -125,7 +125,7 @@ __decorate([
 ], UserController.prototype, "updateUser", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN),
+    (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV),
     (0, swagger_1.ApiOperation)({ summary: 'Delete user by ID' }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Param)('id')),

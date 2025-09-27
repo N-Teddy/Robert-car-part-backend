@@ -72,7 +72,7 @@ export class UserController {
 	}
 
 	@Get()
-	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER)
+	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV)
 	@ApiOperation({ summary: 'Get all users with filters' })
 	@ApiResponse({ status: 200, type: UsersListResponseDto })
 	async getAllUsers(
@@ -90,7 +90,7 @@ export class UserController {
 	}
 
 	@Get(':id')
-	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER)
+	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV)
 	@ApiOperation({ summary: 'Get user by ID' })
 	@ApiResponse({ status: 200, type: UserResponseDto })
 	async getUserById(@Param('id') id: string): Promise<UserResponseDto> {
@@ -98,7 +98,7 @@ export class UserController {
 	}
 
 	@Put(':id')
-	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER)
+	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV)
 	@ApiOperation({ summary: 'Update user by ID' })
 	@ApiResponse({ status: 200, type: UserResponseDto })
 	async updateUser(
@@ -110,7 +110,7 @@ export class UserController {
 	}
 
 	@Delete(':id')
-	@Roles(UserRoleEnum.ADMIN)
+	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV)
 	@ApiOperation({ summary: 'Delete user by ID' })
 	async deleteUser(@Request() req, @Param('id') id: string): Promise<any> {
 		return await this.userService.deleteUser(req.user.id, id);
