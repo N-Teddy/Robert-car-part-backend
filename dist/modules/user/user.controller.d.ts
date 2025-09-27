@@ -5,11 +5,11 @@ export declare class UserController {
     private readonly userService;
     constructor(userService: UserService);
     getProfile(req: any): Promise<UserProfileResponseDto>;
-    updateProfile(req: any, dto: UpdateProfileDto): Promise<UserProfileResponseDto>;
+    updateProfile(req: any, dto: UpdateProfileDto, image?: Express.Multer.File): Promise<UserProfileResponseDto>;
     assignRole(req: any, dto: AssignRoleDto): Promise<UserResponseDto>;
     getAllUsers(filter: UserFilterDto): Promise<UsersListResponseDto>;
     getUsersWithoutRole(): Promise<UserResponseDto[]>;
     getUserById(id: string): Promise<UserResponseDto>;
-    updateUser(req: any, id: string, dto: UpdateUserDto): Promise<UserResponseDto>;
+    updateUser(req: any, id: string, dto: UpdateUserDto, image?: Express.Multer.File): Promise<UserResponseDto>;
     deleteUser(req: any, id: string): Promise<any>;
 }

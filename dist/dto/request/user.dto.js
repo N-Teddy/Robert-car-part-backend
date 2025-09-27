@@ -18,6 +18,14 @@ class UpdateProfileDto {
 }
 exports.UpdateProfileDto = UpdateProfileDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        type: 'string',
+        format: 'binary',
+        description: 'User image file (optional)',
+    }),
+    __metadata("design:type", Object)
+], UpdateProfileDto.prototype, "image", void 0);
+__decorate([
     (0, swagger_1.ApiPropertyOptional)({ example: 'John Doe Updated' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
@@ -56,6 +64,14 @@ __decorate([
 class UpdateUserDto {
 }
 exports.UpdateUserDto = UpdateUserDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: 'string',
+        format: 'binary',
+        description: 'Category image file (optional)',
+    }),
+    __metadata("design:type", Object)
+], UpdateUserDto.prototype, "image", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ example: 'John Doe' }),
     (0, class_validator_1.IsOptional)(),

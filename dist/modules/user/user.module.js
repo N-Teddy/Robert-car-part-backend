@@ -14,6 +14,7 @@ const user_service_1 = require("./user.service");
 const user_entity_1 = require("../../entities/user.entity");
 const notification_module_1 = require("../notification/notification.module");
 const auditlog_module_1 = require("../auditLog/auditlog.module");
+const upload_module_1 = require("../upload/upload.module");
 let UserModule = class UserModule {
 };
 exports.UserModule = UserModule;
@@ -23,6 +24,7 @@ exports.UserModule = UserModule = __decorate([
             typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]),
             notification_module_1.NotificationModule,
             auditlog_module_1.AuditLogModule,
+            upload_module_1.UploadModule
         ],
         controllers: [user_controller_1.UserController],
         providers: [user_service_1.UserService],

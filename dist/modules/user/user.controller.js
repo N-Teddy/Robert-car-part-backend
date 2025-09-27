@@ -22,6 +22,7 @@ const user_dto_1 = require("../../dto/request/user.dto");
 const user_dto_2 = require("../../dto/response/user.dto");
 const entity_enum_1 = require("../../common/enum/entity.enum");
 const roles_decorator_1 = require("../../common/decorator/roles.decorator");
+const platform_express_1 = require("@nestjs/platform-express");
 let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
@@ -29,8 +30,8 @@ let UserController = class UserController {
     async getProfile(req) {
         return await this.userService.getProfile(req.user.id);
     }
-    async updateProfile(req, dto) {
-        return await this.userService.updateProfile(req.user.id, dto);
+    async updateProfile(req, dto, image) {
+        return await this.userService.updateProfile(req.user.id, dto, image);
     }
     async assignRole(req, dto) {
         return await this.userService.assignRole(req.user.id, dto);
@@ -44,8 +45,8 @@ let UserController = class UserController {
     async getUserById(id) {
         return await this.userService.getUserById(id);
     }
-    async updateUser(req, id, dto) {
-        return await this.userService.updateUser(req.user.id, id, dto);
+    async updateUser(req, id, dto, image) {
+        return await this.userService.updateUser(req.user.id, id, dto, image);
     }
     async deleteUser(req, id) {
         return await this.userService.deleteUser(req.user.id, id);
@@ -63,12 +64,15 @@ __decorate([
 ], UserController.prototype, "getProfile", null);
 __decorate([
     (0, common_1.Put)('profile'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('image')),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiOperation)({ summary: 'Update current user profile' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: user_dto_2.UserProfileResponseDto }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, user_dto_1.UpdateProfileDto]),
+    __metadata("design:paramtypes", [Object, user_dto_1.UpdateProfileDto, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "updateProfile", null);
 __decorate([
@@ -114,13 +118,16 @@ __decorate([
 __decorate([
     (0, common_1.Put)(':id'),
     (0, roles_decorator_1.Roles)(entity_enum_1.UserRoleEnum.ADMIN, entity_enum_1.UserRoleEnum.MANAGER, entity_enum_1.UserRoleEnum.DEV),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('image')),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiOperation)({ summary: 'Update user by ID' }),
     (0, swagger_1.ApiResponse)({ status: 200, type: user_dto_2.UserResponseDto }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Param)('id')),
     __param(2, (0, common_1.Body)()),
+    __param(3, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, user_dto_1.UpdateUserDto]),
+    __metadata("design:paramtypes", [Object, String, user_dto_1.UpdateUserDto, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "updateUser", null);
 __decorate([

@@ -11,12 +11,15 @@ import {
 	Request,
 	HttpCode,
 	HttpStatus,
+	UseInterceptors,
+	UploadedFile,
 } from '@nestjs/common';
 import {
 	ApiTags,
 	ApiOperation,
 	ApiResponse,
 	ApiBearerAuth,
+	ApiConsumes,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -35,13 +38,14 @@ import {
 } from '../../dto/response/user.dto';
 import { UserRoleEnum } from '../../common/enum/entity.enum';
 import { Roles } from 'src/common/decorator/roles.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Users')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UserController {
-	constructor(private readonly userService: UserService) {}
+	constructor(private readonly userService: UserService) { }
 
 	@Get('profile')
 	@ApiOperation({ summary: 'Get current user profile' })
@@ -51,13 +55,16 @@ export class UserController {
 	}
 
 	@Put('profile')
+	@UseInterceptors(FileInterceptor('image'))
+	@ApiConsumes('multipart/form-data')
 	@ApiOperation({ summary: 'Update current user profile' })
 	@ApiResponse({ status: 200, type: UserProfileResponseDto })
 	async updateProfile(
 		@Request() req,
-		@Body() dto: UpdateProfileDto
+		@Body() dto: UpdateProfileDto,
+		@UploadedFile() image?: Express.Multer.File,
 	): Promise<UserProfileResponseDto> {
-		return await this.userService.updateProfile(req.user.id, dto);
+		return await this.userService.updateProfile(req.user.id, dto, image);
 	}
 
 	@Post('assign-role')
@@ -99,14 +106,18 @@ export class UserController {
 
 	@Put(':id')
 	@Roles(UserRoleEnum.ADMIN, UserRoleEnum.MANAGER, UserRoleEnum.DEV)
+	@UseInterceptors(FileInterceptor('image'))
+	@ApiConsumes('multipart/form-data')
 	@ApiOperation({ summary: 'Update user by ID' })
 	@ApiResponse({ status: 200, type: UserResponseDto })
 	async updateUser(
 		@Request() req,
 		@Param('id') id: string,
-		@Body() dto: UpdateUserDto
+		@Body() dto: UpdateUserDto,
+		@UploadedFile() image?: Express.Multer.File,
+
 	): Promise<UserResponseDto> {
-		return await this.userService.updateUser(req.user.id, id, dto);
+		return await this.userService.updateUser(req.user.id, id, dto, image);
 	}
 
 	@Delete(':id')

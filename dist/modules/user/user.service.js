@@ -21,10 +21,12 @@ const user_entity_1 = require("../../entities/user.entity");
 const entity_enum_1 = require("../../common/enum/entity.enum");
 const notification_service_1 = require("../notification/notification.service");
 const notification_enum_1 = require("../../common/enum/notification.enum");
+const upload_service_1 = require("../upload/upload.service");
 let UserService = UserService_1 = class UserService {
-    constructor(userRepository, notificationService) {
+    constructor(userRepository, notificationService, uploadService) {
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.uploadService = uploadService;
         this.logger = new common_1.Logger(UserService_1.name);
     }
     async getProfile(userId) {
@@ -46,7 +48,7 @@ let UserService = UserService_1 = class UserService {
             throw new common_1.BadRequestException('Failed to get profile');
         }
     }
-    async updateProfile(userId, dto) {
+    async updateProfile(userId, dto, imageFile) {
         try {
             const user = await this.userRepository.findOne({
                 where: { id: userId },
@@ -63,6 +65,9 @@ let UserService = UserService_1 = class UserService {
                 user.email = dto.email;
             user.updatedBy = userId;
             const updatedUser = await this.userRepository.save(user);
+            if (imageFile) {
+                await this.uploadService.uploadSingleImage(imageFile, entity_enum_1.ImageEnum.USER_PROFILE, updatedUser.id, userId);
+            }
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.PROFILE_UPDATED,
                 title: 'Password Changed',
@@ -86,17 +91,6 @@ let UserService = UserService_1 = class UserService {
             const admin = await this.userRepository.findOne({
                 where: { id: adminId },
             });
-            if (!admin) {
-                throw new common_1.NotFoundException('Admin user not found');
-            }
-            const allowedRoles = [
-                entity_enum_1.UserRoleEnum.ADMIN,
-                entity_enum_1.UserRoleEnum.MANAGER,
-                entity_enum_1.UserRoleEnum.DEV,
-            ];
-            if (!allowedRoles.includes(admin.role)) {
-                throw new common_1.ForbiddenException('You do not have permission to assign roles');
-            }
             const user = await this.userRepository.findOne({
                 where: { id: dto.userId },
                 relations: ['profileImage'],
@@ -208,16 +202,8 @@ let UserService = UserService_1 = class UserService {
             throw new common_1.BadRequestException('Failed to retrieve user');
         }
     }
-    async updateUser(adminId, userId, dto) {
+    async updateUser(adminId, userId, dto, imageFile) {
         try {
-            const admin = await this.userRepository.findOne({
-                where: { id: adminId },
-            });
-            if (!admin ||
-                (admin.role !== entity_enum_1.UserRoleEnum.ADMIN &&
-                    admin.role !== entity_enum_1.UserRoleEnum.MANAGER)) {
-                throw new common_1.ForbiddenException('Insufficient permissions');
-            }
             const user = await this.userRepository.findOne({
                 where: { id: userId },
                 relations: ['profileImage'],
@@ -237,6 +223,9 @@ let UserService = UserService_1 = class UserService {
                 user.isActive = dto.isActive;
             user.updatedBy = adminId;
             const updatedUser = await this.userRepository.save(user);
+            if (imageFile) {
+                await this.uploadService.uploadSingleImage(imageFile, entity_enum_1.ImageEnum.USER_PROFILE, updatedUser.id, userId);
+            }
             await this.notificationService.sendNotification({
                 type: notification_enum_1.NotificationEnum.USER_UPDATED,
                 title: 'User Updated',
@@ -258,12 +247,6 @@ let UserService = UserService_1 = class UserService {
     }
     async deleteUser(adminId, userId) {
         try {
-            const admin = await this.userRepository.findOne({
-                where: { id: adminId },
-            });
-            if (!admin || admin.role !== entity_enum_1.UserRoleEnum.ADMIN) {
-                throw new common_1.ForbiddenException('Only admins can delete users');
-            }
             const user = await this.userRepository.findOne({
                 where: { id: userId },
             });
@@ -354,6 +337,7 @@ exports.UserService = UserService = UserService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        notification_service_1.NotificationService])
+        notification_service_1.NotificationService,
+        upload_service_1.UploadService])
 ], UserService);
 //# sourceMappingURL=user.service.js.map

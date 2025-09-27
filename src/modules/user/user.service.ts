@@ -8,7 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../entities/user.entity';
-import { UserRoleEnum } from '../../common/enum/entity.enum';
+import { ImageEnum, UserRoleEnum } from '../../common/enum/entity.enum';
 import { NotificationService } from '../notification/notification.service';
 import {
 	NotificationEnum,
@@ -28,6 +28,7 @@ import {
 } from '../../dto/response/user.dto';
 import { UploadedImageResponseDto } from 'src/dto/response/upload.dto';
 import { Image } from 'src/entities/image.entity';
+import { UploadService } from '../upload/upload.service';
 
 @Injectable()
 export class UserService {
@@ -36,8 +37,9 @@ export class UserService {
 	constructor(
 		@InjectRepository(User)
 		private readonly userRepository: Repository<User>,
-		private readonly notificationService: NotificationService
-	) {}
+		private readonly notificationService: NotificationService,
+		private readonly uploadService: UploadService,
+	) { }
 
 	async getProfile(userId: string): Promise<UserProfileResponseDto> {
 		try {
@@ -62,7 +64,8 @@ export class UserService {
 
 	async updateProfile(
 		userId: string,
-		dto: UpdateProfileDto
+		dto: UpdateProfileDto,
+		imageFile?: Express.Multer.File
 	): Promise<UserProfileResponseDto> {
 		try {
 			const user = await this.userRepository.findOne({
@@ -82,6 +85,15 @@ export class UserService {
 			user.updatedBy = userId;
 
 			const updatedUser = await this.userRepository.save(user);
+
+			if (imageFile) {
+				await this.uploadService.uploadSingleImage(
+					imageFile,
+					ImageEnum.USER_PROFILE,
+					updatedUser.id,
+					userId
+				);
+			}
 
 			// Send notification
 			await this.notificationService.sendNotification({
@@ -112,22 +124,6 @@ export class UserService {
 			const admin = await this.userRepository.findOne({
 				where: { id: adminId },
 			});
-
-			if (!admin) {
-				throw new NotFoundException('Admin user not found');
-			}
-
-			// Check if admin has permission to assign roles
-			const allowedRoles = [
-				UserRoleEnum.ADMIN,
-				UserRoleEnum.MANAGER,
-				UserRoleEnum.DEV,
-			];
-			if (!allowedRoles.includes(admin.role)) {
-				throw new ForbiddenException(
-					'You do not have permission to assign roles'
-				);
-			}
 
 			// Get target user
 			const user = await this.userRepository.findOne({
@@ -274,22 +270,10 @@ export class UserService {
 	async updateUser(
 		adminId: string,
 		userId: string,
-		dto: UpdateUserDto
+		dto: UpdateUserDto,
+		imageFile?: Express.Multer.File
 	): Promise<UserResponseDto> {
 		try {
-			// Check admin permissions
-			const admin = await this.userRepository.findOne({
-				where: { id: adminId },
-			});
-
-			if (
-				!admin ||
-				(admin.role !== UserRoleEnum.ADMIN &&
-					admin.role !== UserRoleEnum.MANAGER)
-			) {
-				throw new ForbiddenException('Insufficient permissions');
-			}
-
 			const user = await this.userRepository.findOne({
 				where: { id: userId },
 				relations: ['profileImage'],
@@ -309,6 +293,16 @@ export class UserService {
 			user.updatedBy = adminId;
 
 			const updatedUser = await this.userRepository.save(user);
+
+			// Upload image if provided
+			if (imageFile) {
+				await this.uploadService.uploadSingleImage(
+					imageFile,
+					ImageEnum.USER_PROFILE,
+					updatedUser.id,
+					userId
+				);
+			}
 
 			await this.notificationService.sendNotification({
 				type: NotificationEnum.USER_UPDATED,
@@ -334,15 +328,6 @@ export class UserService {
 
 	async deleteUser(adminId: string, userId: string): Promise<any> {
 		try {
-			// Check admin permissions
-			const admin = await this.userRepository.findOne({
-				where: { id: adminId },
-			});
-
-			if (!admin || admin.role !== UserRoleEnum.ADMIN) {
-				throw new ForbiddenException('Only admins can delete users');
-			}
-
 			const user = await this.userRepository.findOne({
 				where: { id: userId },
 			});
