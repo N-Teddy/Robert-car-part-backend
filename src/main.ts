@@ -17,6 +17,7 @@ async function bootstrap() {
 			'http://localhost:5173', // Vite dev server
 			'http://localhost:3000', // Local backend
 			'https://robert-car-part-backend.vercel.app', // Your Vercel domain
+			'https://robert-car-part-frontend.vercel.app/',
 		],
 		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, OPTION',
 	});
