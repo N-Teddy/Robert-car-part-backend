@@ -9,11 +9,15 @@ async function bootstrap() {
     const configService = app.get(config_1.ConfigService);
     app.setGlobalPrefix('api');
     app.enableCors({
-        origin: '*',
+        origin: [
+            'http://localhost:5173',
+            'http://localhost:3000',
+            'https://robert-car-part-backend.vercel.app',
+        ],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, OPTION',
     });
     (0, swagger_cofig_1.setupSwagger)(app);
-    await app.listen(configService.get('PORT', 3000), '0.0.0.0');
+    await app.listen(configService.get('PORT', 3000));
     console.log('Swagger Doc: http://localhost:3000/api/docs');
     console.log('API : http://localhost:3000/api/');
     console.log('WebSocket : ws://localhost:3000/notifications');

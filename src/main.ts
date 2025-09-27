@@ -15,7 +15,7 @@ async function bootstrap() {
 	app.enableCors({
 		origin: [
 			'http://localhost:5173', // Vite dev server
-			'http://localhost:3000', // Local frontend
+			'http://localhost:3000', // Local backend
 			'https://robert-car-part-backend.vercel.app', // Your Vercel domain
 		],
 		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, OPTION',
@@ -24,7 +24,7 @@ async function bootstrap() {
 	// Swagger Setup
 	setupSwagger(app);
 
-	await app.listen(configService.get<number>('PORT', 3000), '0.0.0.0');
+	await app.listen(configService.get<number>('PORT', 3000));
 	console.log('Swagger Doc: http://localhost:3000/api/docs');
 	console.log('API : http://localhost:3000/api/');
 	console.log('WebSocket : ws://localhost:3000/notifications');
