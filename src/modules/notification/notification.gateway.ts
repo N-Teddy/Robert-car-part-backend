@@ -12,7 +12,7 @@ import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { Logger } from '@nestjs/common';
 
-@WebSocketGateway(3001, { // Use a different port for WebSocket or same as HTTP
+@WebSocketGateway(3000, { // Use a different port for WebSocket or same as HTTP
 	cors: {
 		origin: [
 			'http://localhost:5173',
