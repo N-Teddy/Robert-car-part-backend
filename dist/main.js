@@ -13,6 +13,7 @@ async function bootstrap() {
             'http://localhost:5173',
             'http://localhost:3000',
             'https://robert-car-part-backend.vercel.app',
+            'https://robert-car-part-frontend.vercel.app',
         ],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, OPTION',
     });
