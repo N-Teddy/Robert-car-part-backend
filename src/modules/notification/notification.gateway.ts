@@ -17,7 +17,7 @@ import { Logger } from '@nestjs/common';
 		origin: [
 			'http://localhost:5173',
 			'https://robert-car-part-backend.vercel.app',
-			'https://robert-car-part-frontend.vercel.app/',
+			'https://robert-car-part-frontend.vercel.app',
 			process.env.FRONTEND_URL || 'http://localhost:5173'
 		],
 		credentials: true,
