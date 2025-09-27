@@ -335,6 +335,8 @@ let AuthService = AuthService_1 = class AuthService {
             sub: user.id,
             email: user.email,
             role: user.role,
+            fullName: user.fullName,
+            phoneNumber: user.phoneNumber,
         };
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload),
