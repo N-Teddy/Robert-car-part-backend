@@ -11,6 +11,7 @@ import {
 	HttpStatus,
 	UseInterceptors,
 	ClassSerializerInterceptor,
+	Req,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ReportService } from './report.service';
@@ -41,9 +42,10 @@ export class ReportController {
 		type: ReportResponseDto,
 	})
 	async create(
-		@Body() generateReportDto: GenerateReportDto
+		@Body() generateReportDto: GenerateReportDto,
+		@Req() req: any
 	): Promise<ReportResponseDto> {
-		return this.reportService.generateReport(generateReportDto);
+		return this.reportService.generateReport(generateReportDto, req.user.id);
 	}
 
 	@Get()

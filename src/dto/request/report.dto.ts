@@ -21,11 +21,6 @@ export class GenerateReportDto {
 	@IsDateString()
 	@IsOptional()
 	endDate?: Date;
-
-	@ApiPropertyOptional()
-	@IsString()
-	@IsOptional()
-	generatedBy?: string;
 }
 
 export class ReportQueryDto {

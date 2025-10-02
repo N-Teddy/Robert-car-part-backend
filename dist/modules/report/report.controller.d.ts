@@ -5,7 +5,7 @@ import { ReportResponseDto, ReportStatsResponseDto } from 'src/dto/response/repo
 export declare class ReportController {
     private readonly reportService;
     constructor(reportService: ReportService);
-    create(generateReportDto: GenerateReportDto): Promise<ReportResponseDto>;
+    create(generateReportDto: GenerateReportDto, req: any): Promise<ReportResponseDto>;
     findAll(query: ReportQueryDto): Promise<{
         data: ReportResponseDto[];
         total: number;

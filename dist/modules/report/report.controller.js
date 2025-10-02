@@ -22,8 +22,8 @@ let ReportController = class ReportController {
     constructor(reportService) {
         this.reportService = reportService;
     }
-    async create(generateReportDto) {
-        return this.reportService.generateReport(generateReportDto);
+    async create(generateReportDto, req) {
+        return this.reportService.generateReport(generateReportDto, req.user.id);
     }
     async findAll(query) {
         return this.reportService.findAll(query);
@@ -63,8 +63,9 @@ __decorate([
         type: report_dto_2.ReportResponseDto,
     }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [report_dto_1.GenerateReportDto]),
+    __metadata("design:paramtypes", [report_dto_1.GenerateReportDto, Object]),
     __metadata("design:returntype", Promise)
 ], ReportController.prototype, "create", null);
 __decorate([

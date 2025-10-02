@@ -90,7 +90,7 @@ export class ReportService {
 				startDate,
 				endDate,
 				data: reportData,
-				generatedBy: userId || dto.generatedBy,
+				generatedBy: userId,
 			});
 
 			const savedReport = await this.reportRepository.save(report);
