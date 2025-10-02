@@ -38,12 +38,6 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Date)
 ], GenerateReportDto.prototype, "endDate", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], GenerateReportDto.prototype, "generatedBy", void 0);
 class ReportQueryDto {
 }
 exports.ReportQueryDto = ReportQueryDto;

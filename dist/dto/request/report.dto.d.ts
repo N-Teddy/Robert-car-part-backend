@@ -4,7 +4,6 @@ export declare class GenerateReportDto {
     period: ReportPeriodEnum;
     startDate?: Date;
     endDate?: Date;
-    generatedBy?: string;
 }
 export declare class ReportQueryDto {
     type?: ReportTypeEnum;
