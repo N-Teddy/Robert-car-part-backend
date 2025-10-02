@@ -12,6 +12,7 @@ import {
 	UseInterceptors,
 	ClassSerializerInterceptor,
 	Req,
+	UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ReportService } from './report.service';
@@ -26,9 +27,12 @@ import {
 	ApiResponse,
 	ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @ApiTags('reports')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('reports')
 @UseInterceptors(ClassSerializerInterceptor)
 export class ReportController {
