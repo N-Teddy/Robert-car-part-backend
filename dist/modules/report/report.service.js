@@ -96,6 +96,7 @@ let ReportService = ReportService_1 = class ReportService {
             const [reports, total] = await this.reportRepository.findAndCount({
                 where,
                 order: { createdAt: 'DESC' },
+                relations: ['generatedBy'],
             });
             const data = reports.map(report_dto_1.ReportResponseDto.fromEntity);
             return { data, total };
@@ -109,6 +110,7 @@ let ReportService = ReportService_1 = class ReportService {
         try {
             const report = await this.reportRepository.findOne({
                 where: { id },
+                relations: ['generatedBy'],
             });
             if (!report) {
                 throw new common_1.NotFoundException(`Report with ID ${id} not found`);

@@ -129,6 +129,7 @@ export class ReportService {
 			const [reports, total] = await this.reportRepository.findAndCount({
 				where,
 				order: { createdAt: 'DESC' },
+				relations: ['generatedBy'],
 			});
 
 			const data = reports.map(ReportResponseDto.fromEntity);
@@ -143,6 +144,7 @@ export class ReportService {
 		try {
 			const report = await this.reportRepository.findOne({
 				where: { id },
+				relations: ['generatedBy'],
 			});
 
 			if (!report) {
