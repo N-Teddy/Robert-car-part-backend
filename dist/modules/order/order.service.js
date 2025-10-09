@@ -132,6 +132,7 @@ let OrdersService = class OrdersService {
                 'items.part',
                 'items.part.vehicle',
                 'items.part.category',
+                'items.part.images'
             ],
             order: { [sortBy]: sortOrder },
             skip,
