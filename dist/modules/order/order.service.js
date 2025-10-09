@@ -440,7 +440,12 @@ let OrdersService = class OrdersService {
                             name: item.part.category.name,
                         }
                         : undefined,
-                    images: item.part.images,
+                    images: item.part?.images?.map((img) => ({
+                        id: img.id,
+                        url: img.url,
+                        publicId: img.publicId,
+                        format: img.format,
+                    })) || [],
                     vehicleId: item.part?.vehicle?.id,
                     categoryId: item.part?.category?.id,
                     createdAt: item.part?.createdAt,

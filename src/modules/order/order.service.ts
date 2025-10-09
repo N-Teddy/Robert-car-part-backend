@@ -645,13 +645,12 @@ export class OrdersService {
 									name: item.part.category.name,
 								}
 							: undefined,
-						images: item.part.images,
-						// 	.map((image) => ({
-						// 	id: image.id,
-						// 	url: image.url,
-						// 	publicId: image.publicId,
-						// 	format: image.format,
-						// })),
+						images: item.part?.images?.map((img) => ({
+							id: img.id,
+							url: img.url,
+							publicId: img.publicId,
+							format: img.format,
+						})) || [],
 						vehicleId: item.part?.vehicle?.id,
 						categoryId: item.part?.category?.id,
 						createdAt: item.part?.createdAt,
