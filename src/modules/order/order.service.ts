@@ -263,6 +263,8 @@ export class OrdersService {
 			const order = await this.findOneEntity(id);
 			const previousStatus = order.status;
 
+			const { items, ...orderUpdateData } = updateOrderDto;
+
 			// If status is changing to/from COMPLETED, we need to update vehicle profits
 			const shouldUpdateProfits =
 				(updateOrderDto.status === OrderStatusEnum.COMPLETED &&
@@ -275,6 +277,22 @@ export class OrdersService {
 				...updateOrderDto,
 				updatedBy: userId,
 			});
+
+			if (items && items.length > 0) {
+				// Remove existing items
+				await queryRunner.manager.delete(OrderItem, { order: { id } });
+
+				// Create new items
+				const orderItems = items.map(item =>
+					queryRunner.manager.create(OrderItem, {
+						...item,
+						order: { id },
+						part: { id: item.partId }
+					})
+				);
+
+				await queryRunner.manager.save(OrderItem, orderItems);
+			}
 
 			// Update vehicle profits if needed
 			if (shouldUpdateProfits) {
