@@ -168,6 +168,7 @@ let OrdersService = class OrdersService {
         try {
             const order = await this.findOneEntity(id);
             const previousStatus = order.status;
+            const { items, ...orderUpdateData } = updateOrderDto;
             const shouldUpdateProfits = (updateOrderDto.status === entity_enum_1.OrderStatusEnum.COMPLETED &&
                 previousStatus !== entity_enum_1.OrderStatusEnum.COMPLETED) ||
                 (previousStatus === entity_enum_1.OrderStatusEnum.COMPLETED &&
@@ -177,6 +178,15 @@ let OrdersService = class OrdersService {
                 ...updateOrderDto,
                 updatedBy: userId,
             });
+            if (items && items.length > 0) {
+                await queryRunner.manager.delete(order_item_entity_1.OrderItem, { order: { id } });
+                const orderItems = items.map(item => queryRunner.manager.create(order_item_entity_1.OrderItem, {
+                    ...item,
+                    order: { id },
+                    part: { id: item.partId }
+                }));
+                await queryRunner.manager.save(order_item_entity_1.OrderItem, orderItems);
+            }
             if (shouldUpdateProfits) {
                 const vehicleProfitMap = new Map();
                 for (const item of order.items) {
