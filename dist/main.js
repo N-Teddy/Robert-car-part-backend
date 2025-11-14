@@ -14,6 +14,8 @@ async function bootstrap() {
             'http://localhost:3000',
             'https://robert-car-part-backend.vercel.app',
             'https://robert-car-part-frontend.vercel.app',
+            'tauri://localhost',
+            'https://tauri.localhost'
         ],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, OPTION',
     });

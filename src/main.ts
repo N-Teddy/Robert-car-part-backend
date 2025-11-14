@@ -14,10 +14,12 @@ async function bootstrap() {
 	// Enable CORS
 	app.enableCors({
 		origin: [
-			'http://localhost:5173', // Vite dev server
-			'http://localhost:3000', // Local backend
-			'https://robert-car-part-backend.vercel.app', // Your Vercel domain
+			'http://localhost:5173',
+			'http://localhost:3000',
+			'https://robert-car-part-backend.vercel.app',
 			'https://robert-car-part-frontend.vercel.app',
+			'tauri://localhost',
+			'https://tauri.localhost'
 		],
 		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, OPTION',
 	});
