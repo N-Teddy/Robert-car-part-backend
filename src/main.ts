@@ -22,7 +22,7 @@ async function bootstrap() {
 			'https://tauri.localhost',
 			'capacitor://localhost',
 			'http://localhost:8100',
-			'http://localhost',
+			'https://localhost',
 			'ionic://localhost'
 		],
 		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, OPTION',

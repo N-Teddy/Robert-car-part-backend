@@ -19,6 +19,7 @@ async function bootstrap() {
             'capacitor://localhost',
             'http://localhost:8100',
             'http://localhost',
+            'ionic://localhost'
         ],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, OPTION',
     });
